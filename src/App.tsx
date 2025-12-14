@@ -1,4 +1,3 @@
-import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { StartupsProvider } from './context/StartupsContext';
 import Layout from './components/Layout';
@@ -8,7 +7,7 @@ import StatsPage from './pages/StatsPage';
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={import.meta.env.BASE_URL}>
       <StartupsProvider>
         <Routes>
           <Route path="/" element={<Layout />}>

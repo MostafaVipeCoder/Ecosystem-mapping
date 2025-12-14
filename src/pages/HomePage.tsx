@@ -1,13 +1,10 @@
 import { useState, useMemo } from 'react';
 import { useStartups } from '../context/StartupsContext';
 import {
-    Search,
-    Filter,
     MapPin,
     Users,
     DollarSign,
     Briefcase,
-    ChevronDown,
     Building2,
     Calendar,
     Phone,
@@ -17,21 +14,19 @@ import {
     Target,
     Loader2,
     RefreshCcw,
-    X
+    X,
+    Filter
 } from 'lucide-react';
 
 import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '../components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
-import { Sheet, SheetContent, SheetTitle, SheetDescription } from '../components/ui/sheet';
-import { Checkbox } from '../components/ui/checkbox';
-import { Slider } from '../components/ui/slider';
+import { Sheet, SheetContent, SheetTitle, SheetDescription, SheetTrigger } from '../components/ui/sheet';
 import { Separator } from '../components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '../components/ui/collapsible';
 import { Startup } from '../types';
 import { formatCurrency } from '../utils/api';
+import FilterSidebar from '../components/FilterSidebar';
 
 // --- Components ---
 const StartupDetails = ({ startup, open, onOpenChange }: { startup: Startup | null, open: boolean, onOpenChange: (open: boolean) => void }) => {
@@ -256,7 +251,7 @@ const StartupDetails = ({ startup, open, onOpenChange }: { startup: Startup | nu
 
 function StartupCard({ startup, onClick }: { startup: Startup, onClick: () => void }) {
     return (
-        <Card className="group hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer border-slate-200 hover:border-primary/50 overflow-hidden flex flex-col h-full" onClick={onClick}>
+        <Card className="group hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer border-slate-200 hover:border-primary/50 overflow-hidden flex flex-col h-full bg-white" onClick={onClick}>
             <div className="h-1.5 bg-gradient-to-r from-blue-500 to-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
 
             <CardHeader className="space-y-4 p-5 pb-2">
@@ -325,25 +320,6 @@ function StartupCard({ startup, onClick }: { startup: Startup, onClick: () => vo
     );
 }
 
-const FilterSection = ({ title, children, isOpen = true }: { title: string, children: React.ReactNode, isOpen?: boolean }) => {
-    const [open, setOpen] = useState(isOpen);
-    return (
-        <Collapsible open={open} onOpenChange={setOpen} className="space-y-2">
-            <div className="flex items-center justify-between">
-                <h4 className="text-sm font-semibold text-slate-900">{title}</h4>
-                <CollapsibleTrigger asChild>
-                    <Button variant="ghost" size="sm" className="h-6 w-6 p-0 hover:bg-slate-100">
-                        <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
-                    </Button>
-                </CollapsibleTrigger>
-            </div>
-            <CollapsibleContent className="space-y-2">
-                {children}
-            </CollapsibleContent>
-        </Collapsible>
-    );
-};
-
 export default function HomePage() {
     const { startups, availableIndustries, isLoading, error, refetch } = useStartups();
 
@@ -355,6 +331,9 @@ export default function HomePage() {
     const [selectedIndustries, setSelectedIndustries] = useState<string[]>([]);
     const [employeeRange, setEmployeeRange] = useState<number[]>([0, 200]);
     const [revenueRange, setRevenueRange] = useState<number[]>([0, 5000000]);
+
+    // Mobile Filter Sheet State
+    const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
 
     // Filter Logic
     const filteredStartups = useMemo(() => {
@@ -371,12 +350,11 @@ export default function HomePage() {
         });
     }, [startups, searchQuery, selectedIndustries, employeeRange, revenueRange]);
 
-    const toggleIndustry = (industry: string) => {
-        setSelectedIndustries(prev =>
-            prev.includes(industry)
-                ? prev.filter(i => i !== industry)
-                : [...prev, industry]
-        );
+    const handleReset = () => {
+        setSearchQuery('');
+        setSelectedIndustries([]);
+        setEmployeeRange([0, 200]);
+        setRevenueRange([0, 5000000]);
     };
 
     const handleCardClick = (startup: Startup) => {
@@ -408,182 +386,115 @@ export default function HomePage() {
                         <RefreshCcw className="h-4 w-4" />
                         إعادة المحاولة
                     </Button>
-                    <div className="bg-blue-50 border border-blue-200 p-4 rounded-md text-right text-sm max-w-lg mt-4">
-                        <p className="font-semibold text-blue-900 mb-2">💡 نصائح لحل المشكلة:</p>
-                        <ul className="text-blue-800 space-y-1 text-xs list-disc list-inside">
-                            <li>افتح Developer Console (F12) وشوف الـ logs التفصيلية</li>
-                            <li>تأكد من أن رابط Google Apps Script صحيح</li>
-                            <li>تأكد من نشر Google Script كـ Web App</li>
-                            <li>تأكد من أن الصلاحيات مضبوطة على "Anyone"</li>
-                        </ul>
-                    </div>
                 </div>
             </div>
         );
     }
 
+    const filterProps = {
+        searchQuery,
+        setSearchQuery,
+        availableIndustries,
+        selectedIndustries,
+        setSelectedIndustries,
+        employeeRange,
+        setEmployeeRange,
+        revenueRange,
+        setRevenueRange,
+        onReset: handleReset
+    };
+
     return (
-        <div className="container px-4 md:px-8 py-8 mx-auto">
-            <div className="flex flex-col lg:flex-row gap-8">
-                {/* Sidebar Filters */}
-                <aside className="w-full lg:w-64 shrink-0">
-                    <div className="sticky top-16 h-[calc(100vh-4rem)] pt-4 pb-4">
-                        <Card className="shadow-sm border-slate-200 h-full flex flex-col">
-                            <CardHeader className="shrink-0 p-4 pb-2 flex flex-row items-center justify-between space-y-0">
-                                <CardTitle className="text-base flex items-center gap-2">
-                                    <Filter className="h-4 w-4" />
-                                    تصفية النتائج
-                                </CardTitle>
-                                {(selectedIndustries.length > 0 || employeeRange[0] > 0 || revenueRange[0] > 0) && (
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        className="h-auto p-1 text-xs text-red-500 hover:text-red-600 hover:bg-red-50"
-                                        onClick={() => {
-                                            setSelectedIndustries([]);
-                                            setEmployeeRange([0, 200]);
-                                            setRevenueRange([0, 5000000]);
-                                        }}
-                                    >
-                                        مسح
+        <>
+            {/* Fixed Top Bar - Always Visible */}
+            <div className="fixed top-16 left-0 right-0 z-20 bg-white border-b shadow-sm">
+                <div className="px-6 py-3">
+                    <div className="flex items-center justify-between gap-4">
+                        {/* Mobile Filter Button - Hidden on Desktop */}
+                        <div className="block lg:hidden">
+                            <Sheet open={isFilterSheetOpen} onOpenChange={setIsFilterSheetOpen}>
+                                <SheetTrigger asChild>
+                                    <Button variant="outline" size="sm" className="gap-2">
+                                        <Filter className="h-4 w-4" />
+                                        <span>تصفية</span>
+                                        {(selectedIndustries.length > 0) && (
+                                            <Badge variant="secondary" className="h-5 px-1.5 text-[10px]">{selectedIndustries.length}</Badge>
+                                        )}
                                     </Button>
-                                )}
-                            </CardHeader>
-                            <Separator className="shrink-0" />
-                            <CardContent className="p-4 space-y-5 overflow-y-auto custom-scrollbar">
-                                {/* Search */}
-                                <div className="space-y-2">
-                                    <h4 className="text-sm font-semibold text-slate-900">البحث</h4>
-                                    <div className="relative">
-                                        <Search className="absolute right-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                                        <Input
-                                            placeholder="اسم الشركة أو المدير..."
-                                            className="pr-9"
-                                            value={searchQuery}
-                                            onChange={(e) => setSearchQuery(e.target.value)}
-                                        />
-                                    </div>
-                                </div>
+                                </SheetTrigger>
+                                <SheetContent side="right" className="p-0 w-[300px]">
+                                    <FilterSidebar className="h-full border-none" {...filterProps} />
+                                </SheetContent>
+                            </Sheet>
+                        </div>
 
-                                <Separator className="bg-slate-100" />
-
-                                {/* Industries */}
-                                <FilterSection title="القطاع">
-                                    <div className="w-full rounded-md border p-2 max-h-64 overflow-y-auto">
-                                        <div className="space-y-2">
-                                            {availableIndustries.map((industry) => (
-                                                <div key={industry} className="flex items-center space-x-2 space-x-reverse">
-                                                    <Checkbox
-                                                        id={industry}
-                                                        checked={selectedIndustries.includes(industry)}
-                                                        onCheckedChange={() => toggleIndustry(industry)}
-                                                        className="h-4 w-4"
-                                                    />
-                                                    <label
-                                                        htmlFor={industry}
-                                                        className="text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer pt-0.5"
-                                                    >
-                                                        {industry}
-                                                    </label>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                </FilterSection>
-
-                                <Separator className="bg-slate-100" />
-
-                                {/* Employees */}
-                                <FilterSection title="عدد الموظفين">
-                                    <div className="space-y-3 pt-1">
-                                        <div className="flex items-center justify-between text-xs text-muted-foreground">
-                                            <span>{employeeRange[0]}</span>
-                                            <span>{employeeRange[1]}+</span>
-                                        </div>
-                                        <Slider
-                                            defaultValue={[0, 200]}
-                                            value={employeeRange}
-                                            max={200}
-                                            step={10}
-                                            onValueChange={setEmployeeRange}
-                                            className="py-1"
-                                        />
-                                    </div>
-                                </FilterSection>
-
-                                <Separator className="bg-slate-100" />
-
-                                {/* Revenue */}
-                                <FilterSection title="العوائد (سنوي)">
-                                    <div className="space-y-3 pt-1">
-                                        <div className="flex items-center justify-between text-xs text-muted-foreground">
-                                            <span>{formatCurrency(revenueRange[0])}</span>
-                                            <span>{formatCurrency(revenueRange[1])}+</span>
-                                        </div>
-                                        <Slider
-                                            defaultValue={[0, 5000000]}
-                                            value={revenueRange}
-                                            max={5000000}
-                                            step={100000}
-                                            onValueChange={setRevenueRange}
-                                            className="py-1"
-                                        />
-                                    </div>
-                                </FilterSection>
-                            </CardContent>
-                        </Card>
-                    </div>
-                </aside>
-
-                {/* Main Content */}
-                <main className="flex-1">
-                    <div className="mb-4 flex items-center justify-between">
-                        <p className="text-sm text-muted-foreground">
-                            عرض <span className="font-bold text-foreground">{filteredStartups.length}</span> شركة
-                        </p>
-                    </div>
-
-                    {filteredStartups.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center py-20 text-center bg-white rounded-xl border border-dashed">
-                            <div className="bg-muted p-4 rounded-full mb-4">
-                                <Search className="h-8 w-8 text-muted-foreground" />
-                            </div>
-                            <h3 className="font-semibold text-lg mb-2">لا توجد نتائج</h3>
-                            <p className="text-muted-foreground max-w-sm">
-                                لم نتمكن من العثور على شركات تطابق معايير البحث الخاصة بك. حاول تعديل الفلاتر.
+                        {/* Results Count & Title */}
+                        <div className="flex-1">
+                            <h1 className="text-xl font-bold text-slate-900">الشركات الناشئة</h1>
+                            <p className="text-sm text-muted-foreground">
+                                <span className="font-semibold text-primary">{filteredStartups.length}</span> شركة متاحة
                             </p>
-                            <Button
-                                variant="outline"
-                                className="mt-6"
-                                onClick={() => {
-                                    setSearchQuery('');
-                                    setSelectedIndustries([]);
-                                    setEmployeeRange([0, 200]);
-                                    setRevenueRange([0, 5000000]);
-                                }}
-                            >
-                                مسح جميع الفلاتر
+                        </div>
+
+                        {/* Sort Options - Visible on Desktop */}
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <span>ترتيب حسب:</span>
+                            <Button variant="ghost" size="sm" className="h-8 text-xs">
+                                الأحدث
                             </Button>
                         </div>
-                    ) : (
-                        <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-                            {filteredStartups.map((startup, index) => (
-                                <StartupCard
-                                    key={startup.id || `startup-${index}`}
-                                    startup={startup}
-                                    onClick={() => handleCardClick(startup)}
-                                />
-                            ))}
+                    </div>
+                </div>
+            </div>
+
+            {/* Main Layout Container - Below Fixed Top Bar */}
+            <div className="fixed top-[calc(4rem+57px)] left-0 right-0 bottom-0 flex">
+                {/* Fixed Sidebar - Always Visible on Desktop, Hidden on Mobile */}
+                <aside className="w-72 border-l bg-white overflow-hidden shrink-0 hidden lg:block">
+                    <FilterSidebar className="h-full" {...filterProps} />
+                </aside>
+
+                {/* Scrollable Main Content */}
+                <main className="flex-1 overflow-y-auto bg-slate-50/30">
+                    <div className="p-8">
+                        <div className="max-w-[1600px] mx-auto">
+                            {filteredStartups.length === 0 ? (
+                                <div className="flex flex-col items-center justify-center py-20 text-center bg-white rounded-xl border border-dashed min-h-[400px]">
+                                    <div className="bg-slate-100 p-6 rounded-full mb-4">
+                                        <Target className="h-12 w-12 text-slate-400" />
+                                    </div>
+                                    <h3 className="font-bold text-xl mb-2 text-slate-900">لا توجد نتائج</h3>
+                                    <p className="text-muted-foreground max-w-sm mb-6">
+                                        لم نتمكن من العثور على شركات تطابق معايير البحث الخاصة بك.
+                                    </p>
+                                    <Button variant="outline" onClick={handleReset} className="gap-2">
+                                        <RefreshCcw className="h-4 w-4" />
+                                        مسح جميع الفلاتر
+                                    </Button>
+                                </div>
+                            ) : (
+                                <div className="grid gap-5 grid-cols-3 lg:grid-cols-2 md:grid-cols-1">
+                                    {filteredStartups.map((startup, index) => (
+                                        <StartupCard
+                                            key={startup.id || `startup-${index}`}
+                                            startup={startup}
+                                            onClick={() => handleCardClick(startup)}
+                                        />
+                                    ))}
+                                </div>
+                            )}
                         </div>
-                    )}
+                    </div>
                 </main>
             </div>
 
+            {/* Startup Details Sheet */}
             <StartupDetails
                 startup={selectedStartup}
                 open={isDetailsOpen}
                 onOpenChange={setIsDetailsOpen}
             />
-        </div>
+        </>
     );
 }
+
