@@ -12,7 +12,7 @@ export default function StatsPage() {
     const stats = useMemo(() => {
         if (startups.length === 0) return null;
 
-        // إجمالي الإحصائيات
+        // إجمالي الإحصائياتee
         const totalStartups = startups.length;
         const totalEmployees = startups.reduce((sum, s) => sum + (s.employees || 0), 0);
         const totalRevenue = startups.reduce((sum, s) => sum + (s.revenue || 0), 0);
