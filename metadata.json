@@ -1,5 +1,0 @@
-{
-  "name": "Startup Ecosystem Mapping Tool",
-  "description": "An interactive map to visualize and filter startup data. Users can explore startups on a map, view detailed information, and apply various filters like location, revenue, sector, and founder demographics.",
-  "requestFramePermissions": []
-}
