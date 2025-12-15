@@ -3,7 +3,7 @@ import { useStartups } from '../context/StartupsContext';
 import {
     MapPin,
     Users,
-    DollarSign,
+    Banknote,
     Briefcase,
     Building2,
     Calendar,
@@ -15,7 +15,8 @@ import {
     Loader2,
     RefreshCcw,
     X,
-    Filter
+    Filter,
+    ArrowRight
 } from 'lucide-react';
 
 import { Button } from '../components/ui/button';
@@ -39,6 +40,19 @@ const StartupDetails = ({ startup, open, onOpenChange }: { startup: Startup | nu
                 <div className="bg-slate-900 text-white p-6 relative overflow-hidden shrink-0">
                     <div className="absolute top-0 left-0 w-full h-full opacity-10 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-blue-400 via-transparent to-transparent"></div>
                     <div className="relative z-10">
+                        {/* Back Button */}
+                        <div className="mb-4">
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => onOpenChange(false)}
+                                className="text-slate-300 hover:text-white hover:bg-white/10 -mr-3 gap-2 px-3"
+                            >
+                                <ArrowRight className="h-5 w-5" />
+                                <span>رجوع للقائمة</span>
+                            </Button>
+                        </div>
+
                         <div className="flex justify-between items-start mb-4">
                             <Badge variant="secondary" className="bg-blue-500/20 text-blue-100 hover:bg-blue-500/30 border-0">
                                 {startup.industry}
@@ -290,7 +304,7 @@ function StartupCard({ startup, onClick }: { startup: Startup, onClick: () => vo
 
                 <div className="flex items-center gap-2 bg-slate-50 p-2.5 rounded-lg border border-slate-100 group-hover:border-blue-100 transition-colors">
                     <div className="h-8 w-8 rounded-full bg-white border shadow-sm flex items-center justify-center shrink-0 text-green-600">
-                        <DollarSign size={16} />
+                        <Banknote size={16} />
                     </div>
                     <div className="flex flex-col">
                         <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">العوائد السنوية</span>
