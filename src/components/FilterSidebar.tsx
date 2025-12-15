@@ -21,6 +21,12 @@ interface FilterSidebarProps {
     setEmployeeRange: (range: number[]) => void;
     revenueRange: number[];
     setRevenueRange: (range: number[]) => void;
+    searchPlaceholder?: string;
+    industryLabel?: string;
+    employeesLabel?: string;
+    revenueLabel?: string;
+    resetLabel?: string;
+    filterTitle?: string;
     onReset: () => void;
 }
 
@@ -67,7 +73,13 @@ export function FilterSidebar({
     setEmployeeRange,
     revenueRange,
     setRevenueRange,
-    onReset
+    onReset,
+    searchPlaceholder = "ابحث باسم الشركة...",
+    industryLabel = "القطاع",
+    employeesLabel = "حجم الفريق",
+    revenueLabel = "العوائد السنوية",
+    resetLabel = "إعادة تعيين",
+    filterTitle = "تصفية النتائج"
 }: FilterSidebarProps) {
 
     const [industrySearch, setIndustrySearch] = useState('');
@@ -95,7 +107,7 @@ export function FilterSidebar({
             <div className="p-5 border-b sticky top-0 bg-white/95 backdrop-blur z-10 flex items-center justify-between">
                 <div className="flex items-center gap-2 text-slate-800">
                     <Filter className="h-4 w-4 text-primary" />
-                    <h3 className="font-bold">تصفية النتائج</h3>
+                    <h3 className="font-bold">{filterTitle}</h3>
                 </div>
                 {activeFiltersCount > 0 && (
                     <Button
@@ -105,7 +117,7 @@ export function FilterSidebar({
                         className="h-8 px-2 text-xs text-muted-foreground hover:text-red-600 hover:bg-red-50 gap-1.5"
                     >
                         <RotateCcw className="h-3 w-3" />
-                        إعادة تعيين
+                        {resetLabel}
                     </Button>
                 )}
             </div>
@@ -117,7 +129,7 @@ export function FilterSidebar({
                         <div className="relative">
                             <Search className="absolute right-3 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
                             <Input
-                                placeholder="ابحث باسم الشركة..."
+                                placeholder={searchPlaceholder}
                                 className="pr-9 h-10 bg-slate-50 border-slate-200 focus-visible:ring-primary/20 focus-visible:border-primary transition-all rounded-xl"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -128,7 +140,7 @@ export function FilterSidebar({
                     <Separator className="bg-slate-100" />
 
                     {/* Industries Section */}
-                    <FilterSection title="القطاع" count={selectedIndustries.length}>
+                    <FilterSection title={industryLabel} count={selectedIndustries.length}>
                         {availableIndustries.length > 5 && (
                             <Input
                                 placeholder="بحث في القطاعات..."
@@ -166,7 +178,7 @@ export function FilterSidebar({
                     <Separator className="bg-slate-100" />
 
                     {/* Employees Section */}
-                    <FilterSection title="حجم الفريق">
+                    <FilterSection title={employeesLabel}>
                         <div className="pt-2 px-1">
                             <div className="flex items-center justify-between mb-4">
                                 <div className="border rounded-md px-2 py-1 bg-slate-50 min-w-[60px] text-center">
@@ -196,7 +208,7 @@ export function FilterSidebar({
                     <Separator className="bg-slate-100" />
 
                     {/* Revenue Section */}
-                    <FilterSection title="العوائد السنوية">
+                    <FilterSection title={revenueLabel}>
                         <div className="pt-2 px-1">
                             <div className="flex items-center justify-between mb-4">
                                 <Badge variant="outline" className="bg-slate-50 font-normal text-slate-600 border-slate-200">
