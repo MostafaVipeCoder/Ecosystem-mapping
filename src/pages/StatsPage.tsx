@@ -1,5 +1,4 @@
 import { useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
 import { useStartups } from '../context/StartupsContext';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { BarChart3, Briefcase, Building2, DollarSign, MapPin, RefreshCcw, TrendingUp, Users, X, Loader2 } from 'lucide-react';
@@ -9,7 +8,6 @@ import { SimplePieChart } from "../components/charts/SimplePieChart";
 
 export default function StatsPage() {
     const { startups, isLoading, error, refetch } = useStartups();
-    const { t } = useTranslation();
 
     const stats = useMemo(() => {
         if (startups.length === 0) return null;
@@ -140,7 +138,7 @@ export default function StatsPage() {
             <div className="container px-4 md:px-8 py-12 mx-auto">
                 <div className="flex flex-col items-center justify-center h-64 space-y-4">
                     <Loader2 className="h-10 w-10 animate-spin text-primary" />
-                    <p className="text-muted-foreground">{t('stats.loading')}</p>
+                    <p className="text-muted-foreground">جاري تحميل الإحصائيات...</p>
                 </div>
             </div>
         );
@@ -153,11 +151,11 @@ export default function StatsPage() {
                     <div className="bg-red-50 p-4 rounded-full">
                         <X className="h-8 w-8 text-red-500" />
                     </div>
-                    <h3 className="font-semibold text-lg">{t('stats.error')}</h3>
+                    <h3 className="font-semibold text-lg">حدث خطأ</h3>
                     <p className="text-red-500 max-w-md">{error}</p>
                     <Button variant="outline" onClick={refetch} className="gap-2">
                         <RefreshCcw className="h-4 w-4" />
-                        {t('stats.retry')}
+                        إعادة المحاولة
                     </Button>
                 </div>
             </div>
@@ -168,7 +166,7 @@ export default function StatsPage() {
         return (
             <div className="container px-4 md:px-8 py-12 mx-auto">
                 <div className="text-center">
-                    <p className="text-muted-foreground">{t('stats.no_data')}</p>
+                    <p className="text-muted-foreground">لا توجد بيانات لعرض الإحصائيات</p>
                 </div>
             </div>
         );
@@ -180,9 +178,9 @@ export default function StatsPage() {
             <div className="mb-8">
                 <div className="flex items-center gap-3 mb-2">
                     <BarChart3 className="h-8 w-8 text-primary" />
-                    <h1 className="text-3xl md:text-4xl font-bold">{t('stats.title')}</h1>
+                    <h1 className="text-3xl md:text-4xl font-bold">الإحصائيات والتحليلات</h1>
                 </div>
-                <p className="text-muted-foreground">{t('stats.subtitle')}</p>
+                <p className="text-muted-foreground">نظرة شاملة على بيانات الشركات الناشئة</p>
             </div>
 
             {/* Key Metrics */}
@@ -191,12 +189,12 @@ export default function StatsPage() {
                     <CardHeader className="pb-2">
                         <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                             <Building2 className="h-4 w-4" />
-                            {t('stats.total_startups')}
+                            إجمالي الشركات
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="text-3xl font-bold text-primary">{stats.totalStartups}</div>
-                        <p className="text-xs text-muted-foreground mt-1">{t('stats.startup_unit')}</p>
+                        <p className="text-xs text-muted-foreground mt-1">شركة ناشئة</p>
                     </CardContent>
                 </Card>
 
@@ -204,12 +202,12 @@ export default function StatsPage() {
                     <CardHeader className="pb-2">
                         <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                             <Users className="h-4 w-4" />
-                            {t('stats.total_employees')}
+                            إجمالي الموظفين
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="text-3xl font-bold text-blue-600">{stats.totalEmployees.toLocaleString()}</div>
-                        <p className="text-xs text-muted-foreground mt-1">{t('stats.avg_per_company', { count: stats.avgEmployees })}</p>
+                        <p className="text-xs text-muted-foreground mt-1">متوسط {stats.avgEmployees} لكل شركة</p>
                     </CardContent>
                 </Card>
 
@@ -217,14 +215,14 @@ export default function StatsPage() {
                     <CardHeader className="pb-2">
                         <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                             <DollarSign className="h-4 w-4" />
-                            {t('stats.total_revenue')}
+                            إجمالي الإيرادات
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="text-3xl font-bold text-green-600">
                             {(stats.totalRevenue / 1000000).toFixed(1)}M
                         </div>
-                        <p className="text-xs text-muted-foreground mt-1">{t('stats.revenue_unit')}</p>
+                        <p className="text-xs text-muted-foreground mt-1">جنيه مصري سنوياً</p>
                     </CardContent>
                 </Card>
 
@@ -232,12 +230,12 @@ export default function StatsPage() {
                     <CardHeader className="pb-2">
                         <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                             <TrendingUp className="h-4 w-4" />
-                            {t('stats.profitable_companies')}
+                            الشركات المربحة
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="text-3xl font-bold text-emerald-600">{stats.profitablePercentage}%</div>
-                        <p className="text-xs text-muted-foreground mt-1">{t('stats.profitable_ratio', { count: stats.profitableCount, total: stats.totalStartups })}</p>
+                        <p className="text-xs text-muted-foreground mt-1">{stats.profitableCount} من {stats.totalStartups}</p>
                     </CardContent>
                 </Card>
             </div>
@@ -251,7 +249,7 @@ export default function StatsPage() {
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
                             <Briefcase className="h-5 w-5 text-primary" />
-                            {t('stats.by_industry')}
+                            التوزيع حسب القطاع
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
@@ -266,7 +264,7 @@ export default function StatsPage() {
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
                             <MapPin className="h-5 w-5 text-primary" />
-                            {t('stats.by_governorate')}
+                            التوزيع حسب المحافظة
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
@@ -282,7 +280,7 @@ export default function StatsPage() {
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
                             <TrendingUp className="h-5 w-5 text-primary" />
-                            {t('stats.by_stage')}
+                            التوزيع حسب المرحلة
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
@@ -298,14 +296,14 @@ export default function StatsPage() {
             <div className="mt-8">
                 <div className="flex items-center gap-3 mb-6">
                     <Users className="h-6 w-6 text-primary" />
-                    <h2 className="text-2xl font-bold">{t('stats.founders_analytics')}</h2>
+                    <h2 className="text-2xl font-bold">تحليلات المؤسسين (Total Main Founders)</h2>
                 </div>
 
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {/* Gender Distribution */}
                     <Card>
                         <CardHeader>
-                            <CardTitle className="text-base">{t('stats.gender_dist')}</CardTitle>
+                            <CardTitle className="text-base">التوزيع حسب النوع (Gender)</CardTitle>
                         </CardHeader>
                         <CardContent>
                             <SimplePieChart
@@ -318,7 +316,7 @@ export default function StatsPage() {
                     {/* Student vs Graduate */}
                     <Card>
                         <CardHeader>
-                            <CardTitle className="text-base">{t('stats.student_grad')}</CardTitle>
+                            <CardTitle className="text-base">طالب / خريج (Student/Graduate)</CardTitle>
                         </CardHeader>
                         <CardContent>
                             <SimplePieChart
@@ -331,7 +329,7 @@ export default function StatsPage() {
                     {/* Age Groups */}
                     <Card className="md:col-span-2 lg:col-span-1">
                         <CardHeader>
-                            <CardTitle className="text-base">{t('stats.age_groups')}</CardTitle>
+                            <CardTitle className="text-base">الفئات العمرية (Age Groups)</CardTitle>
                         </CardHeader>
                         <CardContent>
                             <SimpleBarChart
@@ -349,13 +347,13 @@ export default function StatsPage() {
             <div className="mt-8">
                 <div className="flex items-center gap-3 mb-6">
                     <Briefcase className="h-6 w-6 text-primary" />
-                    <h2 className="text-2xl font-bold">{t('stats.ops_legal')}</h2>
+                    <h2 className="text-2xl font-bold">العمليات والوضع القانوني (Operational & Legal)</h2>
                 </div>
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
 
                     {/* Startup Type */}
                     <Card>
-                        <CardHeader><CardTitle className="text-base">{t('stats.entity_type')}</CardTitle></CardHeader>
+                        <CardHeader><CardTitle className="text-base">نوع الكيان (Startup Type)</CardTitle></CardHeader>
                         <CardContent>
                             <SimpleBarChart data={stats.byStartupType.map(([name, value]) => ({ name, value }))} />
                         </CardContent>
@@ -363,7 +361,7 @@ export default function StatsPage() {
 
                     {/* Workplace Ownership */}
                     <Card>
-                        <CardHeader><CardTitle className="text-base">{t('stats.workplace_ownership')}</CardTitle></CardHeader>
+                        <CardHeader><CardTitle className="text-base">ملكية المقر (Workplace Ownership)</CardTitle></CardHeader>
                         <CardContent>
                             <SimplePieChart data={stats.byWorkplaceOwnership.map(([name, value]) => ({ name, value }))} />
                         </CardContent>
@@ -371,7 +369,7 @@ export default function StatsPage() {
 
                     {/* Legal Status */}
                     <Card>
-                        <CardHeader><CardTitle className="text-base">{t('stats.legal_status_chart')}</CardTitle></CardHeader>
+                        <CardHeader><CardTitle className="text-base">الوضع القانوني (Legal Status)</CardTitle></CardHeader>
                         <CardContent>
                             <SimplePieChart data={stats.byLegalStatus.map(([name, value]) => ({ name, value }))} />
                         </CardContent>

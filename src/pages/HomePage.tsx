@@ -1,5 +1,4 @@
 import { useState, useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
 import { useStartups } from '../context/StartupsContext';
 import {
     MapPin,
@@ -32,7 +31,6 @@ import FilterSidebar from '../components/FilterSidebar';
 
 // --- Components ---
 const StartupDetails = ({ startup, open, onOpenChange }: { startup: Startup | null, open: boolean, onOpenChange: (open: boolean) => void }) => {
-    const { t } = useTranslation();
     if (!startup) return null;
 
     return (
@@ -51,7 +49,7 @@ const StartupDetails = ({ startup, open, onOpenChange }: { startup: Startup | nu
                                 className="text-slate-300 hover:text-white hover:bg-white/10 -mr-3 gap-2 px-3"
                             >
                                 <ArrowRight className="h-5 w-5" />
-                                <span>{t('home.back_to_list')}</span>
+                                <span>رجوع للقائمة</span>
                             </Button>
                         </div>
 
@@ -61,7 +59,7 @@ const StartupDetails = ({ startup, open, onOpenChange }: { startup: Startup | nu
                             </Badge>
                             <div className="flex items-center gap-2 bg-white/10 px-3 py-1 rounded-full backdrop-blur-sm">
                                 <span className="text-xs font-bold text-yellow-400">{startup.score}</span>
-                                <span className="text-xs text-slate-300">/ 100 {t('startup.quality_score')}</span>
+                                <span className="text-xs text-slate-300">/ 100 Quality Score</span>
                             </div>
                         </div>
                         <SheetTitle className="text-3xl font-bold mb-2 text-white">{startup.name}</SheetTitle>
@@ -79,7 +77,7 @@ const StartupDetails = ({ startup, open, onOpenChange }: { startup: Startup | nu
                             </div>
                             <div className="flex items-center gap-1.5">
                                 <Calendar size={14} />
-                                {t('startup.founded')} {startup.foundingYear}
+                                تأسست {startup.foundingYear}
                             </div>
                         </div>
                     </div>
@@ -90,9 +88,9 @@ const StartupDetails = ({ startup, open, onOpenChange }: { startup: Startup | nu
                     <div className="p-6">
                         <Tabs defaultValue="overview" className="w-full" dir="rtl">
                             <TabsList className="w-full justify-start bg-transparent border-b rounded-none h-auto p-0 mb-6 gap-6">
-                                <TabsTrigger value="overview" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-0 py-2">{t('startup.overview')}</TabsTrigger>
-                                <TabsTrigger value="financials" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-0 py-2">{t('startup.financials')}</TabsTrigger>
-                                <TabsTrigger value="team" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-0 py-2">{t('startup.team')}</TabsTrigger>
+                                <TabsTrigger value="overview" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-0 py-2">نظرة عامة</TabsTrigger>
+                                <TabsTrigger value="financials" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-0 py-2">البيانات المالية</TabsTrigger>
+                                <TabsTrigger value="team" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-0 py-2">الفريق</TabsTrigger>
                             </TabsList>
 
                             <TabsContent value="overview" className="space-y-6 mt-0">
@@ -100,12 +98,12 @@ const StartupDetails = ({ startup, open, onOpenChange }: { startup: Startup | nu
                                     <CardHeader className="pb-2">
                                         <CardTitle className="text-lg flex items-center gap-2">
                                             <Building2 className="h-5 w-5 text-primary" />
-                                            {t('startup.about')}
+                                            نبذة عن الشركة
                                         </CardTitle>
                                     </CardHeader>
                                     <CardContent>
                                         <p className="text-muted-foreground leading-relaxed">
-                                            {startup.description || t('startup.no_description')}
+                                            {startup.description || 'لا يوجد وصف متاح'}
                                         </p>
                                     </CardContent>
                                 </Card>
@@ -115,7 +113,7 @@ const StartupDetails = ({ startup, open, onOpenChange }: { startup: Startup | nu
                                         <CardHeader className="pb-2">
                                             <CardTitle className="text-lg flex items-center gap-2">
                                                 <Target className="h-5 w-5 text-primary" />
-                                                {t('startup.story')}
+                                                القصة
                                             </CardTitle>
                                         </CardHeader>
                                         <CardContent>
@@ -128,12 +126,12 @@ const StartupDetails = ({ startup, open, onOpenChange }: { startup: Startup | nu
 
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="bg-white p-4 rounded-lg border shadow-sm space-y-1">
-                                        <span className="text-xs text-muted-foreground">{t('startup.legal_status')}</span>
+                                        <span className="text-xs text-muted-foreground">الشكل القانوني</span>
                                         <div className="font-semibold">{startup.legalStatus}</div>
                                     </div>
                                     {startup.challenges && (
                                         <div className="bg-white p-4 rounded-lg border shadow-sm space-y-1">
-                                            <span className="text-xs text-muted-foreground">{t('startup.challenges')}</span>
+                                            <span className="text-xs text-muted-foreground">التحديات</span>
                                             <div className="font-semibold text-sm line-clamp-2">{startup.challenges}</div>
                                         </div>
                                     )}
@@ -142,7 +140,7 @@ const StartupDetails = ({ startup, open, onOpenChange }: { startup: Startup | nu
                                 <div>
                                     <h3 className="font-semibold mb-3 flex items-center gap-2">
                                         <Phone className="h-4 w-4" />
-                                        {t('startup.contact_info')}
+                                        بيانات التواصل
                                     </h3>
                                     <div className="bg-white rounded-lg border divide-y">
                                         {startup.phone && (
@@ -151,7 +149,7 @@ const StartupDetails = ({ startup, open, onOpenChange }: { startup: Startup | nu
                                                     <Phone size={14} />
                                                 </div>
                                                 <div className="text-sm">
-                                                    <div className="text-muted-foreground text-xs">{t('startup.phone')}</div>
+                                                    <div className="text-muted-foreground text-xs">الهاتف</div>
                                                     <div dir="ltr" className="font-medium">{startup.phone}</div>
                                                 </div>
                                             </div>
@@ -162,7 +160,7 @@ const StartupDetails = ({ startup, open, onOpenChange }: { startup: Startup | nu
                                                     <Mail size={14} />
                                                 </div>
                                                 <div className="text-sm">
-                                                    <div className="text-muted-foreground text-xs">{t('startup.email')}</div>
+                                                    <div className="text-muted-foreground text-xs">البريد الإلكتروني</div>
                                                     <div className="font-medium">{startup.email}</div>
                                                 </div>
                                             </div>
@@ -173,7 +171,7 @@ const StartupDetails = ({ startup, open, onOpenChange }: { startup: Startup | nu
                                                     <Globe size={14} />
                                                 </div>
                                                 <div className="text-sm">
-                                                    <div className="text-muted-foreground text-xs">{t('startup.website')}</div>
+                                                    <div className="text-muted-foreground text-xs">الموقع الإلكتروني</div>
                                                     <a href={startup.website} target="_blank" rel="noreferrer" className="font-medium text-blue-600 hover:underline break-all">{startup.website}</a>
                                                 </div>
                                             </div>
@@ -186,16 +184,16 @@ const StartupDetails = ({ startup, open, onOpenChange }: { startup: Startup | nu
                                 <div className="grid grid-cols-2 gap-4">
                                     <Card>
                                         <CardHeader className="p-4 pb-2">
-                                            <CardTitle className="text-sm font-medium text-muted-foreground">{t('startup.revenue')}</CardTitle>
+                                            <CardTitle className="text-sm font-medium text-muted-foreground">الإيرادات السنوية</CardTitle>
                                         </CardHeader>
                                         <CardContent className="p-4 pt-0">
                                             <div className="text-2xl font-bold">{(startup.revenue || 0).toLocaleString()}</div>
-                                            <span className="text-xs text-muted-foreground">{t('startup.currency')}</span>
+                                            <span className="text-xs text-muted-foreground">ج.م</span>
                                         </CardContent>
                                     </Card>
                                     <Card>
                                         <CardHeader className="p-4 pb-2">
-                                            <CardTitle className="text-sm font-medium text-muted-foreground">{t('startup.profit_status')}</CardTitle>
+                                            <CardTitle className="text-sm font-medium text-muted-foreground">حالة الربحية</CardTitle>
                                         </CardHeader>
                                         <CardContent className="p-4 pt-0">
                                             <Badge variant="outline" className={`${startup.profitStatus === 'إيرادات' ? 'text-green-600 border-green-200 bg-green-50' : 'text-amber-600 border-amber-200 bg-amber-50'}`}>
@@ -209,12 +207,12 @@ const StartupDetails = ({ startup, open, onOpenChange }: { startup: Startup | nu
                                     <CardHeader>
                                         <CardTitle className="flex items-center gap-2 text-base">
                                             <TrendingUp className="h-5 w-5 text-primary" />
-                                            {t('startup.funding')}
+                                            التمويل والاستثمار
                                         </CardTitle>
                                     </CardHeader>
                                     <CardContent className="space-y-4">
                                         <div className="flex justify-between items-center py-2 border-b last:border-0">
-                                            <span className="text-sm text-muted-foreground">{t('startup.funding_amount')}</span>
+                                            <span className="text-sm text-muted-foreground">حجم التمويل</span>
                                             <span className="font-semibold">{startup.fundingRaised}</span>
                                         </div>
                                     </CardContent>
@@ -224,7 +222,7 @@ const StartupDetails = ({ startup, open, onOpenChange }: { startup: Startup | nu
                             <TabsContent value="team" className="space-y-6 mt-0">
                                 <Card>
                                     <CardHeader>
-                                        <CardTitle className="text-base">{t('startup.team_structure')}</CardTitle>
+                                        <CardTitle className="text-base">هيكل الفريق</CardTitle>
                                     </CardHeader>
                                     <CardContent className="space-y-6">
                                         <div className="flex items-center justify-between">
@@ -233,8 +231,8 @@ const StartupDetails = ({ startup, open, onOpenChange }: { startup: Startup | nu
                                                     <Users className="h-5 w-5 text-slate-600" />
                                                 </div>
                                                 <div>
-                                                    <div className="font-medium">{t('startup.total_employees')}</div>
-                                                    <div className="text-xs text-muted-foreground">{t('startup.full_time')}</div>
+                                                    <div className="font-medium">إجمالي الموظفين</div>
+                                                    <div className="text-xs text-muted-foreground">العاملين بدوام كامل</div>
                                                 </div>
                                             </div>
                                             <div className="text-2xl font-bold">{startup.employees}</div>
@@ -248,8 +246,8 @@ const StartupDetails = ({ startup, open, onOpenChange }: { startup: Startup | nu
                                                     <Briefcase className="h-5 w-5 text-slate-600" />
                                                 </div>
                                                 <div>
-                                                    <div className="font-medium">{t('startup.ceo')}</div>
-                                                    <div className="text-xs text-muted-foreground">{t('startup.current_leadership')}</div>
+                                                    <div className="font-medium">المدير التنفيذي</div>
+                                                    <div className="text-xs text-muted-foreground">القيادة الحالية</div>
                                                 </div>
                                             </div>
                                             <div className="font-semibold">{startup.ceoName}</div>
@@ -266,7 +264,6 @@ const StartupDetails = ({ startup, open, onOpenChange }: { startup: Startup | nu
 };
 
 function StartupCard({ startup, onClick }: { startup: Startup, onClick: () => void }) {
-    const { t } = useTranslation();
     return (
         <Card className="group hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer border-slate-200 hover:border-primary/50 overflow-hidden flex flex-col h-full bg-white" onClick={onClick}>
             <div className="h-1.5 bg-gradient-to-r from-blue-500 to-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -301,7 +298,7 @@ function StartupCard({ startup, onClick }: { startup: Startup, onClick: () => vo
                         <div className="h-8 w-8 rounded-lg bg-slate-50 flex items-center justify-center shrink-0 text-slate-400 group-hover:bg-blue-50 group-hover:text-blue-500 transition-colors">
                             <Users size={16} />
                         </div>
-                        <span className="truncate">{startup.employees} {t('startup.employees')}</span>
+                        <span className="truncate">{startup.employees} موظف</span>
                     </div>
                 </div>
 
@@ -310,8 +307,8 @@ function StartupCard({ startup, onClick }: { startup: Startup, onClick: () => vo
                         <Banknote size={16} />
                     </div>
                     <div className="flex flex-col">
-                        <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">{t('startup.revenue')}</span>
-                        <span className="text-sm font-bold text-slate-900">{formatCurrency(startup.revenue)} {t('startup.currency')}</span>
+                        <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">العوائد السنوية</span>
+                        <span className="text-sm font-bold text-slate-900">{formatCurrency(startup.revenue)} ج.م</span>
                     </div>
                 </div>
             </CardContent>
@@ -324,13 +321,13 @@ function StartupCard({ startup, onClick }: { startup: Startup, onClick: () => vo
                         {(startup.ceoName || '?').charAt(0)}
                     </div>
                     <div className="flex flex-col">
-                        <span className="text-[10px] text-muted-foreground">{t('startup.ceo')}</span>
-                        <span className="text-xs font-medium text-slate-700 truncate max-w-[120px]">{startup.ceoName || t('startup.not_available')}</span>
+                        <span className="text-[10px] text-muted-foreground">الرئيس التنفيذي</span>
+                        <span className="text-xs font-medium text-slate-700 truncate max-w-[120px]">{startup.ceoName || 'غير متوفر'}</span>
                     </div>
                 </div>
 
                 <Button variant="ghost" size="sm" className="h-8 text-xs px-3 hover:bg-white hover:shadow-sm hover:text-primary transition-all rounded-full group-hover:translate-x-[-4px] duration-300">
-                    {t('startup.details')}
+                    التفاصيل
                 </Button>
             </CardFooter>
         </Card>
@@ -339,7 +336,6 @@ function StartupCard({ startup, onClick }: { startup: Startup, onClick: () => vo
 
 export default function HomePage() {
     const { startups, availableIndustries, isLoading, error, refetch } = useStartups();
-    const { t } = useTranslation();
 
     const [selectedStartup, setSelectedStartup] = useState<Startup | null>(null);
     const [isDetailsOpen, setIsDetailsOpen] = useState(false);
@@ -385,7 +381,7 @@ export default function HomePage() {
             <div className="container px-4 md:px-8 py-12 mx-auto">
                 <div className="flex flex-col items-center justify-center h-64 space-y-4">
                     <Loader2 className="h-10 w-10 animate-spin text-primary" />
-                    <p className="text-muted-foreground">{t('stats.loading')}</p>
+                    <p className="text-muted-foreground">جاري تحميل البيانات...</p>
                 </div>
             </div>
         );
@@ -398,11 +394,11 @@ export default function HomePage() {
                     <div className="bg-red-50 p-4 rounded-full">
                         <X className="h-8 w-8 text-red-500" />
                     </div>
-                    <h3 className="font-semibold text-lg">{t('stats.error')}</h3>
+                    <h3 className="font-semibold text-lg">حدث خطأ في جلب البيانات</h3>
                     <p className="text-red-500 max-w-md">{error}</p>
                     <Button variant="outline" onClick={refetch} className="gap-2">
                         <RefreshCcw className="h-4 w-4" />
-                        {t('stats.retry')}
+                        إعادة المحاولة
                     </Button>
                 </div>
             </div>
@@ -419,12 +415,7 @@ export default function HomePage() {
         setEmployeeRange,
         revenueRange,
         setRevenueRange,
-        onReset: handleReset,
-        searchPlaceholder: t('home.search_placeholder'),
-        industryLabel: t('home.industry_filter'),
-        employeesLabel: t('home.employees_filter'),
-        revenueLabel: t('home.revenue_filter'),
-        resetLabel: t('home.reset_filters')
+        onReset: handleReset
     };
 
     return (
@@ -439,37 +430,31 @@ export default function HomePage() {
                                 <SheetTrigger asChild>
                                     <Button variant="outline" size="sm" className="gap-2">
                                         <Filter className="h-4 w-4" />
-                                        <span>{t('home.filter')}</span>
+                                        <span>تصفية</span>
                                         {(selectedIndustries.length > 0) && (
                                             <Badge variant="secondary" className="h-5 px-1.5 text-[10px]">{selectedIndustries.length}</Badge>
                                         )}
                                     </Button>
                                 </SheetTrigger>
                                 <SheetContent side="right" className="p-0 w-[300px]">
-                                    <FilterSidebar className="h-full border-none" {...filterProps}
-                                        searchPlaceholder={t('home.search_placeholder')}
-                                        industryLabel={t('home.industry_filter')}
-                                        employeesLabel={t('home.employees_filter')}
-                                        revenueLabel={t('home.revenue_filter')}
-                                        resetLabel={t('home.reset_filters')}
-                                    />
+                                    <FilterSidebar className="h-full border-none" {...filterProps} />
                                 </SheetContent>
                             </Sheet>
                         </div>
 
                         {/* Results Count & Title */}
                         <div className="flex-1">
-                            <h1 className="text-xl font-bold text-slate-900">{t('home.title')}</h1>
+                            <h1 className="text-xl font-bold text-slate-900">الشركات الناشئة</h1>
                             <p className="text-sm text-muted-foreground">
-                                <span className="font-semibold text-primary">{filteredStartups.length}</span> {t('home.companies_available')}
+                                <span className="font-semibold text-primary">{filteredStartups.length}</span> شركة متاحة
                             </p>
                         </div>
 
                         {/* Sort Options - Visible on Desktop */}
                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                            <span>{t('home.sort_by')}</span>
+                            <span>ترتيب حسب:</span>
                             <Button variant="ghost" size="sm" className="h-8 text-xs">
-                                {t('home.newest')}
+                                الأحدث
                             </Button>
                         </div>
                     </div>
@@ -480,13 +465,7 @@ export default function HomePage() {
             <div className="fixed top-[calc(4rem+57px)] left-0 right-0 bottom-0 flex">
                 {/* Fixed Sidebar - Always Visible on Desktop, Hidden on Mobile */}
                 <aside className="w-72 border-l bg-white overflow-hidden shrink-0 hidden lg:block">
-                    <FilterSidebar className="h-full" {...filterProps}
-                        searchPlaceholder={t('home.search_placeholder')}
-                        industryLabel={t('home.industry_filter')}
-                        employeesLabel={t('home.employees_filter')}
-                        revenueLabel={t('home.revenue_filter')}
-                        resetLabel={t('home.reset_filters')}
-                    />
+                    <FilterSidebar className="h-full" {...filterProps} />
                 </aside>
 
                 {/* Scrollable Main Content */}
@@ -498,13 +477,13 @@ export default function HomePage() {
                                     <div className="bg-slate-100 p-6 rounded-full mb-4">
                                         <Target className="h-12 w-12 text-slate-400" />
                                     </div>
-                                    <h3 className="font-bold text-xl mb-2 text-slate-900">{t('home.no_results')}</h3>
+                                    <h3 className="font-bold text-xl mb-2 text-slate-900">لا توجد نتائج</h3>
                                     <p className="text-muted-foreground max-w-sm mb-6">
-                                        {t('home.no_results_desc')}
+                                        لم نتمكن من العثور على شركات تطابق معايير البحث الخاصة بك.
                                     </p>
                                     <Button variant="outline" onClick={handleReset} className="gap-2">
                                         <RefreshCcw className="h-4 w-4" />
-                                        {t('home.reset_filters')}
+                                        مسح جميع الفلاتر
                                     </Button>
                                 </div>
                             ) : (
