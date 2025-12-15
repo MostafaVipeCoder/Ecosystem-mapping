@@ -473,7 +473,7 @@ export default function HomePage() {
                                     </Button>
                                 </div>
                             ) : (
-                                <div className="grid gap-5 grid-cols-3 lg:grid-cols-2 md:grid-cols-1">
+                                <div className="grid gap-5 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                                     {filteredStartups.map((startup, index) => (
                                         <StartupCard
                                             key={startup.id || `startup-${index}`}

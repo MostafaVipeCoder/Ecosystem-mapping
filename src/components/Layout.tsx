@@ -56,22 +56,7 @@ export default function Layout() {
                 <Outlet />
             </main>
 
-            {/* Footer */}
-            <footer className="border-t bg-background mt-12">
-                <div className="container px-4 md:px-8 py-6 mx-auto">
-                    <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
-                        <div className="flex items-center gap-2">
-                            <Building2 className="h-4 w-4" />
-                            <span>© 2025 منصة الشركات الناشئة. جميع الحقوق محفوظة.</span>
-                        </div>
-                        <div className="flex items-center gap-4">
-                            <a href="#" className="hover:text-foreground transition-colors">الشروط والأحكام</a>
-                            <span>•</span>
-                            <a href="#" className="hover:text-foreground transition-colors">سياسة الخصوصية</a>
-                        </div>
-                    </div>
-                </div>
-            </footer>
+
         </div>
     );
 }
