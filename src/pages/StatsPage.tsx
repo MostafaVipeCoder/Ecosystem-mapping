@@ -16,7 +16,7 @@ export default function StatsPage() {
         const totalStartups = startups.length;
         const totalEmployees = startups.reduce((sum, s) => sum + (s.employees || 0), 0);
         const totalRevenue = startups.reduce((sum, s) => sum + (s.revenue || 0), 0);
-        const profitableCount = startups.filter(s => s.profitStatus === 'مربحة').length;
+        const profitableCount = startups.filter(s => (s.revenue || 0) > 0).length;
 
         // حسب القطاع
         const byIndustry = startups.reduce((acc, s) => {
@@ -88,15 +88,7 @@ export default function StatsPage() {
 
 
 
-        // Dedicated Place (Moved logic here)
-        const byDedicatedPlace = startups.reduce((acc, s) => {
-            let status = s.hasDedicatedPlace?.trim() || 'Not Specified';
-            if (status.toLowerCase() === 'yes' || status === 'نعم') status = 'مقر مخصص (Yes)';
-            else if (status.toLowerCase() === 'no' || status === 'لا') status = 'لا يوجد (No)';
-            else if (status.toLowerCase().includes('online') || status.includes('عن بعد')) status = 'عن بعد (Online)';
-            acc[status] = (acc[status] || 0) + 1;
-            return acc;
-        }, {} as Record<string, number>);
+
 
         // متوسطات
         const avgEmployees = Math.round(totalEmployees / totalStartups);
@@ -123,7 +115,7 @@ export default function StatsPage() {
             }),
 
             // New Analytics Arrays
-            byDedicatedPlace: Object.entries(byDedicatedPlace).sort((a, b) => b[1] - a[1]),
+
 
 
             byStartupType: Object.entries(byStartupType).sort((a, b) => b[1] - a[1]),
@@ -347,17 +339,7 @@ export default function StatsPage() {
                         </CardContent>
                     </Card>
 
-                    {/* Workspace/Location */}
-                    <Card className="md:col-span-2 lg:col-span-1">
-                        <CardHeader>
-                            <CardTitle className="text-base">مقر العمل (Workspace)</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <SimplePieChart
-                                data={stats.byDedicatedPlace.map(([name, value]) => ({ name, value }))}
-                            />
-                        </CardContent>
-                    </Card>
+
                 </div>
             </div>
 
