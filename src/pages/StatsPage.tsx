@@ -10,27 +10,25 @@ export default function StatsPage() {
     const { startups, isLoading, error, refetch } = useStartups();
 
     const stats = useMemo(() => {
-        if (startups.length === 0) return null;
-
-        // إجمالي الإحصائياتee
+        // Overall Statistics
         const totalStartups = startups.length;
         const totalEmployees = startups.reduce((sum, s) => sum + (s.employees || 0), 0);
         const totalRevenue = startups.reduce((sum, s) => sum + (s.revenue || 0), 0);
         const profitableCount = startups.filter(s => (s.revenue || 0) > 0).length;
 
-        // حسب القطاع
+        // By Industry
         const byIndustry = startups.reduce((acc, s) => {
             acc[s.industry] = (acc[s.industry] || 0) + 1;
             return acc;
         }, {} as Record<string, number>);
 
-        // حسب المحافظة
+        // By Governorate
         const byGovernorate = startups.reduce((acc, s) => {
             acc[s.governorate] = (acc[s.governorate] || 0) + 1;
             return acc;
         }, {} as Record<string, number>);
 
-        // حسب مرحلة المشروع
+        // By Project Stage
         const byStage = startups.reduce((acc, s) => {
             acc[s.stage] = (acc[s.stage] || 0) + 1;
             return acc;
@@ -90,7 +88,7 @@ export default function StatsPage() {
 
 
 
-        // متوسطات
+        // Averages
         const avgEmployees = Math.round(totalEmployees / totalStartups);
         const avgRevenue = Math.round(totalRevenue / totalStartups);
 
@@ -137,8 +135,8 @@ export default function StatsPage() {
         return (
             <div className="container px-4 md:px-8 py-12 mx-auto">
                 <div className="flex flex-col items-center justify-center h-64 space-y-4">
-                    <Loader2 className="h-10 w-10 animate-spin text-primary" />
-                    <p className="text-muted-foreground">جاري تحميل الإحصائيات...</p>
+                    <Loader2 className="h-10 w-10 animate-spin text-athar-blue" />
+                    <p className="text-athar-black font-bold">Loading statistics...</p>
                 </div>
             </div>
         );
@@ -151,11 +149,11 @@ export default function StatsPage() {
                     <div className="bg-red-50 p-4 rounded-full">
                         <X className="h-8 w-8 text-red-500" />
                     </div>
-                    <h3 className="font-semibold text-lg">حدث خطأ</h3>
+                    <h3 className="font-semibold text-lg">Error occurred</h3>
                     <p className="text-red-500 max-w-md">{error}</p>
                     <Button variant="outline" onClick={refetch} className="gap-2">
                         <RefreshCcw className="h-4 w-4" />
-                        إعادة المحاولة
+                        Retry
                     </Button>
                 </div>
             </div>
@@ -166,7 +164,7 @@ export default function StatsPage() {
         return (
             <div className="container px-4 md:px-8 py-12 mx-auto">
                 <div className="text-center">
-                    <p className="text-muted-foreground">لا توجد بيانات لعرض الإحصائيات</p>
+                    <p className="text-muted-foreground">No data available to display statistics</p>
                 </div>
             </div>
         );
@@ -175,67 +173,71 @@ export default function StatsPage() {
     return (
         <div className="container px-4 md:px-8 py-12 mx-auto">
             {/* Page Header */}
-            <div className="mb-8">
-                <div className="flex items-center gap-3 mb-2">
-                    <BarChart3 className="h-8 w-8 text-primary" />
-                    <h1 className="text-3xl md:text-4xl font-bold">الإحصائيات والتحليلات</h1>
+            <div className="mb-12">
+                <div className="flex items-center gap-4 mb-3">
+                    <div className="h-12 w-12 rounded-2xl bg-athar-black flex items-center justify-center text-athar-yellow shadow-lg">
+                        <BarChart3 className="h-7 w-7" />
+                    </div>
+                    <div>
+                        <h1 className="text-4xl md:text-5xl font-black text-athar-black tracking-tight leading-none mb-2">Statistics & Analytics</h1>
+                        <p className="text-athar-black/60 font-bold">Comprehensive overview of startup ecosystem data</p>
+                    </div>
                 </div>
-                <p className="text-muted-foreground">نظرة شاملة على بيانات الشركات الناشئة</p>
             </div>
 
             {/* Key Metrics */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <Card className="border-2 hover:border-primary/50 transition-colors">
+                <Card className="border-0 shadow-sm hover:shadow-xl transition-all duration-500 rounded-2xl group hover:-translate-y-1">
                     <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                            <Building2 className="h-4 w-4" />
-                            إجمالي الشركات
+                        <CardTitle className="text-xs font-black text-athar-black/40 flex items-center gap-2 uppercase tracking-widest">
+                            <Building2 className="h-4 w-4 text-athar-blue" />
+                            Total Startups
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-bold text-primary">{stats.totalStartups}</div>
-                        <p className="text-xs text-muted-foreground mt-1">شركة ناشئة</p>
+                        <div className="text-4xl font-black text-athar-black group-hover:text-athar-blue transition-colors leading-none">{stats.totalStartups}</div>
+                        <p className="text-[11px] font-bold text-athar-black/30 mt-2 uppercase tracking-wider">Registered Companies</p>
                     </CardContent>
                 </Card>
 
-                <Card className="border-2 hover:border-primary/50 transition-colors">
+                <Card className="border-0 shadow-sm hover:shadow-xl transition-all duration-500 rounded-2xl group hover:-translate-y-1">
                     <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                            <Users className="h-4 w-4" />
-                            إجمالي الموظفين
+                        <CardTitle className="text-xs font-black text-athar-black/40 flex items-center gap-2 uppercase tracking-widest">
+                            <Users className="h-4 w-4 text-athar-blue" />
+                            Total Employees
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-bold text-blue-600">{stats.totalEmployees.toLocaleString()}</div>
-                        <p className="text-xs text-muted-foreground mt-1">متوسط {stats.avgEmployees} لكل شركة</p>
+                        <div className="text-4xl font-black text-athar-black group-hover:text-athar-blue transition-colors leading-none">{stats.totalEmployees.toLocaleString()}</div>
+                        <p className="text-[11px] font-bold text-athar-black/30 mt-2 uppercase tracking-wider">Avg {stats.avgEmployees} per company</p>
                     </CardContent>
                 </Card>
 
-                <Card className="border-2 hover:border-primary/50 transition-colors">
+                <Card className="border-0 shadow-sm hover:shadow-xl transition-all duration-500 rounded-2xl group hover:-translate-y-1">
                     <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                            <DollarSign className="h-4 w-4" />
-                            إجمالي الإيرادات
+                        <CardTitle className="text-xs font-black text-athar-black/40 flex items-center gap-2 uppercase tracking-widest">
+                            <DollarSign className="h-4 w-4 text-athar-blue" />
+                            Total Revenue
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-bold text-green-600">
+                        <div className="text-4xl font-black text-athar-black group-hover:text-athar-blue transition-colors leading-none">
                             {(stats.totalRevenue / 1000000).toFixed(1)}M
                         </div>
-                        <p className="text-xs text-muted-foreground mt-1">جنيه مصري سنوياً</p>
+                        <p className="text-[11px] font-bold text-athar-black/30 mt-2 uppercase tracking-wider">Million EGP Annually</p>
                     </CardContent>
                 </Card>
 
-                <Card className="border-2 hover:border-primary/50 transition-colors">
+                <Card className="border-0 shadow-sm hover:shadow-xl transition-all duration-500 rounded-2xl group hover:-translate-y-1">
                     <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                            <TrendingUp className="h-4 w-4" />
-                            الشركات المربحة
+                        <CardTitle className="text-xs font-black text-athar-black/40 flex items-center gap-2 uppercase tracking-widest">
+                            <TrendingUp className="h-4 w-4 text-athar-blue" />
+                            Profitable Startups
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-bold text-emerald-600">{stats.profitablePercentage}%</div>
-                        <p className="text-xs text-muted-foreground mt-1">{stats.profitableCount} من {stats.totalStartups}</p>
+                        <div className="text-4xl font-black text-athar-black group-hover:text-athar-blue transition-colors leading-none">{stats.profitablePercentage}%</div>
+                        <p className="text-[11px] font-bold text-athar-black/30 mt-2 uppercase tracking-wider">{stats.profitableCount} Successful models</p>
                     </CardContent>
                 </Card>
             </div>
@@ -245,11 +247,11 @@ export default function StatsPage() {
             {/* Charts Grid */}
             <div className="grid md:grid-cols-2 gap-6">
                 {/* By Industry */}
-                <Card>
+                <Card className="border-0 shadow-sm rounded-2xl">
                     <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                            <Briefcase className="h-5 w-5 text-primary" />
-                            التوزيع حسب القطاع
+                        <CardTitle className="flex items-center gap-2 text-lg font-black text-athar-black">
+                            <TrendingUp className="h-5 w-5 text-athar-blue" />
+                            Revenue Distribution
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
@@ -293,17 +295,19 @@ export default function StatsPage() {
             </div>
 
             {/* Founder Demographics */}
-            <div className="mt-8">
-                <div className="flex items-center gap-3 mb-6">
-                    <Users className="h-6 w-6 text-primary" />
-                    <h2 className="text-2xl font-bold">تحليلات المؤسسين (Total Main Founders)</h2>
+            <div className="mt-16">
+                <div className="flex items-center gap-3 mb-8">
+                    <div className="h-10 w-10 rounded-xl bg-athar-yellow flex items-center justify-center text-athar-black shadow-md">
+                        <Users className="h-6 w-6" />
+                    </div>
+                    <h2 className="text-3xl font-black text-athar-black tracking-tight">Founder Analytics <span className="text-athar-black/30 text-xl">(Demographics)</span></h2>
                 </div>
 
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {/* Gender Distribution */}
                     <Card>
                         <CardHeader>
-                            <CardTitle className="text-base">التوزيع حسب النوع (Gender)</CardTitle>
+                            <CardTitle className="text-base">Distribution by Gender</CardTitle>
                         </CardHeader>
                         <CardContent>
                             <SimplePieChart
@@ -316,7 +320,7 @@ export default function StatsPage() {
                     {/* Student vs Graduate */}
                     <Card>
                         <CardHeader>
-                            <CardTitle className="text-base">طالب / خريج (Student/Graduate)</CardTitle>
+                            <CardTitle className="text-base">Student vs Graduate</CardTitle>
                         </CardHeader>
                         <CardContent>
                             <SimplePieChart
@@ -329,7 +333,7 @@ export default function StatsPage() {
                     {/* Age Groups */}
                     <Card className="md:col-span-2 lg:col-span-1">
                         <CardHeader>
-                            <CardTitle className="text-base">الفئات العمرية (Age Groups)</CardTitle>
+                            <CardTitle className="text-base">Age Groups</CardTitle>
                         </CardHeader>
                         <CardContent>
                             <SimpleBarChart
@@ -347,13 +351,13 @@ export default function StatsPage() {
             <div className="mt-8">
                 <div className="flex items-center gap-3 mb-6">
                     <Briefcase className="h-6 w-6 text-primary" />
-                    <h2 className="text-2xl font-bold">العمليات والوضع القانوني (Operational & Legal)</h2>
+                    <h2 className="text-2xl font-bold">Operational & Legal</h2>
                 </div>
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
 
                     {/* Startup Type */}
                     <Card>
-                        <CardHeader><CardTitle className="text-base">نوع الكيان (Startup Type)</CardTitle></CardHeader>
+                        <CardHeader><CardTitle className="text-base">Startup Type</CardTitle></CardHeader>
                         <CardContent>
                             <SimpleBarChart data={stats.byStartupType.map(([name, value]) => ({ name, value }))} />
                         </CardContent>
@@ -361,7 +365,7 @@ export default function StatsPage() {
 
                     {/* Workplace Ownership */}
                     <Card>
-                        <CardHeader><CardTitle className="text-base">ملكية المقر (Workplace Ownership)</CardTitle></CardHeader>
+                        <CardHeader><CardTitle className="text-base">Workplace Ownership</CardTitle></CardHeader>
                         <CardContent>
                             <SimplePieChart data={stats.byWorkplaceOwnership.map(([name, value]) => ({ name, value }))} />
                         </CardContent>
@@ -369,7 +373,7 @@ export default function StatsPage() {
 
                     {/* Legal Status */}
                     <Card>
-                        <CardHeader><CardTitle className="text-base">الوضع القانوني (Legal Status)</CardTitle></CardHeader>
+                        <CardHeader><CardTitle className="text-base">Legal Status</CardTitle></CardHeader>
                         <CardContent>
                             <SimplePieChart data={stats.byLegalStatus.map(([name, value]) => ({ name, value }))} />
                         </CardContent>

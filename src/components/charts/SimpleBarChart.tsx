@@ -7,8 +7,8 @@ interface SimpleBarChartProps {
     height?: number
 }
 
-// Default colors if specific color not provided (Tailwind-ish palette)
-const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#6366f1'];
+// Default colors if specific color not provided (Athar Branding & Extensions)
+const COLORS = ['#1a27c9', '#ffe92c', '#0d0e0e', '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
 
 export function SimpleBarChart({ data, color, height = 300 }: SimpleBarChartProps) {
     return (
@@ -24,7 +24,7 @@ export function SimpleBarChart({ data, color, height = 300 }: SimpleBarChartProp
                     interval={0}
                     angle={data.length > 5 ? -45 : 0}
                     textAnchor={data.length > 5 ? 'start' : 'middle'}
-                    height={data.length > 5 ? 50: 30}
+                    height={data.length > 5 ? 50 : 30}
                 />
                 <YAxis
                     stroke="#888888"

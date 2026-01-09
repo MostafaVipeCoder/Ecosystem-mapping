@@ -7,12 +7,20 @@ export default {
     ],
     theme: {
         extend: {
+            fontFamily: {
+                sans: ['Manrope', 'sans-serif'],
+            },
             borderRadius: {
                 lg: 'var(--radius)',
                 md: 'calc(var(--radius) - 2px)',
                 sm: 'calc(var(--radius) - 4px)'
             },
             colors: {
+                athar: {
+                    black: 'var(--athar-black)',
+                    yellow: 'var(--athar-yellow)',
+                    blue: 'var(--athar-blue)',
+                },
                 background: 'hsl(var(--background))',
                 foreground: 'hsl(var(--foreground))',
                 card: {

@@ -7,14 +7,14 @@ interface SimplePieChartProps {
 }
 
 const DEFAULT_COLORS = [
+    "#1a27c9", // Athar Blue
+    "#ffe92c", // Athar Yellow
+    "#0d0e0e", // Athar Black
     "#3b82f6", // Blue
     "#10b981", // Green
     "#f59e0b", // Amber
     "#ef4444", // Red
     "#8b5cf6", // Violet
-    "#ec4899", // Pink
-    "#06b6d4", // Cyan
-    "#84cc16", // Lime
 ]
 
 export function SimplePieChart({ data, height = 300, colors = DEFAULT_COLORS }: SimplePieChartProps) {

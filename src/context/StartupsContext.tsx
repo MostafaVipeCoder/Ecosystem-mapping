@@ -50,7 +50,7 @@ export function StartupsProvider({ children }: { children: ReactNode }) {
                 setAvailableGovernorates(data.governorates);
             }
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'حدث خطأ في جلب البيانات');
+            setError(err instanceof Error ? err.message : 'An error occurred while fetching data');
         } finally {
             setIsLoading(false);
         }

@@ -43,5 +43,5 @@ export interface Startup {
 export const API_URL = 'https://script.google.com/macros/s/AKfycbwdIWp9nElHYzvPqbpRLgtxLQ2yRP-KisAgCyGHbvW3XXsWYb_lCOMzJxfh5a-UnXg4RA/exec';
 
 // --- Mock Data Fallback ---
-export const FALLBACK_GOVERNORATES = ['القاهرة', 'الجيزة', 'الإسكندرية', 'أسيوط', 'المنصورة', 'الأقصر'];
-export const FALLBACK_INDUSTRIES = ['تكنولوجيا المعلومات', 'التجارة الإلكترونية', 'الزراعة', 'التعليم', 'الصحة', 'الطاقة المتجددة', 'الفينتيك', 'النقل واللوجستيات', 'السياحة', 'التصنيع'];
+export const FALLBACK_GOVERNORATES = ['Cairo', 'Giza', 'Alexandria', 'Asyut', 'Mansoura', 'Luxor'];
+export const FALLBACK_INDUSTRIES = ['IT', 'E-commerce', 'Agriculture', 'Education', 'Health', 'Renewable Energy', 'Fintech', 'Logistics', 'Tourism', 'Manufacturing'];
