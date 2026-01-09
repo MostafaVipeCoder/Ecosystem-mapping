@@ -18,13 +18,13 @@ export function SimpleBarChart({ data, color, height = 300 }: SimpleBarChartProp
                 <XAxis
                     dataKey="name"
                     stroke="#888888"
-                    fontSize={12}
+                    fontSize={10}
                     tickLine={false}
                     axisLine={false}
                     interval={0}
                     angle={data.length > 5 ? -45 : 0}
-                    textAnchor={data.length > 5 ? 'start' : 'middle'}
-                    height={data.length > 5 ? 50 : 30}
+                    textAnchor={data.length > 5 ? 'end' : 'middle'}
+                    height={data.length > 5 ? 100 : 30}
                 />
                 <YAxis
                     stroke="#888888"

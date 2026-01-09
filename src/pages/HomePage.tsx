@@ -16,7 +16,9 @@ import {
     X,
     ArrowRight,
     SlidersHorizontal,
-    Search
+    Search,
+    PanelLeftClose,
+    PanelLeftOpen
 } from 'lucide-react';
 
 import { Button } from '../components/ui/button';
@@ -28,6 +30,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs'
 import { Startup } from '../types';
 import { formatCurrency } from '../utils/api';
 import FilterSidebar from '../components/FilterSidebar';
+import { MeetingRequestDialog } from '../components/MeetingRequestDialog';
 
 // --- Components ---
 const StartupDetails = ({ startup, open, onOpenChange }: { startup: Startup | null, open: boolean, onOpenChange: (open: boolean) => void }) => {
@@ -48,14 +51,19 @@ const StartupDetails = ({ startup, open, onOpenChange }: { startup: Startup | nu
                             </Button>
                         </div>
 
-                        <div className="flex justify-between items-start mb-4">
+                        <div className="flex justify-between items-center mb-4">
                             <Badge variant="secondary" className="bg-athar-yellow text-athar-black hover:bg-athar-yellow/90 border-0 font-bold uppercase tracking-wider px-3 py-1">
                                 {startup.industry}
                             </Badge>
-                            <div className="flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-xl backdrop-blur-md border border-white/10">
-                                <span className="text-sm font-black text-athar-yellow">{startup.score}</span>
-                                <span className="text-xs text-slate-300 font-bold">/ 100 Quality Score</span>
-                            </div>
+
+                            <MeetingRequestDialog
+                                startupName={startup.name}
+                                trigger={
+                                    <Button size="sm" className="bg-white text-athar-blue hover:bg-slate-100 font-bold rounded-lg transition-colors border border-transparent hover:border-slate-200 shadow-sm h-8 text-xs">
+                                        Book Meeting
+                                    </Button>
+                                }
+                            />
                         </div>
                         <SheetTitle className="text-3xl font-bold mb-2 text-white">{startup.name}</SheetTitle>
                         <SheetDescription className="sr-only">
@@ -72,7 +80,7 @@ const StartupDetails = ({ startup, open, onOpenChange }: { startup: Startup | nu
                             </div>
                             <div className="flex items-center gap-1.5">
                                 <Calendar size={14} />
-                                Founded {startup.foundingYear}
+                                {Math.floor(new Date().getFullYear() - (startup.foundingYear || new Date().getFullYear()))} Years (Est. {startup.foundingYear})
                             </div>
                         </div>
                     </div>
@@ -264,11 +272,14 @@ function StartupCard({ startup, onClick }: { startup: Startup, onClick: () => vo
             <div className="h-2 bg-gradient-to-r from-athar-blue via-athar-blue/80 to-athar-yellow opacity-0 group-hover:opacity-100 transition-opacity"></div>
 
             <CardHeader className="space-y-4 p-5 pb-2">
-                <div className="flex justify-between items-start gap-2">
+                <div className="flex flex-wrap items-center justify-between gap-2">
                     <Badge variant="secondary" className="font-semibold text-[10px] px-2.5 py-1 text-athar-black bg-athar-yellow hover:bg-athar-yellow/90 border-0 rounded-md uppercase tracking-wider">
                         {startup.industry}
                     </Badge>
-                    <div className={`text-[11px] font-bold px-2.5 py-1 rounded-md border shadow-sm ${startup.profitStatus === 'Available' ? 'text-emerald-700 border-emerald-200 bg-emerald-50' : 'text-amber-700 border-amber-200 bg-amber-50'}`}>
+                    <div className={`text-[11px] font-bold px-2.5 py-1 rounded-md border shadow-sm ${startup.profitStatus === 'Available' || startup.profitStatus?.toLowerCase().includes('revenue')
+                        ? 'text-emerald-700 border-emerald-200 bg-emerald-50'
+                        : 'text-amber-700 border-amber-200 bg-amber-50'
+                        }`}>
                         {startup.profitStatus === 'Available' ? 'Profitable' : startup.profitStatus}
                     </div>
                 </div>
@@ -277,6 +288,8 @@ function StartupCard({ startup, onClick }: { startup: Startup, onClick: () => vo
                     <CardTitle className="text-xl font-extrabold group-hover:text-athar-blue transition-colors leading-tight text-athar-black break-words" title={startup.name}>
                         {startup.name}
                     </CardTitle>
+
+
                 </div>
             </CardHeader>
 
@@ -312,11 +325,11 @@ function StartupCard({ startup, onClick }: { startup: Startup, onClick: () => vo
 
             <CardFooter className="p-4 bg-slate-50/50 flex flex-wrap gap-4 justify-between items-center mt-auto">
                 <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-full bg-athar-black flex items-center justify-center text-xs font-bold text-[#1a27c9] ring-4 ring-white shadow-md">
+                    <div className="h-10 w-10 rounded-full bg-[#1a27c9] flex items-center justify-center text-xs font-bold text-white ring-4 ring-white shadow-md">
                         {(startup.ceoName || '?').charAt(0)}
                     </div>
                     <div className="flex flex-col">
-                        <span className="text-[10px] text-athar-black/50 font-bold uppercase">CEO</span>
+                        <span className="text-[10px] text-athar-black/50 font-bold uppercase">Founder</span>
                         <span className="text-xs font-bold text-athar-black break-words max-w-[150px]">{startup.ceoName || 'N/A'}</span>
                     </div>
                 </div>
@@ -341,6 +354,7 @@ export default function HomePage() {
     const [employeeRange, setEmployeeRange] = useState<number[]>([0, 200]);
     const [revenueRange, setRevenueRange] = useState<number[]>([0, 10000000]);
     const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
 
 
@@ -456,12 +470,37 @@ export default function HomePage() {
             {/* Main Layout Container - Below Fixed Top Bar */}
             <div className="flex-1 flex overflow-hidden">
                 {/* Fixed Sidebar - Always Visible on Desktop, Hidden on Mobile */}
-                <aside className="w-72 border-r bg-white overflow-hidden shrink-0 hidden lg:block">
-                    <FilterSidebar className="h-full" {...filterProps} />
+                <aside className={`${isSidebarOpen ? 'w-72 border-r opacity-100' : 'w-0 border-r-0 opacity-0'} bg-white overflow-hidden shrink-0 hidden lg:block transition-all duration-300 ease-in-out`}>
+                    <div className="w-72 h-full">
+                        <FilterSidebar className="h-full" {...filterProps} />
+                    </div>
                 </aside>
 
                 {/* Scrollable Main Content */}
-                <main className="flex-1 overflow-y-auto w-full">
+                <main className="flex-1 overflow-y-auto w-full bg-slate-50/50">
+                    <div className="sticky top-0 z-10 bg-slate-50/95 backdrop-blur border-b px-8 py-4 hidden lg:flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                                className="gap-2 text-slate-500 hover:text-athar-black hover:bg-white border border-transparent hover:border-slate-200"
+                            >
+                                {isSidebarOpen ? <PanelLeftClose className="h-4 w-4" /> : <PanelLeftOpen className="h-4 w-4" />}
+                                {isSidebarOpen ? 'Hide Filters' : 'Show Filters'}
+                            </Button>
+
+                            <div className="h-6 w-px bg-slate-200"></div>
+
+                            <div className="flex items-center gap-2">
+                                <Badge variant="secondary" className="bg-white border shadow-sm text-athar-black font-bold">
+                                    {filteredStartups.length}
+                                </Badge>
+                                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Startups Found</span>
+                            </div>
+                        </div>
+                    </div>
+
                     <div className="p-4 md:p-8">
                         <div className="max-w-[1600px] mx-auto">
                             {filteredStartups.length === 0 ? (

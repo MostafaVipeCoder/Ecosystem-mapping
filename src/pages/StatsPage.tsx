@@ -41,35 +41,7 @@ export default function StatsPage() {
             return acc;
         }, {} as Record<string, number>);
 
-        // Student Status
-        const byStudentStatus = startups.reduce((acc, s) => {
-            let status = s.founderStatus?.trim() || 'Not Specified';
-            // Normalize common variations
-            if (status.toLowerCase().includes('grad')) status = 'Graduate';
-            else if (status.toLowerCase().includes('stud')) status = 'Student';
 
-            acc[status] = (acc[status] || 0) + 1;
-            return acc;
-        }, {} as Record<string, number>);
-
-        // Age Groups
-        const byAgeGroup = startups.reduce((acc, s) => {
-            const age = s.ceoAge || 0;
-            let group = 'Unknown';
-            if (age > 0) {
-                if (age < 18) group = 'Under 18';
-                else if (age < 22) group = '18-22';
-                else if (age < 25) group = '22-25';
-                else if (age < 28) group = '25-28';
-                else if (age < 31) group = '28-31';
-                else if (age <= 35) group = '31-35';
-                else group = 'Above 35';
-            } else {
-                group = 'Not Specified';
-            }
-            acc[group] = (acc[group] || 0) + 1;
-            return acc;
-        }, {} as Record<string, number>);
 
         // --- New Analytics Reducers ---
 
@@ -106,11 +78,7 @@ export default function StatsPage() {
             byGovernorate: Object.entries(byGovernorate).sort((a, b) => b[1] - a[1]),
             byStage: Object.entries(byStage).sort((a, b) => b[1] - a[1]),
             byGender: Object.entries(byGender).sort((a, b) => b[1] - a[1]),
-            byStudentStatus: Object.entries(byStudentStatus).sort((a, b) => b[1] - a[1]),
-            byAgeGroup: Object.entries(byAgeGroup).sort((a, b) => {
-                const order = { 'Under 18': 1, '18-22': 2, '22-25': 3, '25-28': 4, '28-31': 5, '31-35': 6, 'Above 35': 7, 'Not Specified': 8, 'Unknown': 9 };
-                return (order[a[0] as keyof typeof order] || 99) - (order[b[0] as keyof typeof order] || 99);
-            }),
+
 
             // New Analytics Arrays
 
@@ -246,7 +214,7 @@ export default function StatsPage() {
             {/* Charts Grid */}
             <div className="grid md:grid-cols-2 gap-6">
                 {/* By Industry */}
-                <Card className="border-0 shadow-sm rounded-2xl">
+                <Card className="md:col-span-2 border-0 shadow-sm rounded-2xl">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2 text-lg font-black text-athar-black">
                             <TrendingUp className="h-5 w-5 text-athar-blue" />
@@ -256,6 +224,7 @@ export default function StatsPage() {
                     <CardContent>
                         <SimpleBarChart
                             data={stats.byIndustry.slice(0, 10).map(([name, value]) => ({ name, value }))}
+                            height={400}
                         />
                     </CardContent>
                 </Card>
@@ -310,40 +279,16 @@ export default function StatsPage() {
                         <CardContent>
                             <SimplePieChart
                                 data={stats.byGender.map(([name, value]) => ({ name, value }))}
-                                colors={['#3b82f6', '#ec4899']} // Blue, Pink
+                                colors={['#1a27c9', '#10b981']} // Brand Blue, Brand Green
                             />
                         </CardContent>
                     </Card>
-
-                    {/* Student vs Graduate */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="text-base">Student vs Graduate</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <SimplePieChart
-                                data={stats.byStudentStatus.map(([name, value]) => ({ name, value }))}
-                                colors={['#f97316', '#10b981']} // Orange, Green
-                            />
-                        </CardContent>
-                    </Card>
-
-                    {/* Age Groups */}
-                    <Card className="md:col-span-2 lg:col-span-1">
-                        <CardHeader>
-                            <CardTitle className="text-base">Age Groups</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <SimpleBarChart
-                                data={stats.byAgeGroup.map(([name, value]) => ({ name, value }))}
-                                color="#10b981"
-                            />
-                        </CardContent>
-                    </Card>
-
 
                 </div>
+
+
             </div>
+
 
             {/* 1. Operational & Legal Analytics */}
             <div className="mt-8">
@@ -387,7 +332,6 @@ export default function StatsPage() {
 
 
 
-
-        </div >
+        </div>
     );
 }

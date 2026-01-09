@@ -34,7 +34,7 @@ export async function fetchStartups(): Promise<{
 
         const mapStartupData = (raw: any): Startup => {
             const parseNumber = (val: any) => {
-                if (typeof val === 'number') return val;
+                if (typeof val === 'number') return Math.floor(val);
                 if (!val) return 0;
                 const clean = val.toString().replace(/[^0-9.]/g, '');
                 return parseFloat(clean) || 0;
@@ -123,6 +123,49 @@ export async function fetchStartups(): Promise<{
                     'تمويل خارجي': 'External Funding',
 
                     // Legal
+                    'صناعة المنسوجات والملابس': 'Textiles & Clothing',
+                    'صناعة الأثاث': 'Furniture',
+                    'صناعة الجلود': 'Leather',
+                    'الصناعات الكيماوية': 'Chemical Industries',
+                    'صناعة الورق': 'Paper Industry',
+                    'الصناعات الهندسية': 'Engineering Industries',
+                    'مواد البناء': 'Construction Materials',
+                    'الطاقة المتجددة': 'Renewable Energy',
+                    'إدارة المخلفات': 'Waste Management',
+                    'خدمات مالية': 'Financial Services',
+                    'خدمات طبية': 'Medical Services',
+                    'خدمات تعليمية': 'Educational Services',
+                    'خدمات استشارية': 'Consulting Services',
+                    'تسويق ودعاية': 'Marketing & Advertising',
+                    'نقل وشحن': 'transportation & Shipping',
+                    'سياحة وفنادق': 'Tourism & Hospitality',
+                    'مطاعم وكافيهات': 'Restaurants & Cafes',
+                    'بيع بالتجزئة': 'Retail',
+                    'تجارة جملة': 'Wholesale',
+                    'فنون وثقافة': 'Arts & Culture',
+                    'إعلام ونشر': 'Media & Publishing',
+                    'رياضة وترفيه': 'Sports & Entertainment',
+                    'تجميل وعناية شخصية': 'Beauty & Personal Care',
+                    'عقارات': 'Real Estate',
+                    'أمن وحراسة': 'Security Services',
+                    'صيانة وإصلاح': 'Maintenance & Repair',
+                    'خدمات منزلية': 'Home Services',
+                    'تكنولوجيا المعلومات': 'Information Technology',
+                    'برمجة وتطوير': 'Software Development',
+                    'تصميم جرافيك': 'Graphic Design',
+                    'تسويق رقمي': 'Digital Marketing',
+                    'صناعة المحتوى': 'Content Creation',
+                    'تعليم إلكتروني': 'E-learning',
+                    'صحة رقمية': 'Digital Health',
+                    'تكنولوجيا زراعية': 'AgriTech',
+                    'تكنولوجيا مالية': 'FinTech',
+                    'ذكاء اصطناعي': 'Artificial Intelligence',
+                    'إنترنت الأشياء': 'IoT',
+                    'روبوتات': 'Robotics',
+                    'طباعة ثلاثية الأبعاد': '3D Printing',
+                    'بلوكتشين': 'Blockchain',
+
+                    // Old Entries (Kept for compatibility)
                     'مسجل': 'Registered',
                     'غير مسجل': 'Not Registered',
                 };
@@ -144,7 +187,7 @@ export async function fetchStartups(): Promise<{
                 website: raw['Website/ app links/ social media'] || raw['التطبيق /رابط الموقع'] || '#',
                 phone: raw['Phone'] || raw['الهاتف'] ? String(raw['Phone'] || raw['الهاتف']) : '',
                 email: raw['Email'] || raw['البريد الالكتروني'] || '',
-                foundingYear: parseYear(raw['Year'] || raw['Date of company stabilished'] || raw['متي بدا مشروعك']),
+                foundingYear: parseYear(raw['Date of company stabilished'] || raw['Year'] || raw['متي بدا مشروعك']),
                 legalStatus: translate(raw['Legal Status'] || raw['هل المشروع مسجل']) || 'Not specified',
                 fundingRaised: raw['Funding raised'] || raw['قيمة تمويل'] ? String(raw['Funding raised'] || raw['قيمة تمويل']) : 'Self-funded',
                 profitStatus: translate(raw['profitability'] || raw['مرحلة المشروع']) || 'Not specified',
@@ -226,4 +269,41 @@ export function formatCurrency(amount: number): string {
         return `${(num / 1000).toFixed(0)}K`;
     }
     return num.toString();
+}
+
+/**
+ * Submit a meeting request
+ */
+export async function submitMeetingRequest(data: {
+    startupName: string;
+    name: string;
+    role: string;
+    email: string;
+    phone: string;
+    note: string;
+}): Promise<any> {
+    console.log('🚀 Sending meeting request...', data);
+
+    try {
+        await fetch(API_URL, {
+            method: 'POST',
+            mode: 'no-cors', // Important for Google Apps Script Web App default behavior
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        });
+
+        // Since 'no-cors' mode returns an opaque response, we can't read the JSON.
+        // We assume success if no network error occurred.
+        // For 'cors' mode to work, the GAS script needs specific headers which are hard to guarantee.
+        // 'no-cors' is safer for simple submissions.
+
+        console.log('✅ Request submitted (no-cors mode)');
+        return { success: true };
+
+    } catch (err) {
+        console.error("❌ Error submitting request:", err);
+        throw err;
+    }
 }

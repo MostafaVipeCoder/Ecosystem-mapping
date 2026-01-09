@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { Toaster } from 'sonner';
 import { StartupsProvider } from './context/StartupsContext';
 import Layout from './components/Layout';
 import HomePage from './pages/HomePage';
@@ -16,6 +17,7 @@ export default function App() {
             <Route path="stats" element={<StatsPage />} />
           </Route>
         </Routes>
+        <Toaster position="top-right" richColors />
       </StartupsProvider>
     </BrowserRouter>
   );

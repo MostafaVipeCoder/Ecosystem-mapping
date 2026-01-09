@@ -112,6 +112,62 @@ function doGet(e) {
     }
 }
 
+
+/**
+ * دالة doPost - تُنفذ عند استلام طلب POST (مثل الحجز)
+ */
+function doPost(e) {
+    try {
+        Logger.log('🚀 بدء معالجة طلب POST...');
+
+        // 1. تحليل البيانات المرسلة
+        const params = JSON.parse(e.postData.contents);
+        Logger.log('📦 البيانات المستلمة: ' + JSON.stringify(params));
+
+        // 2. الوصول لملف الشيت
+        const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+
+        // 3. تحديد ورقة "Requests" أو إنشائها لو مش موجودة
+        let requestSheet = spreadsheet.getSheetByName('Requests');
+        if (!requestSheet) {
+            Logger.log('⚠️ ورقة Requests غير موجودة، جاري إنشاؤها...');
+            requestSheet = spreadsheet.insertSheet('Requests');
+            // إضافة العناوين (Headers)
+            requestSheet.appendRow(['Timestamp', 'Startup Name', 'Name', 'Role', 'Email', 'Phone', 'Note']);
+        }
+
+        // 4. تجهيز الصف الجديد
+        const newRow = [
+            new Date(), // Timestamp
+            params.startupName || '',
+            params.name || '',
+            params.role || '',
+            params.email || '',
+            params.phone || '',
+            params.note || ''
+        ];
+
+        // 5. إضافة الصف للشيت
+        requestSheet.appendRow(newRow);
+        Logger.log('✅ تم حفظ الطلب بنجاح!');
+
+        // 6. إرجاع رد ناجح
+        return createJsonResponse({
+            success: true,
+            message: 'تم استلام الطلب وحفظه بنجاح',
+            savedData: params
+        });
+
+    } catch (error) {
+        Logger.log('❌ خطأ في doPost: ' + error.toString());
+        return createJsonResponse({
+            success: false,
+            error: error.toString(),
+            message: 'حدث خطأ أثناء حفظ الطلب'
+        });
+    }
+}
+
 /**
  * دالة مساعدة لإنشاء JSON Response
  */
