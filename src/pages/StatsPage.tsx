@@ -172,72 +172,71 @@ export default function StatsPage() {
 
     return (
         <div className="container px-4 md:px-8 py-12 mx-auto">
-            {/* Page Header */}
-            <div className="mb-12">
-                <div className="flex items-center gap-4 mb-3">
-                    <div className="h-12 w-12 rounded-2xl bg-athar-black flex items-center justify-center text-athar-yellow shadow-lg">
+            <div className="mb-10">
+                <div className="flex flex-col md:flex-row md:items-center gap-4 mb-3">
+                    <div className="h-12 w-12 rounded-2xl bg-athar-black flex items-center justify-center text-athar-yellow shadow-lg shrink-0">
                         <BarChart3 className="h-7 w-7" />
                     </div>
                     <div>
-                        <h1 className="text-4xl md:text-5xl font-black text-athar-black tracking-tight leading-none mb-2">Statistics & Analytics</h1>
-                        <p className="text-athar-black/60 font-bold">Comprehensive overview of startup ecosystem data</p>
+                        <h1 className="text-3xl md:text-5xl font-black text-athar-black tracking-tight leading-tight mb-1">Statistics & Analytics</h1>
+                        <p className="text-athar-black/60 font-bold text-sm md:text-base">Comprehensive overview of startup ecosystem data</p>
                     </div>
                 </div>
             </div>
 
             {/* Key Metrics */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
                 <Card className="border-0 shadow-sm hover:shadow-xl transition-all duration-500 rounded-2xl group hover:-translate-y-1">
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-xs font-black text-athar-black/40 flex items-center gap-2 uppercase tracking-widest">
-                            <Building2 className="h-4 w-4 text-athar-blue" />
+                    <CardHeader className="p-4 md:p-6 pb-2">
+                        <CardTitle className="text-[10px] md:text-xs font-black text-athar-black/40 flex items-center gap-2 uppercase tracking-widest">
+                            <Building2 className="h-3.5 md:h-4 w-3.5 md:w-4 text-athar-blue" />
                             Total Startups
                         </CardTitle>
                     </CardHeader>
-                    <CardContent>
-                        <div className="text-4xl font-black text-athar-black group-hover:text-athar-blue transition-colors leading-none">{stats.totalStartups}</div>
-                        <p className="text-[11px] font-bold text-athar-black/30 mt-2 uppercase tracking-wider">Registered Companies</p>
+                    <CardContent className="p-4 md:p-6 pt-0">
+                        <div className="text-2xl md:text-4xl font-black text-athar-black group-hover:text-athar-blue transition-colors leading-none">{stats.totalStartups}</div>
+                        <p className="text-[9px] md:text-[11px] font-bold text-athar-black/30 mt-1 md:mt-2 uppercase tracking-wider">Registered</p>
                     </CardContent>
                 </Card>
 
                 <Card className="border-0 shadow-sm hover:shadow-xl transition-all duration-500 rounded-2xl group hover:-translate-y-1">
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-xs font-black text-athar-black/40 flex items-center gap-2 uppercase tracking-widest">
-                            <Users className="h-4 w-4 text-athar-blue" />
-                            Total Employees
+                    <CardHeader className="p-4 md:p-6 pb-2">
+                        <CardTitle className="text-[10px] md:text-xs font-black text-athar-black/40 flex items-center gap-2 uppercase tracking-widest">
+                            <Users className="h-3.5 md:h-4 w-3.5 md:w-4 text-athar-blue" />
+                            Employees
                         </CardTitle>
                     </CardHeader>
-                    <CardContent>
-                        <div className="text-4xl font-black text-athar-black group-hover:text-athar-blue transition-colors leading-none">{stats.totalEmployees.toLocaleString()}</div>
-                        <p className="text-[11px] font-bold text-athar-black/30 mt-2 uppercase tracking-wider">Avg {stats.avgEmployees} per company</p>
+                    <CardContent className="p-4 md:p-6 pt-0">
+                        <div className="text-2xl md:text-4xl font-black text-athar-black group-hover:text-athar-blue transition-colors leading-none">{stats.totalEmployees >= 1000 ? (stats.totalEmployees / 1000).toFixed(1) + 'K' : stats.totalEmployees}</div>
+                        <p className="text-[9px] md:text-[11px] font-bold text-athar-black/30 mt-1 md:mt-2 uppercase tracking-wider">Total Count</p>
                     </CardContent>
                 </Card>
 
                 <Card className="border-0 shadow-sm hover:shadow-xl transition-all duration-500 rounded-2xl group hover:-translate-y-1">
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-xs font-black text-athar-black/40 flex items-center gap-2 uppercase tracking-widest">
-                            <DollarSign className="h-4 w-4 text-athar-blue" />
-                            Total Revenue
+                    <CardHeader className="p-4 md:p-6 pb-2">
+                        <CardTitle className="text-[10px] md:text-xs font-black text-athar-black/40 flex items-center gap-2 uppercase tracking-widest">
+                            <DollarSign className="h-3.5 md:h-4 w-3.5 md:w-4 text-athar-blue" />
+                            Revenue
                         </CardTitle>
                     </CardHeader>
-                    <CardContent>
-                        <div className="text-4xl font-black text-athar-black group-hover:text-athar-blue transition-colors leading-none">
+                    <CardContent className="p-4 md:p-6 pt-0">
+                        <div className="text-2xl md:text-4xl font-black text-athar-black group-hover:text-athar-blue transition-colors leading-none">
                             {(stats.totalRevenue / 1000000).toFixed(1)}M
                         </div>
-                        <p className="text-[11px] font-bold text-athar-black/30 mt-2 uppercase tracking-wider">Million EGP Annually</p>
+                        <p className="text-[9px] md:text-[11px] font-bold text-athar-black/30 mt-1 md:mt-2 uppercase tracking-wider">EGP Annually</p>
                     </CardContent>
                 </Card>
 
                 <Card className="border-0 shadow-sm hover:shadow-xl transition-all duration-500 rounded-2xl group hover:-translate-y-1">
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-xs font-black text-athar-black/40 flex items-center gap-2 uppercase tracking-widest">
-                            <TrendingUp className="h-4 w-4 text-athar-blue" />
-                            Profitable Startups
+                    <CardHeader className="p-4 md:p-6 pb-2">
+                        <CardTitle className="text-[10px] md:text-xs font-black text-athar-black/40 flex items-center gap-2 uppercase tracking-widest">
+                            <TrendingUp className="h-3.5 md:h-4 w-3.5 md:w-4 text-athar-blue" />
+                            Profitable
                         </CardTitle>
                     </CardHeader>
-                    <CardContent>
-                        <div className="text-4xl font-black text-athar-black group-hover:text-athar-blue transition-colors leading-none">{stats.profitablePercentage}%</div>
-                        <p className="text-[11px] font-bold text-athar-black/30 mt-2 uppercase tracking-wider">{stats.profitableCount} Successful models</p>
+                    <CardContent className="p-4 md:p-6 pt-0">
+                        <div className="text-2xl md:text-4xl font-black text-athar-black group-hover:text-athar-blue transition-colors leading-none">{stats.profitablePercentage}%</div>
+                        <p className="text-[9px] md:text-[11px] font-bold text-athar-black/30 mt-1 md:mt-2 uppercase tracking-wider">Success Rate</p>
                     </CardContent>
                 </Card>
             </div>
@@ -262,27 +261,26 @@ export default function StatsPage() {
                 </Card>
 
                 {/* By Governorate */}
-                <Card>
+                <Card className="border-0 shadow-sm rounded-2xl">
                     <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                            <MapPin className="h-5 w-5 text-primary" />
-                            التوزيع حسب المحافظة
+                        <CardTitle className="flex items-center gap-2 text-lg font-black text-athar-black">
+                            <MapPin className="h-5 w-5 text-athar-blue" />
+                            Distribution by Location
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
                         <SimpleBarChart
                             data={stats.byGovernorate.slice(0, 10).map(([name, value]) => ({ name, value }))}
-                            color="#3b82f6"
                         />
                     </CardContent>
                 </Card>
 
                 {/* By Stage */}
-                <Card className="md:col-span-2">
+                <Card className="md:col-span-2 border-0 shadow-sm rounded-2xl">
                     <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                            <TrendingUp className="h-5 w-5 text-primary" />
-                            التوزيع حسب المرحلة
+                        <CardTitle className="flex items-center gap-2 text-lg font-black text-athar-black">
+                            <TrendingUp className="h-5 w-5 text-athar-blue" />
+                            Distribution by Stage
                         </CardTitle>
                     </CardHeader>
                     <CardContent>

@@ -13,9 +13,10 @@ import {
     TrendingUp,
     Target,
     Loader2,
-    RefreshCcw,
     X,
-    ArrowRight
+    ArrowRight,
+    SlidersHorizontal,
+    Search
 } from 'lucide-react';
 
 import { Button } from '../components/ui/button';
@@ -339,6 +340,7 @@ export default function HomePage() {
     const [selectedIndustries, setSelectedIndustries] = useState<string[]>([]);
     const [employeeRange, setEmployeeRange] = useState<number[]>([0, 200]);
     const [revenueRange, setRevenueRange] = useState<number[]>([0, 10000000]);
+    const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
 
 
 
@@ -356,6 +358,12 @@ export default function HomePage() {
             return matchesSearch && matchesIndustry && matchesEmployees && matchesRevenue;
         });
     }, [startups, searchQuery, selectedIndustries, employeeRange, revenueRange]);
+
+    const activeFiltersCount =
+        (searchQuery ? 1 : 0) +
+        selectedIndustries.length +
+        (employeeRange[0] > 0 || employeeRange[1] < 200 ? 1 : 0) +
+        (revenueRange[0] > 0 || revenueRange[1] < 10000000 ? 1 : 0);
 
     const handleReset = () => {
         setSearchQuery('');
@@ -413,19 +421,48 @@ export default function HomePage() {
     };
 
     return (
-        <>
+        <div className="min-h-screen bg-slate-50 flex flex-col">
+            {/* Mobile Filter Bar - Visible only on mobile/tablet */}
+            <div className="lg:hidden sticky top-16 z-20 bg-white border-b px-4 py-3 flex items-center justify-between shadow-sm">
+                <div className="flex items-center gap-2">
+                    <Badge variant="secondary" className="bg-athar-yellow/20 text-athar-black font-bold border-0">
+                        {filteredStartups.length}
+                    </Badge>
+                    <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Startups Found</span>
+                </div>
+                <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setIsMobileFilterOpen(true)}
+                    className="gap-2 rounded-xl border-slate-200 font-bold text-xs"
+                >
+                    <SlidersHorizontal className="h-3.5 w-3.5" />
+                    Filters
+                    {activeFiltersCount > 0 && (
+                        <span className="flex h-4 w-4 items-center justify-center rounded-full bg-athar-blue text-[10px] text-white">
+                            {activeFiltersCount}
+                        </span>
+                    )}
+                </Button>
+            </div>
 
+            {/* Mobile Filter Drawer */}
+            <Sheet open={isMobileFilterOpen} onOpenChange={setIsMobileFilterOpen}>
+                <SheetContent side="left" className="p-0 w-[300px] sm:w-[350px]" dir="ltr">
+                    <FilterSidebar className="h-full" {...filterProps} />
+                </SheetContent>
+            </Sheet>
 
             {/* Main Layout Container - Below Fixed Top Bar */}
-            <div className="fixed top-16 left-0 right-0 bottom-0 flex">
+            <div className="flex-1 flex overflow-hidden">
                 {/* Fixed Sidebar - Always Visible on Desktop, Hidden on Mobile */}
-                <aside className="w-72 border-l bg-white overflow-hidden shrink-0 hidden lg:block">
+                <aside className="w-72 border-r bg-white overflow-hidden shrink-0 hidden lg:block">
                     <FilterSidebar className="h-full" {...filterProps} />
                 </aside>
 
                 {/* Scrollable Main Content */}
-                <main className="flex-1 overflow-y-auto bg-slate-50/50">
-                    <div className="p-8">
+                <main className="flex-1 overflow-y-auto w-full">
+                    <div className="p-4 md:p-8">
                         <div className="max-w-[1600px] mx-auto">
                             {filteredStartups.length === 0 ? (
                                 <div className="py-24 text-center max-w-sm mx-auto">
@@ -468,7 +505,7 @@ export default function HomePage() {
                 open={isDetailsOpen}
                 onOpenChange={setIsDetailsOpen}
             />
-        </>
+        </div>
     );
 }
 

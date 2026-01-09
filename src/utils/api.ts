@@ -59,38 +59,104 @@ export async function fetchStartups(): Promise<{
                 return new Date().getFullYear();
             };
 
+            const translate = (val: string | undefined | null) => {
+                if (!val) return val;
+                const mapping: Record<string, string> = {
+                    // Industries
+                    'التكنولوجيا': 'Technology',
+                    'البيئة واعادة التدوير': 'Environment & Recycling',
+                    'الحرف اليدوية': 'Handicrafts',
+                    'الصناعات الغذائية': 'Food Industry',
+                    'الخدمات اللوجستية': 'Logistics',
+                    'التعليم': 'Education',
+                    'الصحة': 'Health',
+                    'الزراعة': 'Agriculture',
+                    'السياحة': 'Tourism',
+                    'التجارة الالكترونية': 'E-commerce',
+                    'أخرى': 'Other',
+
+                    // Governorates
+                    'القاهرة': 'Cairo',
+                    'الجيزة': 'Giza',
+                    'الأسكندرية': 'Alexandria',
+                    'المنيا': 'Minya',
+                    'أسيوط': 'Asyut',
+                    'بني سويف': 'Beni Suef',
+                    'الفيوم': 'Faiyum',
+                    'سوهاج': 'Sohag',
+                    'قنا': 'Qena',
+                    'الأقصر': 'Luxor',
+                    'أسوان': 'Aswan',
+                    'البحر الأحمر': 'Red Sea',
+                    'الوادى الجديد': 'New Valley',
+                    'مطروح': 'Matrouh',
+                    'شمال سيناء': 'North Sinai',
+                    'جنوب سيناء': 'South Sinai',
+                    'بورسعيد': 'Port Said',
+                    'الإسماعيلية': 'Ismailia',
+                    'السويس': 'Suez',
+                    'الشرقية': 'Sharqia',
+                    'الدقهلية': 'Dakahlia',
+                    'دمياط': 'Damietta',
+                    'كفر الشيخ': 'Kafr El Sheikh',
+                    'الغربية': 'Gharbia',
+                    'المنوفية': 'Menofia',
+                    'القليوبية': 'Qalyubia',
+                    'البحيرة': 'Beheira',
+
+                    // Gender
+                    'ذكر': 'Male',
+                    'أنثى': 'Female',
+
+                    // Founder Status
+                    'طالب': 'Student',
+                    'خريج': 'Graduate',
+
+                    // Stages
+                    'فكرة': 'Idea',
+                    'نموذج أولي': 'MVP',
+                    'مرحلة النمو': 'Growth',
+                    'شركة قائمة': 'Scale-up',
+
+                    // Funding
+                    'تمويل ذاتي': 'Self-funded',
+                    'تمويل خارجي': 'External Funding',
+
+                    // Legal
+                    'مسجل': 'Registered',
+                    'غير مسجل': 'Not Registered',
+                };
+
+                const trimmed = val.trim();
+                return mapping[trimmed] || trimmed;
+            };
+
             return {
                 id: raw['ID'] ? String(raw['ID']) : String(Math.random()),
                 name: raw['Startup Name'] || raw['أسم الشركة'] || 'Name not available',
                 ceoName: raw['CEO Name'] || raw['اسم المؤسس'] || 'Not specified',
-                industry: raw['Industry'] || raw['Industry '] || raw['قطاع المشروع الصناعة'] || 'Uncategorized',
+                industry: translate(raw['Industry'] || raw['Industry '] || raw['قطاع المشروع الصناعة']) || 'Uncategorized',
                 description: raw['Description'] || raw['الوصف'] || raw['وصف مختصر للشركة'] || '',
                 employees: parseNumber(raw['Nu. of employees'] || raw['عدد الموظفين كلهم بدون المؤسسين']),
                 revenue: parseNumber(raw['Revenue (Total) (Yearly)'] || raw['الايرادات سنوي']),
-                governorate: raw['Governerate'] || raw['المحافظة'] || 'Not specified',
-                stage: raw['Startup type'] || raw['نوع الشركة'] || 'Not specified',
+                governorate: translate(raw['Governerate'] || raw['المحافظة']) || 'Not specified',
+                stage: translate(raw['Startup type'] || raw['نوع الشركة']) || 'Not specified',
                 website: raw['Website/ app links/ social media'] || raw['التطبيق /رابط الموقع'] || '#',
                 phone: raw['Phone'] || raw['الهاتف'] ? String(raw['Phone'] || raw['الهاتف']) : '',
                 email: raw['Email'] || raw['البريد الالكتروني'] || '',
                 foundingYear: parseYear(raw['Year'] || raw['Date of company stabilished'] || raw['متي بدا مشروعك']),
-                legalStatus: raw['Legal Status'] || raw['هل المشروع مسجل'] || 'Not specified',
+                legalStatus: translate(raw['Legal Status'] || raw['هل المشروع مسجل']) || 'Not specified',
                 fundingRaised: raw['Funding raised'] || raw['قيمة تمويل'] ? String(raw['Funding raised'] || raw['قيمة تمويل']) : 'Self-funded',
-                profitStatus: raw['profitability'] || raw['مرحلة المشروع'] || 'Not specified',
-                ceoGender: raw[' CEO Gender'] || raw['CEO Gender'] || raw['النوع'] || 'Not specified',
-                founderStatus: raw['Student/Graduate'] || raw['طالب/خريج'] || 'Not specified',
+                profitStatus: translate(raw['profitability'] || raw['مرحلة المشروع']) || 'Not specified',
+                ceoGender: translate(raw[' CEO Gender'] || raw['CEO Gender'] || raw['النوع']) || 'Not specified',
+                founderStatus: translate(raw['Student/Graduate'] || raw['طالب/خريج']) || 'Not specified',
                 ceoAge: parseNumber(raw['CEO Age'] || raw['عمر المؤسس']),
-                hasDedicatedPlace: raw['Have a dedicated place'] || raw['مكان مخصص'] || 'Not specified',
+                hasDedicatedPlace: translate(raw['Have a dedicated place'] || raw['مكان مخصص']) || 'Not specified',
 
 
-                startupType: raw['Startup Type'] || raw['Startup type'] || 'Not specified',
-                workplaceOwnership: raw['own or rent a workplace'] || 'Not specified',
-                legalStatusDetails: raw['Legal Status'] || 'Not specified',
-
-
-
-
-
-
+                startupType: translate(raw['Startup Type'] || raw['Startup type']) || 'Not specified',
+                workplaceOwnership: translate(raw['own or rent a workplace']) || 'Not specified',
+                legalStatusDetails: translate(raw['Legal Status']) || 'Not specified',
 
 
                 challenges: raw['Challenges'] || raw['التحديات'] || '',
