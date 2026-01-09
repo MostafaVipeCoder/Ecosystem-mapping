@@ -274,26 +274,26 @@ function StartupCard({ startup, onClick }: { startup: Startup, onClick: () => vo
                 </div>
 
                 <div>
-                    <CardTitle className="text-xl font-extrabold group-hover:text-athar-blue transition-colors line-clamp-1 leading-tight text-athar-black" title={startup.name}>
+                    <CardTitle className="text-xl font-extrabold group-hover:text-athar-blue transition-colors leading-tight text-athar-black break-words" title={startup.name}>
                         {startup.name}
                     </CardTitle>
                 </div>
             </CardHeader>
 
             <CardContent className="p-5 pt-2 pb-4 space-y-4 flex-1">
-                <div className="grid grid-cols-2 gap-3">
+                <div className="flex flex-col gap-2">
                     <div className="flex items-center gap-2 text-sm text-slate-600">
-                        <div className="h-9 w-9 rounded-xl bg-slate-50 flex items-center justify-center shrink-0 text-slate-400 group-hover:bg-athar-blue group-hover:text-white transition-all duration-300">
-                            <MapPin size={18} />
+                        <div className="h-8 w-8 rounded-lg bg-slate-50 flex items-center justify-center shrink-0 text-slate-400 group-hover:bg-athar-blue group-hover:text-white transition-all duration-300">
+                            <MapPin size={16} />
                         </div>
-                        <span className="truncate font-medium">{startup.governorate}</span>
+                        <span className="font-medium">{startup.governorate}</span>
                     </div>
 
                     <div className="flex items-center gap-2 text-sm text-slate-600">
-                        <div className="h-9 w-9 rounded-xl bg-slate-50 flex items-center justify-center shrink-0 text-slate-400 group-hover:bg-athar-blue group-hover:text-white transition-all duration-300">
-                            <Users size={18} />
+                        <div className="h-8 w-8 rounded-lg bg-slate-50 flex items-center justify-center shrink-0 text-slate-400 group-hover:bg-athar-blue group-hover:text-white transition-all duration-300">
+                            <Users size={16} />
                         </div>
-                        <span className="truncate font-medium">{startup.employees} Employees</span>
+                        <span className="font-medium">{startup.employees} Employees</span>
                     </div>
                 </div>
 
@@ -310,18 +310,18 @@ function StartupCard({ startup, onClick }: { startup: Startup, onClick: () => vo
 
             <Separator className="bg-slate-100" />
 
-            <CardFooter className="p-4 bg-slate-50/50 flex justify-between items-center mt-auto">
+            <CardFooter className="p-4 bg-slate-50/50 flex flex-wrap gap-4 justify-between items-center mt-auto">
                 <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-full bg-athar-black flex items-center justify-center text-xs font-bold text-athar-yellow ring-4 ring-white shadow-md">
+                    <div className="h-10 w-10 rounded-full bg-athar-black flex items-center justify-center text-xs font-bold text-[#1a27c9] ring-4 ring-white shadow-md">
                         {(startup.ceoName || '?').charAt(0)}
                     </div>
                     <div className="flex flex-col">
                         <span className="text-[10px] text-athar-black/50 font-bold uppercase">CEO</span>
-                        <span className="text-xs font-bold text-athar-black truncate max-w-[120px]">{startup.ceoName || 'N/A'}</span>
+                        <span className="text-xs font-bold text-athar-black break-words max-w-[150px]">{startup.ceoName || 'N/A'}</span>
                     </div>
                 </div>
 
-                <Button variant="ghost" size="sm" className="h-9 text-xs px-4 hover:bg-athar-yellow hover:text-athar-black transition-all rounded-xl font-bold border border-transparent hover:border-athar-yellow shadow-none hover:shadow-lg hover:shadow-athar-yellow/20">
+                <Button variant="ghost" size="sm" className="h-9 text-xs px-4 hover:bg-athar-yellow hover:text-athar-black transition-all rounded-xl font-bold border border-transparent hover:border-athar-yellow shadow-none hover:shadow-lg hover:shadow-athar-yellow/20 ml-auto">
                     Details
                 </Button>
             </CardFooter>
