@@ -7,9 +7,6 @@ import {
     Briefcase,
     Building2,
     Calendar,
-    Phone,
-    Mail,
-    Globe,
     TrendingUp,
     Target,
     Loader2,
@@ -38,7 +35,7 @@ const StartupDetails = ({ startup, open, onOpenChange }: { startup: Startup | nu
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent side="left" className="w-[100vw] sm:w-[600px] p-0 overflow-hidden flex flex-col" dir="ltr">
+            <SheetContent side="left" className="w-[100vw] sm:w-[1000px] p-0 overflow-hidden flex flex-col" dir="ltr">
                 {/* Header */}
                 <div className="bg-athar-black text-white p-6 relative overflow-hidden shrink-0">
                     <div className="absolute top-0 left-0 w-full h-full opacity-20 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-athar-blue via-athar-blue/50 to-transparent"></div>
@@ -52,9 +49,14 @@ const StartupDetails = ({ startup, open, onOpenChange }: { startup: Startup | nu
                         </div>
 
                         <div className="flex justify-between items-center mb-4">
-                            <Badge variant="secondary" className="bg-athar-yellow text-athar-black hover:bg-athar-yellow/90 border-0 font-bold uppercase tracking-wider px-3 py-1">
-                                {startup.industry}
-                            </Badge>
+                            <div className="flex items-center gap-2">
+                                <Badge variant="secondary" className="bg-athar-yellow text-athar-black hover:bg-athar-yellow/90 border-0 font-bold uppercase tracking-wider px-3 py-1">
+                                    {startup.industry}
+                                </Badge>
+                                <Badge variant="outline" className="text-white border-white/30 backdrop-blur-sm">
+                                    {startup.legalStatus}
+                                </Badge>
+                            </div>
 
                             <MeetingRequestDialog
                                 startupName={startup.name}
@@ -78,10 +80,12 @@ const StartupDetails = ({ startup, open, onOpenChange }: { startup: Startup | nu
                                 <Briefcase size={14} />
                                 {startup.stage}
                             </div>
-                            <div className="flex items-center gap-1.5">
-                                <Calendar size={14} />
-                                {Math.floor(new Date().getFullYear() - (startup.foundingYear || new Date().getFullYear()))} Years (Est. {startup.foundingYear})
-                            </div>
+                            {startup.foundingYear > 0 && (
+                                <div className="flex items-center gap-1.5">
+                                    <Calendar size={14} />
+                                    Founded in {startup.foundingYear}
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -127,11 +131,7 @@ const StartupDetails = ({ startup, open, onOpenChange }: { startup: Startup | nu
                                     </Card>
                                 )}
 
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="bg-white p-4 rounded-lg border shadow-sm space-y-1">
-                                        <span className="text-xs text-athar-black/50 font-bold uppercase tracking-wider">Legal Status</span>
-                                        <div className="font-bold text-athar-black">{startup.legalStatus}</div>
-                                    </div>
+                                <div className="grid grid-cols-1 gap-4">
                                     {startup.challenges && (
                                         <div className="bg-white p-4 rounded-lg border shadow-sm space-y-1">
                                             <span className="text-xs text-muted-foreground">Challenges</span>
@@ -140,47 +140,7 @@ const StartupDetails = ({ startup, open, onOpenChange }: { startup: Startup | nu
                                     )}
                                 </div>
 
-                                <div>
-                                    <h3 className="font-semibold mb-3 flex items-center gap-2">
-                                        <Phone className="h-4 w-4" />
-                                        Contact Information
-                                    </h3>
-                                    <div className="bg-white rounded-lg border divide-y">
-                                        {startup.phone && (
-                                            <div className="p-3 flex items-center gap-3">
-                                                <div className="h-8 w-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
-                                                    <Phone size={14} />
-                                                </div>
-                                                <div className="text-sm">
-                                                    <div className="text-muted-foreground text-xs">Phone</div>
-                                                    <div dir="ltr" className="font-medium">{startup.phone}</div>
-                                                </div>
-                                            </div>
-                                        )}
-                                        {startup.email && (
-                                            <div className="p-3 flex items-center gap-3">
-                                                <div className="h-8 w-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
-                                                    <Mail size={14} />
-                                                </div>
-                                                <div className="text-sm">
-                                                    <div className="text-muted-foreground text-xs">Email</div>
-                                                    <div className="font-medium">{startup.email}</div>
-                                                </div>
-                                            </div>
-                                        )}
-                                        {startup.website && startup.website !== '#' && (
-                                            <div className="p-3 flex items-center gap-3">
-                                                <div className="h-8 w-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
-                                                    <Globe size={14} />
-                                                </div>
-                                                <div className="text-sm">
-                                                    <div className="text-muted-foreground text-xs">Website</div>
-                                                    <a href={startup.website} target="_blank" rel="noreferrer" className="font-medium text-blue-600 hover:underline break-all">{startup.website}</a>
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
+
                             </TabsContent>
 
                             <TabsContent value="financials" className="space-y-6 mt-0">
@@ -276,9 +236,11 @@ function StartupCard({ startup, onClick }: { startup: Startup, onClick: () => vo
                     <Badge variant="secondary" className="font-semibold text-[10px] px-2.5 py-1 text-athar-black bg-athar-yellow hover:bg-athar-yellow/90 border-0 rounded-md uppercase tracking-wider">
                         {startup.industry}
                     </Badge>
-                    <div className={`text-[11px] font-bold px-2.5 py-1 rounded-md border shadow-sm ${startup.profitStatus === 'Available' || startup.profitStatus?.toLowerCase().includes('revenue')
-                        ? 'text-emerald-700 border-emerald-200 bg-emerald-50'
-                        : 'text-amber-700 border-amber-200 bg-amber-50'
+                    <div className={`text-[11px] font-bold px-2.5 py-1 rounded-md border shadow-sm ${startup.profitStatus?.toLowerCase().includes('pre')
+                        ? 'text-red-700 border-red-200 bg-red-50'
+                        : startup.profitStatus === 'Available' || startup.profitStatus?.toLowerCase().includes('revenue')
+                            ? 'text-emerald-700 border-emerald-200 bg-emerald-50'
+                            : 'text-amber-700 border-amber-200 bg-amber-50'
                         }`}>
                         {startup.profitStatus === 'Available' ? 'Profitable' : startup.profitStatus}
                     </div>
@@ -294,19 +256,19 @@ function StartupCard({ startup, onClick }: { startup: Startup, onClick: () => vo
             </CardHeader>
 
             <CardContent className="p-5 pt-2 pb-4 space-y-4 flex-1">
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-wrap items-center justify-between gap-y-2 gap-x-1">
                     <div className="flex items-center gap-2 text-sm text-slate-600">
                         <div className="h-8 w-8 rounded-lg bg-slate-50 flex items-center justify-center shrink-0 text-slate-400 group-hover:bg-athar-blue group-hover:text-white transition-all duration-300">
                             <MapPin size={16} />
                         </div>
-                        <span className="font-medium">{startup.governorate}</span>
+                        <span className="font-medium text-xs sm:text-sm">{startup.governorate}</span>
                     </div>
 
                     <div className="flex items-center gap-2 text-sm text-slate-600">
                         <div className="h-8 w-8 rounded-lg bg-slate-50 flex items-center justify-center shrink-0 text-slate-400 group-hover:bg-athar-blue group-hover:text-white transition-all duration-300">
                             <Users size={16} />
                         </div>
-                        <span className="font-medium">{startup.employees} Employees</span>
+                        <span className="font-medium text-xs sm:text-sm">{startup.employees} Employees</span>
                     </div>
                 </div>
 
@@ -328,13 +290,13 @@ function StartupCard({ startup, onClick }: { startup: Startup, onClick: () => vo
                     <div className="h-10 w-10 rounded-full bg-[#1a27c9] flex items-center justify-center text-xs font-bold text-white ring-4 ring-white shadow-md">
                         {(startup.ceoName || '?').charAt(0)}
                     </div>
-                    <div className="flex flex-col">
+                    <div className="flex flex-col gap-1">
                         <span className="text-[10px] text-athar-black/50 font-bold uppercase">Founder</span>
                         <span className="text-xs font-bold text-athar-black break-words max-w-[150px]">{startup.ceoName || 'N/A'}</span>
                     </div>
                 </div>
 
-                <Button variant="ghost" size="sm" className="h-9 text-xs px-4 hover:bg-athar-yellow hover:text-athar-black transition-all rounded-xl font-bold border border-transparent hover:border-athar-yellow shadow-none hover:shadow-lg hover:shadow-athar-yellow/20 ml-auto">
+                <Button variant="ghost" size="sm" className="h-9 text-xs px-4 hover:bg-athar-blue hover:text-white transition-all rounded-xl font-bold border border-transparent hover:border-athar-blue shadow-none hover:shadow-lg hover:shadow-athar-blue/20 ml-auto">
                     Details
                 </Button>
             </CardFooter>

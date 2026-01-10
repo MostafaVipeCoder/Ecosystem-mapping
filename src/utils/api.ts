@@ -41,22 +41,36 @@ export async function fetchStartups(): Promise<{
             };
 
             const parseYear = (val: any) => {
-                if (!val) return new Date().getFullYear();
-                if (typeof val === 'number') return val;
+                if (!val) return 0;
 
-                const yearMatch = val.toString().match(/\d{4}/);
-                if (yearMatch) return parseInt(yearMatch[0]);
+                // 1. If it's a number and looks like a valid year (1900-2100)
+                if (typeof val === 'number') {
+                    if (val >= 1900 && val <= 2100) return Math.floor(val);
+                }
 
+                const str = String(val);
+
+                // 2. Look for 4 digits starting with 19 or 20 (e.g., 1999, 2023)
+                // This captures years from strings like "10/10/2020", "Est. 2020", "2020-01-01"
+                const match = str.match(/(?:19|20)\d{2}/);
+                if (match) {
+                    return parseInt(match[0]);
+                }
+
+                // 3. Fallback: Try standard Date parsing
                 try {
                     const date = new Date(val);
                     if (!isNaN(date.getTime())) {
-                        return date.getFullYear();
+                        const y = date.getFullYear();
+                        if (y >= 1900 && y <= 2100) {
+                            return y;
+                        }
                     }
                 } catch (e) {
                     // Ignore
                 }
 
-                return new Date().getFullYear();
+                return 0;
             };
 
             const translate = (val: string | undefined | null) => {
@@ -174,6 +188,38 @@ export async function fetchStartups(): Promise<{
                 return mapping[trimmed] || trimmed;
             };
 
+            // Helper to find value by fuzzy key match
+            const findValue = (obj: any, ...tokens: string[]) => {
+                // First try exact matches from known keys list
+                // (This is handled by the direct lookups below, but good fallback)
+
+                // Search keys
+                const keys = Object.keys(obj);
+                const foundKey = keys.find(k => {
+                    const lowerKey = k.toLowerCase();
+                    return tokens.every(t => lowerKey.includes(t.toLowerCase()));
+                });
+
+                if (foundKey) return obj[foundKey];
+                return undefined;
+            };
+
+            // Try to find the founding year using multiple strategies
+            let foundingYearVal = raw['Date of company stabilished'] ||
+                raw['Date of company stabilished '] || // Try with trailing space
+                raw['Date of company established'] ||
+                raw['Date of company establishment'] ||
+                raw['Establishment Date'] ||
+                raw['Year'] ||
+                raw['متي بدا مشروعك'];
+
+            // If explicit keys fail, try fuzzy search
+            if (!foundingYearVal) {
+                foundingYearVal = findValue(raw, 'date', 'stabilished') ||
+                    findValue(raw, 'date', 'established') ||
+                    findValue(raw, 'year');
+            }
+
             return {
                 id: raw['ID'] ? String(raw['ID']) : String(Math.random()),
                 name: raw['Startup Name'] || raw['أسم الشركة'] || 'Name not available',
@@ -187,7 +233,7 @@ export async function fetchStartups(): Promise<{
                 website: raw['Website/ app links/ social media'] || raw['التطبيق /رابط الموقع'] || '#',
                 phone: raw['Phone'] || raw['الهاتف'] ? String(raw['Phone'] || raw['الهاتف']) : '',
                 email: raw['Email'] || raw['البريد الالكتروني'] || '',
-                foundingYear: parseYear(raw['Date of company stabilished'] || raw['Year'] || raw['متي بدا مشروعك']),
+                foundingYear: parseYear(foundingYearVal),
                 legalStatus: translate(raw['Legal Status'] || raw['هل المشروع مسجل']) || 'Not specified',
                 fundingRaised: raw['Funding raised'] || raw['قيمة تمويل'] ? String(raw['Funding raised'] || raw['قيمة تمويل']) : 'Self-funded',
                 profitStatus: translate(raw['profitability'] || raw['مرحلة المشروع']) || 'Not specified',
