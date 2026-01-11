@@ -66,11 +66,12 @@ export function MeetingRequestDialog({ startupName, trigger }: MeetingRequestDia
             <DialogTrigger asChild>
                 {trigger || <Button>Book a Meeting</Button>}
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="w-[95%] max-w-[425px] sm:w-full rounded-xl max-h-[85vh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle>Request a Meeting</DialogTitle>
                     <DialogDescription>
-                        Send a meeting request to the team at <span className="font-bold text-athar-black">{startupName}</span>.
+                        Ask <span className="font-bold text-athar-black">Athar</span> to organize a meeting with <span className="font-bold text-athar-black">{startupName}</span>.
+                        
                     </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="grid gap-4 py-4">

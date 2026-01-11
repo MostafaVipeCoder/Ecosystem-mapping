@@ -16,7 +16,7 @@ export default function Layout() {
         <div className="min-h-screen bg-slate-50 font-sans" dir="ltr">
             {/* Header with Navigation */}
             <header className="sticky top-0 z-[40] w-full border-b border-slate-200 bg-white/80 backdrop-blur-md text-slate-900 shadow-sm">
-                <div className="container px-4 md:px-8 h-16 md:h-20 flex items-center justify-between mx-auto">
+                <div className="w-full px-4 md:px-8 h-16 md:h-20 flex items-center justify-between">
                     {/* Logo */}
                     <Link to="/" className="flex items-center gap-3 hover:opacity-90 transition-opacity">
                         <div className="h-10 md:h-12 w-auto flex items-center justify-center">

@@ -37,8 +37,8 @@ const StartupDetails = ({ startup, open, onOpenChange }: { startup: Startup | nu
         <Sheet open={open} onOpenChange={onOpenChange}>
             <SheetContent side="left" className="w-[100vw] sm:w-[1000px] p-0 overflow-hidden flex flex-col" dir="ltr">
                 {/* Header */}
-                <div className="bg-athar-black text-white p-6 relative overflow-hidden shrink-0">
-                    <div className="absolute top-0 left-0 w-full h-full opacity-20 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-athar-blue via-athar-blue/50 to-transparent"></div>
+                <div className="bg-gradient-to-br from-athar-blue to-athar-black text-white p-6 relative overflow-hidden shrink-0">
+                    <div className="absolute top-0 left-0 w-full h-full opacity-10 bg-[url('https://grainy-gradients.vercel.app/noise.svg')]"></div>
                     <div className="relative z-10">
                         {/* Back Button */}
                         <div className="mb-4">
