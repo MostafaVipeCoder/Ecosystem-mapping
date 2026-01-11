@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { HashRouter, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import { StartupsProvider } from './context/StartupsContext';
 import Layout from './components/Layout';
@@ -8,7 +8,7 @@ import StatsPage from './pages/StatsPage';
 
 export default function App() {
   return (
-    <BrowserRouter basename={import.meta.env.BASE_URL}>
+    <HashRouter>
       <StartupsProvider>
         <Routes>
           <Route path="/" element={<Layout />}>
@@ -19,6 +19,6 @@ export default function App() {
         </Routes>
         <Toaster position="top-right" richColors />
       </StartupsProvider>
-    </BrowserRouter>
+    </HashRouter>
   );
 }

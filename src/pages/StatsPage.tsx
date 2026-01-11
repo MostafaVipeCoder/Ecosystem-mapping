@@ -51,15 +51,6 @@ export default function StatsPage() {
         const byWorkplaceOwnership = startups.reduce((acc, s) => { acc[s.workplaceOwnership || 'Unknown'] = (acc[s.workplaceOwnership || 'Unknown'] || 0) + 1; return acc; }, {} as Record<string, number>);
         const byLegalStatus = startups.reduce((acc, s) => { acc[s.legalStatusDetails || 'Unknown'] = (acc[s.legalStatusDetails || 'Unknown'] || 0) + 1; return acc; }, {} as Record<string, number>);
 
-
-
-
-
-
-
-
-
-
         // Averages
         const avgEmployees = Math.round(totalEmployees / totalStartups);
         const avgRevenue = Math.round(totalRevenue / totalStartups);
@@ -87,11 +78,6 @@ export default function StatsPage() {
             byStartupType: Object.entries(byStartupType).sort((a, b) => b[1] - a[1]),
             byWorkplaceOwnership: Object.entries(byWorkplaceOwnership).sort((a, b) => b[1] - a[1]),
             byLegalStatus: Object.entries(byLegalStatus).sort((a, b) => b[1] - a[1]),
-
-
-
-
-
 
 
         };
