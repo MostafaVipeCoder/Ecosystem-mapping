@@ -2,8 +2,8 @@ import { HashRouter, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import { StartupsProvider } from './context/StartupsContext';
 import Layout from './components/Layout';
-import HomePage from './pages/HomePage';
-
+import EcosystemPage from './pages/EcosystemPage';
+import LandingPage from './pages/LandingPage';
 import StatsPage from './pages/StatsPage';
 
 export default function App() {
@@ -12,7 +12,8 @@ export default function App() {
       <StartupsProvider>
         <Routes>
           <Route path="/" element={<Layout />}>
-            <Route index element={<HomePage />} />
+            <Route index element={<LandingPage />} />
+            <Route path="explore" element={<EcosystemPage />} />
 
             <Route path="stats" element={<StatsPage />} />
           </Route>

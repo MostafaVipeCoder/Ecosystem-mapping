@@ -304,7 +304,7 @@ function StartupCard({ startup, onClick }: { startup: Startup, onClick: () => vo
     );
 }
 
-export default function HomePage() {
+export default function EcosystemPage() {
     const { startups, availableIndustries, isLoading, error, refetch } = useStartups();
 
     const [selectedStartup, setSelectedStartup] = useState<Startup | null>(null);

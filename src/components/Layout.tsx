@@ -1,5 +1,5 @@
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { Home, BarChart3 } from 'lucide-react';
+import { Home, BarChart3, Globe2 } from 'lucide-react';
 import logo from '../assets/logo.png';
 
 export default function Layout() {
@@ -32,13 +32,24 @@ export default function Layout() {
                     <nav className="flex items-center gap-2 md:gap-4">
                         <Link
                             to="/"
-                            className={`flex items-center gap-2 px-3 md:px-4 py-2 rounded-xl text-xs md:text-sm font-bold transition-all ${isActive('/')
+                            className={`flex items-center gap-2 px-3 md:px-4 py-2 rounded-xl text-xs md:text-sm font-bold transition-all ${isActive('/') && location.pathname === '/'
                                 ? 'bg-[#1a27c9] text-white shadow-lg shadow-athar-blue/20'
                                 : 'text-slate-500 hover:text-athar-blue hover:bg-slate-50'
                                 }`}
                         >
                             <Home className="h-4 w-4" />
                             <span className="hidden sm:inline">Home</span>
+                        </Link>
+
+                        <Link
+                            to="/explore"
+                            className={`flex items-center gap-2 px-3 md:px-4 py-2 rounded-xl text-xs md:text-sm font-bold transition-all ${isActive('/explore')
+                                ? 'bg-[#1a27c9] text-white shadow-lg shadow-athar-blue/20'
+                                : 'text-slate-500 hover:text-athar-blue hover:bg-slate-50'
+                                }`}
+                        >
+                            <Globe2 className="h-4 w-4" />
+                            <span className="hidden sm:inline">Ecosystem</span>
                         </Link>
 
                         <Link
