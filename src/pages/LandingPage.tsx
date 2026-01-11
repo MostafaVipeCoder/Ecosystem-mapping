@@ -3,6 +3,8 @@ import { Button } from '../components/ui/button';
 import { Globe2, Network, Zap, Target, Building2, Users2, BarChart3, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import logo from '../assets/logo.png';
+import planLogo from '../assets/plan-international.png';
+import denmarkLogo from '../assets/denmark-ministry.png';
 
 export default function LandingPage() {
     return (
@@ -95,6 +97,36 @@ export default function LandingPage() {
                             <p className="text-slate-500 leading-relaxed">
                                 Make informed decisions with real-time statistics on revenue, employment, and sector performance.
                             </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Partners Section */}
+            <section className="py-16 bg-slate-50 border-y border-slate-200">
+                <div className="container mx-auto px-4 md:px-8">
+                    <div className="text-center mb-12">
+                        <h2 className="text-2xl md:text-3xl font-bold text-athar-black mb-2">Our Partners</h2>
+                        <div className="h-1 w-16 bg-athar-blue mx-auto rounded-full"></div>
+                    </div>
+
+                    <div className="flex flex-wrap items-center justify-center gap-8 md:gap-16 max-w-4xl mx-auto">
+                        {/* Plan International */}
+                        <div className="group flex items-center justify-center p-6 bg-white rounded-2xl border border-slate-200 hover:border-athar-blue/30 hover:shadow-lg transition-all w-48 h-32">
+                            <img
+                                src={planLogo}
+                                alt="Plan International"
+                                className="max-w-full max-h-full object-contain transition-all duration-300"
+                            />
+                        </div>
+
+                        {/* Denmark Ministry */}
+                        <div className="group flex items-center justify-center p-6 bg-white rounded-2xl border border-slate-200 hover:border-athar-blue/30 hover:shadow-lg transition-all duration-300 w-48 h-32">
+                            <img
+                                src={denmarkLogo}
+                                alt="Ministry of Foreign Affairs of Denmark"
+                                className="max-w-full max-h-full object-contain transition-all duration-300"
+                            />
                         </div>
                     </div>
                 </div>
