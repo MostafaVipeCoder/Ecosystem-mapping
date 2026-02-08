@@ -50,34 +50,47 @@ import { z } from 'zod';
 export const startupSchema = z.object({
     name: z.string().min(2, "Startup Name is required"),
     ceoName: z.string().min(2, "CEO Name is required"),
-    phone: z.string().optional().or(z.literal('')),
-    email: z.string().email("Invalid email").optional().or(z.literal('')),
+    phone: z.string().min(8, "Phone number is required"),
+    email: z.string().email("Invalid email").min(1, "Email is required"),
     industry: z.string().min(1, "Industry is required"),
     governorate: z.string().min(1, "Governorate is required"),
-    employees: z.number().min(0).default(0),
-    revenue: z.number().min(0).default(0),
-    profitability: z.string().optional().or(z.literal('')),
-    ceoGender: z.string().optional().or(z.literal('')),
-    description: z.string().optional().or(z.literal('')),
-    startupType: z.string().optional().or(z.literal('')),
-    website: z.string().optional().or(z.literal('')),
-    openClosed: z.string().optional().or(z.literal('')),
-    foundingDate: z.string().optional().or(z.literal('')),
-    legalStatus: z.string().optional().or(z.literal('')),
-    teamSize: z.number().min(0).default(0),
-    femaleFounders: z.number().min(0).default(0),
-    maleFounders: z.number().min(0).default(0),
-    freelancersCount: z.number().min(0).default(0),
-    hasDedicatedPlace: z.string().optional().or(z.literal('')),
-    workplaceType: z.string().optional().or(z.literal('')),
+    employees: z.number().min(0, "Number of employees is required"),
+    revenue: z.number().min(0, "Revenue is required"),
+    profitability: z.string().min(1, "Profitability stage is required"),
+    ceoGender: z.string().min(1, "CEO Gender is required"),
+    description: z.string().min(10, "Description must be at least 10 characters"),
+    startupType: z.string().min(1, "Startup Type is required"),
+    website: z.string().url("Invalid URL").or(z.string().min(1, "Website/Social link is required")),
+    openClosed: z.string().min(1, "Operational status is required"),
+    foundingDate: z.string().min(1, "Founding date is required"),
+    legalStatus: z.string().min(1, "Legal status is required"),
+    teamSize: z.number().min(0, "Team size is required"),
+    femaleFounders: z.number().min(0, "Female founders count is required"),
+    maleFounders: z.number().min(0),
+    freelancersCount: z.number().min(0, "Freelancers count is required"),
+    hasDedicatedPlace: z.string().min(1, "Please specify if you have a dedicated place"),
+    workplaceType: z.string().min(1, "Workplace type is required"),
     fundingEntity: z.string().optional().or(z.literal('')),
-    fundingRaised: z.string().optional().or(z.literal('')),
-    monthlyIncome: z.string().optional().or(z.literal('')),
+    fundingRaised: z.string().min(1, "Funding info is required (write 'None' if none)"),
+    monthlyIncome: z.string().min(1, "Monthly income is required"),
 
     // Operations
     serviceProvider: z.string().min(2, "Service Provider is required"),
     id: z.string().optional(),
     lastUpdate: z.string().optional(),
+}).superRefine((data, ctx) => {
+    const hasFunding = data.fundingRaised &&
+        data.fundingRaised.toLowerCase() !== 'none' &&
+        data.fundingRaised.toLowerCase() !== '0' &&
+        data.fundingRaised.toLowerCase() !== 'no';
+
+    if (hasFunding && (!data.fundingEntity || data.fundingEntity.trim() === '')) {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Funding Entity is required if funding was raised",
+            path: ["fundingEntity"],
+        });
+    }
 });
 
 export type StartupFormData = z.infer<typeof startupSchema>;
