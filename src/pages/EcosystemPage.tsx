@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useStartups } from '../context/StartupsContext';
 import {
     MapPin,
@@ -8,7 +8,7 @@ import {
     Building2,
     Calendar,
     TrendingUp,
-    Target,
+    UserPlus,
     Loader2,
     X,
     ArrowRight,
@@ -35,7 +35,7 @@ const StartupDetails = ({ startup, open, onOpenChange }: { startup: Startup | nu
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent side="left" className="w-[100vw] sm:w-[1000px] p-0 overflow-hidden flex flex-col" dir="ltr">
+            <SheetContent side="left" className="w-[100vw] sm:max-w-[1500px] sm:w-[40vw] p-0 overflow-hidden flex flex-col" dir="ltr">
                 {/* Header */}
                 <div className="bg-gradient-to-br from-athar-blue to-athar-black text-white p-6 relative overflow-hidden shrink-0">
                     <div className="absolute top-0 left-0 w-full h-full opacity-10 bg-[url('https://grainy-gradients.vercel.app/noise.svg')]"></div>
@@ -78,15 +78,22 @@ const StartupDetails = ({ startup, open, onOpenChange }: { startup: Startup | nu
                             </div>
                             <div className="flex items-center gap-1.5">
                                 <Briefcase size={14} />
-                                {startup.stage}
+                                {startup.startupType || 'Startup'}
                             </div>
-                            {startup.foundingYear > 0 && (
+                            {startup.foundingDate && (
                                 <div className="flex items-center gap-1.5">
                                     <Calendar size={14} />
-                                    Founded in {startup.foundingYear}
+                                    Founded: {startup.foundingDate}
                                 </div>
                             )}
                         </div>
+
+                        {startup.serviceProvider && (
+                            <div className="absolute top-6 right-6 hidden sm:flex items-center gap-2 bg-white/10 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/20">
+                                <span className="text-[10px] font-bold text-white/70 uppercase tracking-widest">Supported by</span>
+                                <span className="text-sm font-bold text-white">{startup.serviceProvider}</span>
+                            </div>
+                        )}
                     </div>
                 </div>
 
@@ -115,30 +122,16 @@ const StartupDetails = ({ startup, open, onOpenChange }: { startup: Startup | nu
                                     </CardContent>
                                 </Card>
 
-                                {startup.story && (
-                                    <Card className="border-none shadow-sm">
-                                        <CardHeader className="pb-2">
-                                            <CardTitle className="text-lg flex items-center gap-2">
-                                                <Target className="h-5 w-5 text-athar-blue" />
-                                                Story
-                                            </CardTitle>
-                                        </CardHeader>
-                                        <CardContent>
-                                            <p className="text-muted-foreground leading-relaxed italic">
-                                                "{startup.story}"
-                                            </p>
-                                        </CardContent>
-                                    </Card>
-                                )}
-
-                                <div className="grid grid-cols-1 gap-4">
-                                    {startup.challenges && (
-                                        <div className="bg-white p-4 rounded-lg border shadow-sm space-y-1">
-                                            <span className="text-xs text-muted-foreground">Challenges</span>
-                                            <div className="font-semibold text-sm line-clamp-2">{startup.challenges}</div>
+                                {startup.website && (
+                                    <div className="bg-white p-4 rounded-lg border shadow-sm space-y-1">
+                                        <span className="text-xs text-muted-foreground">Website / Social</span>
+                                        <div className="font-semibold text-sm truncate">
+                                            <a href={startup.website.startsWith('http') ? startup.website : `https://${startup.website}`} target="_blank" rel="noopener noreferrer" className="text-athar-blue hover:underline">
+                                                {startup.website}
+                                            </a>
                                         </div>
-                                    )}
-                                </div>
+                                    </div>
+                                )}
 
 
                             </TabsContent>
@@ -154,14 +147,27 @@ const StartupDetails = ({ startup, open, onOpenChange }: { startup: Startup | nu
                                             <span className="text-xs text-muted-foreground">EGP</span>
                                         </CardContent>
                                     </Card>
+                                    {startup.monthlyIncome && (
+                                        <Card>
+                                            <CardHeader className="p-4 pb-2">
+                                                <CardTitle className="text-sm font-medium text-muted-foreground">Monthly Income</CardTitle>
+                                            </CardHeader>
+                                            <CardContent className="p-4 pt-0">
+                                                <div className="text-2xl font-bold">{startup.monthlyIncome}</div>
+                                                <span className="text-xs text-muted-foreground">EGP</span>
+                                            </CardContent>
+                                        </Card>
+                                    )}
                                     <Card>
                                         <CardHeader className="p-4 pb-2">
-                                            <CardTitle className="text-sm font-medium text-muted-foreground">Profit Status</CardTitle>
+                                            <CardTitle className="text-sm font-medium text-muted-foreground">Status</CardTitle>
                                         </CardHeader>
                                         <CardContent className="p-4 pt-0">
-                                            <Badge variant="outline" className={`${startup.profitStatus === 'Available' ? 'text-green-600 border-green-200 bg-green-50' : 'text-amber-600 border-amber-200 bg-amber-50'}`}>
-                                                {startup.profitStatus === 'Available' ? 'Profitable' : startup.profitStatus}
-                                            </Badge>
+                                            <div className="flex items-center h-8">
+                                                <Badge variant="outline" className={`${startup.profitability === 'Profitable' ? 'text-green-600 border-green-200 bg-green-50' : 'text-amber-600 border-amber-200 bg-amber-50'}`}>
+                                                    {startup.profitability || 'N/A'}
+                                                </Badge>
+                                            </div>
                                         </CardContent>
                                     </Card>
                                 </div>
@@ -177,6 +183,12 @@ const StartupDetails = ({ startup, open, onOpenChange }: { startup: Startup | nu
                                         <div className="flex justify-between items-center py-2 border-b last:border-0">
                                             <span className="text-sm text-muted-foreground">Funding Amount</span>
                                             <span className="font-semibold">{startup.fundingRaised}</span>
+                                        </div>
+                                        <div className="flex justify-between items-center py-2 border-b last:border-0">
+                                            <span className="text-sm text-muted-foreground">Operational Status</span>
+                                            <Badge variant={startup.openClosed === 'Open' ? 'outline' : 'secondary'} className={startup.openClosed === 'Open' ? 'text-green-600 border-green-200' : ''}>
+                                                {startup.openClosed || 'N/A'}
+                                            </Badge>
                                         </div>
                                     </CardContent>
                                 </Card>
@@ -198,10 +210,28 @@ const StartupDetails = ({ startup, open, onOpenChange }: { startup: Startup | nu
                                                     <div className="text-xs text-muted-foreground">Full-time Employees</div>
                                                 </div>
                                             </div>
-                                            <div className="text-2xl font-bold">{startup.employees}</div>
+                                            <div className="text-2xl font-bold">{(startup.employees || 0) + (startup.freelancersCount || 0)}</div>
                                         </div>
 
                                         <Separator />
+
+                                        {startup.teamSize && startup.teamSize > 0 && (
+                                            <>
+                                                <div className="flex items-center justify-between">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="h-10 w-10 rounded-full bg-slate-100 flex items-center justify-center">
+                                                            <UserPlus className="h-5 w-5 text-slate-600" />
+                                                        </div>
+                                                        <div>
+                                                            <div className="font-medium">Founding Team</div>
+                                                            <div className="text-xs text-muted-foreground">Total Founders ({startup.femaleFounders || 0}F / {startup.maleFounders || 0}M)</div>
+                                                        </div>
+                                                    </div>
+                                                    <div className="text-2xl font-bold">{startup.teamSize}</div>
+                                                </div>
+                                                <Separator />
+                                            </>
+                                        )}
 
                                         <div className="flex items-center justify-between">
                                             <div className="flex items-center gap-3">
@@ -219,6 +249,24 @@ const StartupDetails = ({ startup, open, onOpenChange }: { startup: Startup | nu
                                 </Card>
                             </TabsContent>
                         </Tabs>
+
+                        {/* Footer Info */}
+                        <div className="mt-8 pt-4 border-t border-slate-100 flex flex-wrap justify-between items-center gap-4 text-xs text-muted-foreground">
+                            {startup.serviceProvider && (
+                                <div className="flex items-center gap-2">
+                                    <span className="font-semibold text-slate-500">Supported by:</span>
+                                    <Badge variant="secondary" className="bg-slate-100 text-slate-700 hover:bg-slate-200">
+                                        {startup.serviceProvider}
+                                    </Badge>
+                                </div>
+                            )}
+
+                            {startup.lastUpdate && (
+                                <div className="ml-auto">
+                                    Last updated: {new Date(startup.lastUpdate).toLocaleDateString()}
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
             </SheetContent>
@@ -236,13 +284,13 @@ function StartupCard({ startup, onClick }: { startup: Startup, onClick: () => vo
                     <Badge variant="secondary" className="font-semibold text-[10px] px-2.5 py-1 text-athar-black bg-athar-yellow hover:bg-athar-yellow/90 border-0 rounded-md uppercase tracking-wider">
                         {startup.industry}
                     </Badge>
-                    <div className={`text-[11px] font-bold px-2.5 py-1 rounded-md border shadow-sm ${startup.profitStatus?.toLowerCase().includes('pre')
+                    <div className={`text-[11px] font-bold px-2.5 py-1 rounded-md border shadow-sm ${startup.profitability === 'Pre-revenue'
                         ? 'text-red-700 border-red-200 bg-red-50'
-                        : startup.profitStatus === 'Available' || startup.profitStatus?.toLowerCase().includes('revenue')
+                        : startup.profitability === 'Profitable'
                             ? 'text-emerald-700 border-emerald-200 bg-emerald-50'
                             : 'text-amber-700 border-amber-200 bg-amber-50'
                         }`}>
-                        {startup.profitStatus === 'Available' ? 'Profitable' : startup.profitStatus}
+                        {startup.profitability || 'New'}
                     </div>
                 </div>
 
@@ -268,8 +316,20 @@ function StartupCard({ startup, onClick }: { startup: Startup, onClick: () => vo
                         <div className="h-8 w-8 rounded-lg bg-slate-50 flex items-center justify-center shrink-0 text-slate-400 group-hover:bg-athar-blue group-hover:text-white transition-all duration-300">
                             <Users size={16} />
                         </div>
-                        <span className="font-medium text-xs sm:text-sm">{startup.employees} Employees</span>
+                        <div className="flex flex-col">
+                            <span className="font-medium text-xs sm:text-sm">{(startup.employees || 0) + (startup.freelancersCount || 0)} Employees</span>
+                        </div>
                     </div>
+                    {startup.teamSize && startup.teamSize > 0 && (
+                        <div className="flex items-center gap-2 text-sm text-slate-600">
+                            <div className="h-8 w-8 rounded-lg bg-slate-50 flex items-center justify-center shrink-0 text-slate-400 group-hover:bg-athar-blue group-hover:text-white transition-all duration-300">
+                                <UserPlus size={16} />
+                            </div>
+                            <div className="flex flex-col">
+                                <span className="font-medium text-xs sm:text-sm">{startup.teamSize} Team</span>
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 <div className="flex items-center gap-3 bg-athar-black/5 p-3 rounded-2xl border border-athar-black/5 group-hover:border-athar-blue/20 transition-all duration-300">
@@ -305,7 +365,7 @@ function StartupCard({ startup, onClick }: { startup: Startup, onClick: () => vo
 }
 
 export default function EcosystemPage() {
-    const { startups, availableIndustries, isLoading, error, refetch } = useStartups();
+    const { startups, availableIndustries, availableGovernorates, isLoading, error, refetch } = useStartups();
 
     const [selectedStartup, setSelectedStartup] = useState<Startup | null>(null);
     const [isDetailsOpen, setIsDetailsOpen] = useState(false);
@@ -313,10 +373,32 @@ export default function EcosystemPage() {
     // Filter States
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedIndustries, setSelectedIndustries] = useState<string[]>([]);
+    const [selectedGovernorates, setSelectedGovernorates] = useState<string[]>([]);
     const [employeeRange, setEmployeeRange] = useState<number[]>([0, 200]);
     const [revenueRange, setRevenueRange] = useState<number[]>([0, 10000000]);
     const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
+    // Dynamic Max Values
+    const maxEmployees = useMemo(() => {
+        if (!startups.length) return 200;
+        return Math.max(...startups.map(s => s.employees || 0));
+    }, [startups]);
+
+    const maxRevenue = useMemo(() => {
+        if (!startups.length) return 10000000;
+        return Math.max(...startups.map(s => s.revenue || 0));
+    }, [startups]);
+
+    // Update ranges when data loads
+    useEffect(() => {
+        if (maxEmployees > 200) {
+            setEmployeeRange(prev => prev[1] === 200 ? [0, maxEmployees] : prev);
+        }
+        if (maxRevenue > 10000000) {
+            setRevenueRange(prev => prev[1] === 10000000 ? [0, maxRevenue] : prev);
+        }
+    }, [maxEmployees, maxRevenue]);
 
 
 
@@ -328,24 +410,32 @@ export default function EcosystemPage() {
 
             const matchesSearch = name.includes(searchQuery) || ceoName.includes(searchQuery);
             const matchesIndustry = selectedIndustries.length === 0 || selectedIndustries.includes(startup.industry);
-            const matchesEmployees = (startup.employees || 0) >= employeeRange[0] && (startup.employees || 0) <= employeeRange[1];
-            const matchesRevenue = (startup.revenue || 0) >= revenueRange[0] && (startup.revenue || 0) <= revenueRange[1];
+            const matchesGovernorate = selectedGovernorates.length === 0 || selectedGovernorates.includes(startup.governorate);
 
-            return matchesSearch && matchesIndustry && matchesEmployees && matchesRevenue;
+            // Allow range max to be inclusive of everything if it's at the max limit
+            const isEmployeeMax = employeeRange[1] >= maxEmployees;
+            const matchesEmployees = (startup.employees || 0) >= employeeRange[0] && (isEmployeeMax || (startup.employees || 0) <= employeeRange[1]);
+
+            const isRevenueMax = revenueRange[1] >= maxRevenue;
+            const matchesRevenue = (startup.revenue || 0) >= revenueRange[0] && (isRevenueMax || (startup.revenue || 0) <= revenueRange[1]);
+
+            return matchesSearch && matchesIndustry && matchesGovernorate && matchesEmployees && matchesRevenue;
         });
-    }, [startups, searchQuery, selectedIndustries, employeeRange, revenueRange]);
+    }, [startups, searchQuery, selectedIndustries, selectedGovernorates, employeeRange, revenueRange, maxEmployees, maxRevenue]);
 
     const activeFiltersCount =
         (searchQuery ? 1 : 0) +
         selectedIndustries.length +
-        (employeeRange[0] > 0 || employeeRange[1] < 200 ? 1 : 0) +
-        (revenueRange[0] > 0 || revenueRange[1] < 10000000 ? 1 : 0);
+        selectedGovernorates.length +
+        (employeeRange[0] > 0 || employeeRange[1] < maxEmployees ? 1 : 0) +
+        (revenueRange[0] > 0 || revenueRange[1] < maxRevenue ? 1 : 0);
 
     const handleReset = () => {
         setSearchQuery('');
         setSelectedIndustries([]);
-        setEmployeeRange([0, 200]);
-        setRevenueRange([0, 10000000]);
+        setSelectedGovernorates([]);
+        setEmployeeRange([0, maxEmployees]);
+        setRevenueRange([0, maxRevenue]);
     };
 
     const handleCardClick = (startup: Startup) => {
@@ -389,11 +479,16 @@ export default function EcosystemPage() {
         availableIndustries,
         selectedIndustries,
         setSelectedIndustries,
+        availableGovernorates,
+        selectedGovernorates,
+        setSelectedGovernorates,
         employeeRange,
         setEmployeeRange,
         revenueRange,
         setRevenueRange,
-        onReset: handleReset
+        onReset: handleReset,
+        maxEmployees,
+        maxRevenue
     };
 
     return (

@@ -53,6 +53,15 @@ export default defineConfig({
   build: {
     target: 'esnext',
     outDir: 'build',
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor': ['react', 'react-dom', 'react-router-dom'],
+          'xlsx-handler': ['xlsx'],
+          'ui-core': ['lucide-react', 'recharts'],
+        }
+      }
+    }
   },
   server: {
     port: 3000,

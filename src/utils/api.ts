@@ -32,7 +32,15 @@ export async function fetchStartups(): Promise<{
         console.log('🔍 Data type:', typeof data);
         console.log('📋 Data keys:', Object.keys(data));
 
-        const mapStartupData = (raw: any): Startup => {
+        const mapStartupData = (item: any): Startup => {
+            // Normalize keys to handle leading/trailing spaces
+            const raw: any = {};
+            if (item && typeof item === 'object') {
+                Object.keys(item).forEach(key => {
+                    raw[key.trim()] = item[key];
+                });
+            }
+
             const parseNumber = (val: any) => {
                 if (typeof val === 'number') return Math.floor(val);
                 if (!val) return 0;
@@ -40,38 +48,6 @@ export async function fetchStartups(): Promise<{
                 return parseFloat(clean) || 0;
             };
 
-            const parseYear = (val: any) => {
-                if (!val) return 0;
-
-                // 1. If it's a number and looks like a valid year (1900-2100)
-                if (typeof val === 'number') {
-                    if (val >= 1900 && val <= 2100) return Math.floor(val);
-                }
-
-                const str = String(val);
-
-                // 2. Look for 4 digits starting with 19 or 20 (e.g., 1999, 2023)
-                // This captures years from strings like "10/10/2020", "Est. 2020", "2020-01-01"
-                const match = str.match(/(?:19|20)\d{2}/);
-                if (match) {
-                    return parseInt(match[0]);
-                }
-
-                // 3. Fallback: Try standard Date parsing
-                try {
-                    const date = new Date(val);
-                    if (!isNaN(date.getTime())) {
-                        const y = date.getFullYear();
-                        if (y >= 1900 && y <= 2100) {
-                            return y;
-                        }
-                    }
-                } catch (e) {
-                    // Ignore
-                }
-
-                return 0;
-            };
 
             const translate = (val: string | undefined | null) => {
                 if (!val) return val;
@@ -94,9 +70,9 @@ export async function fetchStartups(): Promise<{
                     'الجيزة': 'Giza',
                     'الأسكندرية': 'Alexandria',
                     'المنيا': 'Minya',
-                    'أسيوط': 'Asyut',
+                    'أسيوط': 'Assiut',
                     'بني سويف': 'Beni Suef',
-                    'الفيوم': 'Faiyum',
+                    'الفيوم': 'Fayoum',
                     'سوهاج': 'Sohag',
                     'قنا': 'Qena',
                     'الأقصر': 'Luxor',
@@ -112,9 +88,9 @@ export async function fetchStartups(): Promise<{
                     'الشرقية': 'Sharqia',
                     'الدقهلية': 'Dakahlia',
                     'دمياط': 'Damietta',
-                    'كفر الشيخ': 'Kafr El Sheikh',
+                    'كفر الشيخ': 'Kafr el-Sheikh',
                     'الغربية': 'Gharbia',
-                    'المنوفية': 'Menofia',
+                    'المنوفية': 'Monufia',
                     'القليوبية': 'Qalyubia',
                     'البحيرة': 'Beheira',
 
@@ -188,69 +164,49 @@ export async function fetchStartups(): Promise<{
                 return mapping[trimmed] || trimmed;
             };
 
-            // Helper to find value by fuzzy key match
-            const findValue = (obj: any, ...tokens: string[]) => {
-                // First try exact matches from known keys list
-                // (This is handled by the direct lookups below, but good fallback)
 
-                // Search keys
-                const keys = Object.keys(obj);
-                const foundKey = keys.find(k => {
-                    const lowerKey = k.toLowerCase();
-                    return tokens.every(t => lowerKey.includes(t.toLowerCase()));
-                });
 
-                if (foundKey) return obj[foundKey];
+            // Helper to get value ignoring case and spaces
+            const getValue = (keys: string[]) => {
+                for (const k of keys) {
+                    if (raw[k] !== undefined && raw[k] !== null && String(raw[k]).trim() !== '') return raw[k];
+                    // Also try case-insensitive and space-trimmed
+                    const match = Object.keys(raw).find(rk => rk.toLowerCase().trim() === k.toLowerCase().trim());
+                    if (match && raw[match] !== undefined && raw[match] !== null && String(raw[match]).trim() !== '') return raw[match];
+                }
                 return undefined;
             };
 
-            // Try to find the founding year using multiple strategies
-            let foundingYearVal = raw['Date of company stabilished'] ||
-                raw['Date of company stabilished '] || // Try with trailing space
-                raw['Date of company established'] ||
-                raw['Date of company establishment'] ||
-                raw['Establishment Date'] ||
-                raw['Year'] ||
-                raw['متي بدا مشروعك'];
-
-            // If explicit keys fail, try fuzzy search
-            if (!foundingYearVal) {
-                foundingYearVal = findValue(raw, 'date', 'stabilished') ||
-                    findValue(raw, 'date', 'established') ||
-                    findValue(raw, 'year');
-            }
-
             return {
-                id: raw['ID'] ? String(raw['ID']) : String(Math.random()),
-                name: raw['Startup Name'] || raw['أسم الشركة'] || 'Name not available',
-                ceoName: raw['CEO Name'] || raw['اسم المؤسس'] || 'Not specified',
-                industry: translate(raw['Industry'] || raw['Industry '] || raw['قطاع المشروع الصناعة']) || 'Uncategorized',
-                description: raw['Description'] || raw['الوصف'] || raw['وصف مختصر للشركة'] || '',
-                employees: parseNumber(raw['Nu. of employees'] || raw['عدد الموظفين كلهم بدون المؤسسين']),
-                revenue: parseNumber(raw['Revenue (Total) (Yearly)'] || raw['الايرادات سنوي']),
-                governorate: translate(raw['Governerate'] || raw['المحافظة']) || 'Not specified',
-                stage: translate(raw['Startup type'] || raw['نوع الشركة']) || 'Not specified',
-                website: raw['Website/ app links/ social media'] || raw['التطبيق /رابط الموقع'] || '#',
-                phone: raw['Phone'] || raw['الهاتف'] ? String(raw['Phone'] || raw['الهاتف']) : '',
-                email: raw['Email'] || raw['البريد الالكتروني'] || '',
-                foundingYear: parseYear(foundingYearVal),
-                legalStatus: translate(raw['Legal Status'] || raw['هل المشروع مسجل']) || 'Not specified',
-                fundingRaised: raw['Funding raised'] || raw['قيمة تمويل'] ? String(raw['Funding raised'] || raw['قيمة تمويل']) : 'Self-funded',
-                profitStatus: translate(raw['profitability'] || raw['مرحلة المشروع']) || 'Not specified',
-                ceoGender: translate(raw[' CEO Gender'] || raw['CEO Gender'] || raw['النوع']) || 'Not specified',
-                founderStatus: translate(raw['Student/Graduate'] || raw['طالب/خريج']) || 'Not specified',
-                ceoAge: parseNumber(raw['CEO Age'] || raw['عمر المؤسس']),
-                hasDedicatedPlace: translate(raw['Have a dedicated place'] || raw['مكان مخصص']) || 'Not specified',
-
-
-                startupType: translate(raw['Startup Type'] || raw['Startup type']) || 'Not specified',
-                workplaceOwnership: translate(raw['own or rent a workplace']) || 'Not specified',
-                legalStatusDetails: translate(raw['Legal Status']) || 'Not specified',
-
-
-                challenges: raw['Challenges'] || raw['التحديات'] || '',
+                id: getValue(['ID', 'id']) ? String(getValue(['ID', 'id'])) : String(Math.random()),
+                name: getValue(['Startup Name', 'أسم الشركة', 'Name']) || 'Name not available',
+                ceoName: getValue(['CEO Name', 'اسم المؤسس', 'Founder']) || 'Not specified',
+                ceoGender: translate(getValue(['CEO Gender', 'النوع', 'Gender'])) || 'Not specified',
+                industry: translate(getValue(['Industry', 'قطاع المشروع الصناعة', 'Sector'])) || 'Uncategorized',
+                governorate: translate(getValue(['Governorate', 'المحافظة', 'Governerate', 'Governerate '])) || 'Not specified',
+                phone: getValue(['Phone', 'الهاتف', 'Mobile']) ? String(getValue(['Phone', 'الهاتف', 'Mobile'])) : '',
+                email: getValue(['Email', 'البريد الالكتروني']) || '',
+                employees: parseNumber(getValue(['Employees', 'عدد الموظفين كلهم بدون المؤسسين', 'Nu. of employees', 'Staff'])),
+                revenue: parseNumber(getValue(['Revenue', 'الايرادات سنوي', 'Revenue (Total) (Yearly)', 'Total Revenue'])),
+                profitability: translate(getValue(['Profitability', 'مرحلة المشروع', 'Stage', 'Current Stage'])) || 'Not specified',
+                description: getValue(['Description', 'الوصف', 'وصف مختصر للشركة', 'Brief']) || '',
+                startupType: translate(getValue(['Startup Type', 'نوع الشركة'])) || 'Not specified',
+                website: getValue(['Website', 'التطبيق /رابط الموقع', 'Website/ app links/ social media']) || '#',
+                openClosed: translate(getValue(['Open/Closed', 'Operational status', 'Status'])) || 'Not specified',
+                foundingDate: getValue(['Founding Date', 'تاريخ التأسيس', 'Date of establishment']) || '',
+                legalStatus: translate(getValue(['Legal Status', 'هل المشروع مسجل'])) || 'Not specified',
+                teamSize: parseNumber(getValue(['Team Size', 'عدد المؤسسين', 'Founding team size'])),
+                femaleFounders: parseNumber(getValue(['Female Founders', 'عدد المؤسسات الإناث', 'Female founders count'])),
+                maleFounders: parseNumber(getValue(['Male Founders', 'عدد المؤسسين الذكور', 'Male founders count'])),
+                freelancersCount: parseNumber(getValue(['Freelancers/Trainees', 'عدد المتدرّبين/الفريلانسرز', 'Freelancers'])),
+                hasDedicatedPlace: translate(getValue(['Has Dedicated Place', 'مكان مخصص'])) || 'Not specified',
+                workplaceType: translate(getValue(['Workplace Type', 'نوع مكان العمل'])) || 'Not specified',
+                fundingEntity: getValue(['Funding Entity', 'What is the Funding entity?', 'جهة التمويل']) ? String(getValue(['Funding Entity', 'What is the Funding entity?', 'جهة التمويل'])) : '',
+                fundingRaised: getValue(['Funding Raised', 'قيمة تمويل', 'Total Funding']) ? String(getValue(['Funding Raised', 'قيمة تمويل', 'Total Funding'])) : 'Self-funded',
+                monthlyIncome: getValue(['Monthly Income', 'الدخل الشهري']) ? String(getValue(['Monthly Income', 'الدخل الشهري'])) : '0',
+                serviceProvider: translate(getValue(['Service Provider', 'Incubator', 'مقدم الخدمة'])) || undefined,
+                lastUpdate: getValue(['Timestamp', 'Last Update']) ? String(getValue(['Timestamp', 'Last Update'])) : undefined,
                 score: Math.floor(Math.random() * 30) + 70,
-                story: raw['Tell us your story'] || raw['احك لنا قصتك'] || ''
             };
         };
 
@@ -263,6 +219,13 @@ export async function fetchStartups(): Promise<{
                 console.log('🔍 First company (sample):', data.startups[0]);
             }
             fetchedStartups = data.startups.map(mapStartupData);
+        } else if (data.data && Array.isArray(data.data)) {
+            console.log('✅ Found data.data');
+            console.log('📊 Companies count:', data.data.length);
+            if (data.data.length > 0) {
+                console.log('🔍 First company (sample):', data.data[0]);
+            }
+            fetchedStartups = data.data.map(mapStartupData);
         } else if (Array.isArray(data)) {
             console.log('✅ Data is a direct Array');
             console.log('📊 Items count:', data.length);
@@ -315,6 +278,80 @@ export function formatCurrency(amount: number): string {
         return `${(num / 1000).toFixed(0)}K`;
     }
     return num.toString();
+}
+
+export interface SubmissionResult {
+    success: boolean;
+    message?: string;
+}
+
+/**
+ * Submits a new startup entry to the Google Sheet
+ */
+export async function createStartup(startupData: any): Promise<SubmissionResult> {
+    try {
+        const payload = {
+            action: 'create_startup',
+            ...startupData
+        };
+        console.log('📤 Sending single startup payload to Google Sheet:', payload);
+
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            mode: 'no-cors', // Google Apps Script requires no-cors for POST
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload)
+        });
+
+        // Since we used no-cors, we can't read the response. 
+        // We assume success if no network error occurred.
+        return { success: true, message: 'Startup submitted successfully' };
+    } catch (error) {
+        console.error("Error submitting startup:", error);
+        return { success: false, message: 'Failed to submit startup' };
+    }
+}
+
+/**
+ * Submits multiple startups to the Google Sheet
+ */
+export async function bulkCreateStartups(startupsData: any[]): Promise<SubmissionResult> {
+    try {
+        const payload = {
+            action: 'bulk_create_startups',
+            startups: startupsData
+        };
+        console.log('📤 Sending bulk startups payload to Google Sheet:', payload);
+
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload)
+        });
+
+        return { success: true, message: 'Startups submitted successfully' };
+    } catch (error) {
+        console.error("Error submitting bulk startups:", error);
+        return { success: false, message: 'Failed to submit startups' };
+    }
+}
+
+/**
+ * Extract unique Service Providers from the startups list
+ */
+export function getServiceProviders(startups: Startup[]): string[] {
+    const providers = new Set<string>();
+    startups.forEach(s => {
+        if (s.serviceProvider && s.serviceProvider !== 'Not specified') {
+            providers.add(s.serviceProvider);
+        }
+    });
+    return Array.from(providers).sort();
 }
 
 /**

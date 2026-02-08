@@ -17,11 +17,16 @@ interface FilterSidebarProps {
     availableIndustries: string[];
     selectedIndustries: string[];
     setSelectedIndustries: (industries: string[]) => void;
+    availableGovernorates: string[];
+    selectedGovernorates: string[];
+    setSelectedGovernorates: (governorates: string[]) => void;
     employeeRange: number[];
     setEmployeeRange: (range: number[]) => void;
     revenueRange: number[];
     setRevenueRange: (range: number[]) => void;
     onReset: () => void;
+    maxEmployees: number;
+    maxRevenue: number;
 }
 
 const FilterSection = ({
@@ -63,14 +68,20 @@ export function FilterSidebar({
     availableIndustries,
     selectedIndustries,
     setSelectedIndustries,
+    availableGovernorates,
+    selectedGovernorates,
+    setSelectedGovernorates,
     employeeRange,
     setEmployeeRange,
     revenueRange,
     setRevenueRange,
-    onReset
+    onReset,
+    maxEmployees = 200, // Default fallback
+    maxRevenue = 10000000 // Default fallback
 }: FilterSidebarProps) {
 
     const [industrySearch, setIndustrySearch] = useState('');
+    const [governorateSearch, setGovernorateSearch] = useState('');
 
     const toggleIndustry = (industry: string) => {
         if (selectedIndustries.includes(industry)) {
@@ -80,15 +91,28 @@ export function FilterSidebar({
         }
     };
 
+    const toggleGovernorate = (gov: string) => {
+        if (selectedGovernorates.includes(gov)) {
+            setSelectedGovernorates(selectedGovernorates.filter(g => g !== gov));
+        } else {
+            setSelectedGovernorates([...selectedGovernorates, gov]);
+        }
+    };
+
     const filteredIndustries = availableIndustries.filter(ind =>
         ind.toLowerCase().includes(industrySearch.toLowerCase())
+    );
+
+    const filteredGovernorates = availableGovernorates.filter(gov =>
+        gov.toLowerCase().includes(governorateSearch.toLowerCase())
     );
 
     const activeFiltersCount =
         (searchQuery ? 1 : 0) +
         selectedIndustries.length +
-        (employeeRange[0] > 0 || employeeRange[1] < 200 ? 1 : 0) +
-        (revenueRange[0] > 0 || revenueRange[1] < 5000000 ? 1 : 0);
+        selectedGovernorates.length +
+        (employeeRange[0] > 0 || employeeRange[1] < maxEmployees ? 1 : 0) +
+        (revenueRange[0] > 0 || revenueRange[1] < maxRevenue ? 1 : 0);
 
     return (
         <div className={`flex flex-col h-full bg-white ${className}`}>
@@ -163,6 +187,45 @@ export function FilterSidebar({
                         </div>
                     </FilterSection>
 
+
+                    <Separator className="bg-slate-100" />
+
+                    {/* Governorates Section */}
+                    <FilterSection title="Governorate" count={selectedGovernorates.length}>
+                        {availableGovernorates.length > 5 && (
+                            <Input
+                                placeholder="Search governorates..."
+                                className="h-8 text-xs bg-slate-50 mb-3"
+                                value={governorateSearch}
+                                onChange={(e) => setGovernorateSearch(e.target.value)}
+                            />
+                        )}
+                        <div className="space-y-2 max-h-[220px] overflow-y-auto custom-scrollbar pr-1">
+                            {filteredGovernorates.length > 0 ? (
+                                filteredGovernorates.map((gov) => (
+                                    <div key={gov} className="flex items-center justify-between group">
+                                        <div className="flex items-center space-x-2 space-x-reverse">
+                                            <Checkbox
+                                                id={`gov-${gov}`}
+                                                checked={selectedGovernorates.includes(gov)}
+                                                onCheckedChange={() => toggleGovernorate(gov)}
+                                                className="h-4 w-4 data-[state=checked]:bg-athar-blue data-[state=checked]:border-athar-blue"
+                                            />
+                                            <label
+                                                htmlFor={`gov-${gov}`}
+                                                className="text-sm text-athar-black/70 font-bold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer pt-0.5 select-none group-hover:text-athar-black"
+                                            >
+                                                {gov}
+                                            </label>
+                                        </div>
+                                    </div>
+                                ))
+                            ) : (
+                                <p className="text-xs text-muted-foreground text-center py-2">No matching governorates</p>
+                            )}
+                        </div>
+                    </FilterSection>
+
                     <Separator className="bg-slate-100" />
 
                     {/* Employees Section */}
@@ -174,14 +237,14 @@ export function FilterSidebar({
                                 </div>
                                 <span className="text-athar-black/30 text-xs font-bold">to</span>
                                 <div className="border border-athar-black/10 rounded-xl px-3 py-1.5 bg-white shadow-sm min-w-[70px] text-center">
-                                    <span className="text-xs font-black text-athar-black">{employeeRange[1] === 200 ? '200+' : employeeRange[1]}</span>
+                                    <span className="text-xs font-black text-athar-black">{employeeRange[1] >= maxEmployees ? `+${maxEmployees}` : employeeRange[1]}</span>
                                 </div>
                             </div>
                             <Slider
-                                defaultValue={[0, 200]}
+                                defaultValue={[0, maxEmployees]}
                                 value={employeeRange}
-                                max={200}
-                                step={10}
+                                max={maxEmployees}
+                                step={1}
                                 onValueChange={setEmployeeRange}
                                 className="my-4"
                             />
@@ -203,13 +266,13 @@ export function FilterSidebar({
                                     {formatCurrency(revenueRange[0])}
                                 </Badge>
                                 <Badge variant="outline" className="bg-white font-bold text-athar-black border-athar-black/10 shadow-sm py-1.5 px-3 rounded-xl">
-                                    {revenueRange[1] === 10000000 ? '+10M' : formatCurrency(revenueRange[1])}
+                                    {revenueRange[1] >= maxRevenue ? `+${formatCurrency(maxRevenue)}` : formatCurrency(revenueRange[1])}
                                 </Badge>
                             </div>
                             <Slider
-                                defaultValue={[0, 10000000]}
+                                defaultValue={[0, maxRevenue]}
                                 value={revenueRange}
-                                max={10000000}
+                                max={maxRevenue}
                                 step={100000}
                                 onValueChange={setRevenueRange}
                                 className="my-4"
