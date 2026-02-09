@@ -1,10 +1,13 @@
 
 import { Button } from '../components/ui/button';
-import { Globe2, Network, Zap, Target, Building2, Users2, BarChart3, ChevronRight } from 'lucide-react';
+import { Globe2, Network, Target, Building2, Users2, BarChart3, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import logo from '../assets/logo.png';
 import planLogo from '../assets/plan-international.png';
 import denmarkLogo from '../assets/denmark-ministry.png';
+import atharLogo from '../assets/Athar-Logo.png';
+import danishLogo from '../assets/Danish-Arab-Logo.png';
+import danskerhverLogo from '../assets/dansk-erhverv.png';
+import readyLogo from '../assets/ready-for-tomorrow.png';
 
 export default function LandingPage() {
     return (
@@ -21,25 +24,32 @@ export default function LandingPage() {
 
                 <div className="container relative mx-auto px-4 md:px-8 pt-20">
                     <div className="max-w-4xl mx-auto text-center space-y-8">
-                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-100 border border-slate-200 backdrop-blur-sm mb-4">
-                            <span className="flex h-2 w-2 rounded-full bg-athar-yellow animate-pulse"></span>
-                            <span className="text-sm font-bold text-slate-600 tracking-wide">Mapping the Future of Innovation</span>
+
+
+                        {/* Ready For Tomorrow Logo */}
+                        <div className="mb-4 flex justify-center">
+                            <img
+                                src={readyLogo}
+                                alt="Ready For Tomorrow"
+                                className="h-20 md:h-60 w-auto object-contain"
+                            />
                         </div>
 
                         <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight leading-tight text-slate-900">
-                            The Upper Egypt <br />
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-athar-blue to-athar-yellow">Innovation Ecosystem</span>
+                            <span className="block">Egypt Startup & MSME</span>
+                            <span className="block mt-7 text-transparent bg-clip-text bg-gradient-to-r from-athar-blue to-athar-yellow">Directory Platform</span>
                         </h1>
 
                         <p className="text-lg md:text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed font-medium">
-                            A comprehensive digital platform connecting startups, investors, and enablers.
-                            Discover opportunities, analyze trends, and be part of the growing economy.
+
+                            The Egypt Startup & MSME Directory Platform is a national, interactive online directory that showcases startups and micro, small, and medium enterprises (MSMEs) supported through YIEP, DAPP, and partner programs across Egypt.
+
                         </p>
 
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-8">
                             <Link to="/explore">
                                 <Button size="lg" className="h-14 px-8 text-lg bg-athar-blue hover:bg-[#1520a8] text-white rounded-2xl shadow-lg shadow-athar-blue/25 hover:shadow-athar-blue/40 transition-all font-bold group">
-                                    Explore the Map
+                                    Explore the Ecosystem
                                     <Globe2 className="ml-2 h-5 w-5 group-hover:rotate-12 transition-transform" />
                                 </Button>
                             </Link>
@@ -55,7 +65,7 @@ export default function LandingPage() {
             </section>
 
             {/* About Platform Section */}
-            <section className="py-24 bg-white relative">
+            <section className="py-24 bg-slate-50 relative border-y border-slate-100">
                 <div className="container mx-auto px-4 md:px-8">
                     <div className="text-center max-w-3xl mx-auto mb-16">
                         <h2 className="text-3xl md:text-4xl font-bold text-athar-black mb-4">Why This Platform?</h2>
@@ -65,37 +75,48 @@ export default function LandingPage() {
                         </p>
                     </div>
 
-                    <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-                        {/* Feature 1 */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
+                        {/* Feature 1: Explore */}
                         <div className="group p-8 rounded-3xl bg-slate-50 border border-slate-100 hover:border-athar-blue/20 hover:shadow-xl hover:shadow-athar-blue/5 transition-all duration-300">
                             <div className="h-14 w-14 rounded-2xl bg-blue-50 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                                <Network className="h-7 w-7 text-athar-blue" />
+                                <Globe2 className="h-7 w-7 text-athar-blue" />
                             </div>
-                            <h3 className="text-xl font-bold text-athar-black mb-3">Connect & Collaborate</h3>
-                            <p className="text-slate-500 leading-relaxed">
-                                Find partners, mentors, and investors. Our directory categorizes startups by industry, stage, and location for easy discovery.
+                            <h3 className="text-xl font-bold text-athar-black mb-3">Explore & Discover</h3>
+                            <p className="text-slate-500 leading-relaxed text-sm">
+                                Explore startups and MSMEs nationwide by sector and location through our interactive directory.
                             </p>
                         </div>
 
-                        {/* Feature 2 */}
-                        <div className="group p-8 rounded-3xl bg-slate-50 border border-slate-100 hover:border-athar-blue/20 hover:shadow-xl hover:shadow-athar-blue/5 transition-all duration-300">
-                            <div className="h-14 w-14 rounded-2xl bg-amber-50 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                                <Zap className="h-7 w-7 text-athar-yellow" />
-                            </div>
-                            <h3 className="text-xl font-bold text-athar-black mb-3">Accelerate Growth</h3>
-                            <p className="text-slate-500 leading-relaxed">
-                                Access resources, funding opportunities, and success stories. We highlight the most promising ventures in the region.
-                            </p>
-                        </div>
-
-                        {/* Feature 3 */}
+                        {/* Feature 2: Economic Impact (Data-Driven Insights) */}
                         <div className="group p-8 rounded-3xl bg-slate-50 border border-slate-100 hover:border-athar-blue/20 hover:shadow-xl hover:shadow-athar-blue/5 transition-all duration-300">
                             <div className="h-14 w-14 rounded-2xl bg-slate-100 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                                 <BarChart3 className="h-7 w-7 text-slate-700" />
                             </div>
                             <h3 className="text-xl font-bold text-athar-black mb-3">Data-Driven Insights</h3>
-                            <p className="text-slate-500 leading-relaxed">
-                                Make informed decisions with real-time statistics on revenue, employment, and sector performance.
+                            <p className="text-slate-500 leading-relaxed text-sm">
+                                Visualize economic impact including jobs created, revenues, and key growth indicators across the nation.
+                            </p>
+                        </div>
+
+                        {/* Feature 3: Direct Connection */}
+                        <div className="group p-8 rounded-3xl bg-slate-50 border border-slate-100 hover:border-athar-blue/20 hover:shadow-xl hover:shadow-athar-blue/5 transition-all duration-300">
+                            <div className="h-14 w-14 rounded-2xl bg-blue-50 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                                <Network className="h-7 w-7 text-athar-blue" />
+                            </div>
+                            <h3 className="text-xl font-bold text-athar-black mb-3">Direct Connections</h3>
+                            <p className="text-slate-500 leading-relaxed text-sm">
+                                Enable direct connection between businesses, investors, and ecosystem partners to foster collaboration.
+                            </p>
+                        </div>
+
+                        {/* Feature 4: Transparent Reporting */}
+                        <div className="group p-8 rounded-3xl bg-slate-50 border border-slate-100 hover:border-athar-blue/20 hover:shadow-xl hover:shadow-athar-blue/5 transition-all duration-300">
+                            <div className="h-14 w-14 rounded-2xl bg-amber-50 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                                <Target className="h-7 w-7 text-athar-yellow" />
+                            </div>
+                            <h3 className="text-xl font-bold text-athar-black mb-3">Transparent Reporting</h3>
+                            <p className="text-slate-500 leading-relaxed text-sm">
+                                Support transparent reporting and ecosystem learning through structured data and analytics.
                             </p>
                         </div>
                     </div>
@@ -106,98 +127,51 @@ export default function LandingPage() {
             <section className="py-16 bg-slate-50 border-y border-slate-200">
                 <div className="container mx-auto px-4 md:px-8">
                     <div className="text-center mb-12">
-                        <h2 className="text-2xl md:text-3xl font-bold text-athar-black mb-2">Our Partners</h2>
+                        <h2 className="text-2xl md:text-3xl font-bold text-athar-black mb-2">Powerd by</h2>
                         <div className="h-1 w-16 bg-athar-blue mx-auto rounded-full"></div>
                     </div>
 
-                    <div className="flex flex-wrap items-center justify-center gap-8 md:gap-16 max-w-4xl mx-auto">
+                    <div className="flex flex-nowrap items-center justify-center gap-8 md:gap-20 max-w-7xl mx-auto px-4 py-4">
                         {/* Plan International */}
-                        <div className="group flex items-center justify-center p-6 bg-white rounded-2xl border border-slate-200 hover:border-athar-blue/30 hover:shadow-lg transition-all w-48 h-32">
+                        <div className="shrink-0 flex items-center justify-center">
                             <img
                                 src={planLogo}
                                 alt="Plan International"
-                                className="max-w-full max-h-full object-contain transition-all duration-300"
+                                className="h-16 md:h-24 w-auto object-contain transition-all duration-300"
                             />
                         </div>
 
                         {/* Denmark Ministry */}
-                        <div className="group flex items-center justify-center p-6 bg-white rounded-2xl border border-slate-200 hover:border-athar-blue/30 hover:shadow-lg transition-all duration-300 w-48 h-32">
+                        <div className="shrink-0 flex items-center justify-center">
                             <img
                                 src={denmarkLogo}
                                 alt="Ministry of Foreign Affairs of Denmark"
-                                className="max-w-full max-h-full object-contain transition-all duration-300"
+                                className="h-16 md:h-24 w-auto object-contain transition-all duration-300"
+                            />
+                        </div>
+
+                        {/* Danish Arab Union */}
+                        <div className="shrink-0 flex items-center justify-center">
+                            <img
+                                src={danishLogo}
+                                alt="Danish Arab Union"
+                                className="h-16 md:h-24 w-auto object-contain transition-all duration-300"
+                            />
+                        </div>
+
+                        {/* DANSK ERHVERV */}
+                        <div className="shrink-0 flex items-center justify-center">
+                            <img
+                                src={danskerhverLogo}
+                                alt="DANSK ERHVERV"
+                                className="h-16 md:h-24 w-auto object-contain transition-all duration-300"
                             />
                         </div>
                     </div>
                 </div>
             </section>
 
-            {/* About Athar Section */}
-            <section className="py-24 bg-white text-slate-900 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-athar-blue/5 to-transparent"></div>
 
-                <div className="container mx-auto px-4 md:px-8 relative z-10">
-                    <div className="flex flex-col lg:flex-row items-center gap-16">
-                        <div className="flex-1 space-y-8">
-                            <div className="inline-block">
-                                <div className="flex items-center gap-3 mb-2">
-                                    <span className="h-px w-8 bg-athar-blue"></span>
-                                    <span className="text-athar-blue font-bold tracking-widest uppercase text-sm">Powered By</span>
-                                </div>
-                                <h2 className="text-4xl md:text-5xl font-black tracking-tight mb-6 text-athar-black">Athar Accelerator</h2>
-                            </div>
-
-                            <p className="text-lg text-slate-600 leading-relaxed">
-                                Athar is the leading startup accelerator in Upper Egypt, dedicated to fostering innovation and entrepreneurship. We believe in the potential of local talent to solve global challenges.
-                            </p>
-
-                            <ul className="space-y-4">
-                                <li className="flex items-center gap-4">
-                                    <div className="h-8 w-8 rounded-full bg-athar-blue/10 flex items-center justify-center text-athar-blue">
-                                        <Building2 size={16} />
-                                    </div>
-                                    <span className="font-semibold text-slate-700">Supporting 100+ Startups</span>
-                                </li>
-                                <li className="flex items-center gap-4">
-                                    <div className="h-8 w-8 rounded-full bg-athar-blue/20 flex items-center justify-center text-athar-blue">
-                                        <Users2 size={16} />
-                                    </div>
-                                    <span className="font-semibold text-slate-700">Building a Strong Community</span>
-                                </li>
-                                <li className="flex items-center gap-4">
-                                    <div className="h-8 w-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-700">
-                                        <Target size={16} />
-                                    </div>
-                                    <span className="font-semibold text-slate-700">Focused on Sustainable Impact</span>
-                                </li>
-                            </ul>
-
-                            <div className="pt-4">
-                                <a href="https://athareg.com" target="_blank" rel="noopener noreferrer">
-                                    <Button variant="link" className="text-athar-blue hover:text-athar-yellow p-0 font-bold text-lg group">
-                                        Visit Athar Website
-                                        <ChevronRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                                    </Button>
-                                </a>
-                            </div>
-                        </div>
-
-                        <div className="flex-1 w-full max-w-md lg:max-w-full relative">
-                            <div className="relative aspect-square rounded-[3rem] overflow-hidden bg-gradient-to-br from-slate-50 to-white border border-slate-200 shadow-lg p-8 flex items-center justify-center">
-                                <img
-                                    src={logo}
-                                    alt="Athar Logo"
-                                    className="w-3/4 h-auto object-contain"
-                                />
-
-                                {/* Decorative Circles */}
-                                <div className="absolute -top-10 -right-10 w-40 h-40 bg-athar-blue/10 rounded-full filter blur-3xl"></div>
-                                <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-athar-yellow/20 rounded-full filter blur-3xl"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
 
             {/* Footer */}
             <footer className="bg-athar-black border-t border-white/10 py-12 text-center text-slate-500 text-sm">

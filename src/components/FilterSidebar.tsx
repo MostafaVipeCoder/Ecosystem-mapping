@@ -161,7 +161,7 @@ export function FilterSidebar({
                                 onChange={(e) => setIndustrySearch(e.target.value)}
                             />
                         )}
-                        <div className="space-y-2 max-h-[220px] overflow-y-auto custom-scrollbar pr-1">
+                        <div className="space-y-2 max-h-[250px] overflow-y-auto custom-scrollbar pr-1">
                             {filteredIndustries.length > 0 ? (
                                 filteredIndustries.map((industry) => (
                                     <div key={industry} className="flex items-center justify-between group">
@@ -200,7 +200,7 @@ export function FilterSidebar({
                                 onChange={(e) => setGovernorateSearch(e.target.value)}
                             />
                         )}
-                        <div className="space-y-2 max-h-[220px] overflow-y-auto custom-scrollbar pr-1">
+                        <div className="space-y-2 max-h-[250px] overflow-y-auto custom-scrollbar pr-1">
                             {filteredGovernorates.length > 0 ? (
                                 filteredGovernorates.map((gov) => (
                                     <div key={gov} className="flex items-center justify-between group">

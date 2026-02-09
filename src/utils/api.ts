@@ -282,6 +282,28 @@ export function formatCurrency(amount: number): string {
     return num.toString();
 }
 
+/**
+ * Format date for display
+ */
+export function formatDate(dateStr: string | undefined | null): string {
+    if (!dateStr) return 'Not specified';
+
+    // Check if it's already a ISO string from Excel (often comes as "YYYY-MM-DD" or ISO)
+    try {
+        const date = new Date(dateStr);
+        if (isNaN(date.getTime())) return dateStr; // Return as is if invalid
+
+        // Return in DD/MM/YYYY format or similar
+        return date.toLocaleDateString('en-GB', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+    } catch {
+        return dateStr;
+    }
+}
+
 export interface SubmissionResult {
     success: boolean;
     message?: string;

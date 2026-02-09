@@ -25,7 +25,7 @@ import { Sheet, SheetContent, SheetTitle, SheetDescription } from '../components
 import { Separator } from '../components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { Startup } from '../types';
-import { formatCurrency } from '../utils/api';
+import { formatCurrency, formatDate } from '../utils/api';
 import FilterSidebar from '../components/FilterSidebar';
 import { MeetingRequestDialog } from '../components/MeetingRequestDialog';
 
@@ -102,7 +102,7 @@ const StartupDetails = ({ startup, open, onOpenChange }: { startup: Startup | nu
                             {startup.foundingDate && (
                                 <div className="flex items-center gap-1.5">
                                     <Calendar size={14} />
-                                    Founded: {startup.foundingDate}
+                                    Founded: {formatDate(startup.foundingDate)}
                                 </div>
                             )}
                         </div>
@@ -203,7 +203,7 @@ const StartupDetails = ({ startup, open, onOpenChange }: { startup: Startup | nu
                                         </div>
                                         <div className="flex justify-between items-center py-2 border-b last:border-0 text-sm">
                                             <span className="text-muted-foreground">Last Funding Date</span>
-                                            <span className="font-semibold text-athar-black">{startup.lastFundingDate || 'Unknown'}</span>
+                                            <span className="font-semibold text-athar-black">{formatDate(startup.lastFundingDate)}</span>
                                         </div>
                                         <div className="flex justify-between items-center py-2 border-b last:border-0 text-sm">
                                             <span className="text-muted-foreground">Operational Status</span>
@@ -223,15 +223,28 @@ const StartupDetails = ({ startup, open, onOpenChange }: { startup: Startup | nu
                                     <CardContent className="space-y-6">
                                         <div className="flex items-center justify-between">
                                             <div className="flex items-center gap-3">
-                                                <div className="h-10 w-10 rounded-full bg-slate-100 flex items-center justify-center">
-                                                    <Users className="h-5 w-5 text-slate-600" />
+                                                <div className="h-10 w-10 rounded-full bg-blue-50 flex items-center justify-center">
+                                                    <Briefcase className="h-5 w-5 text-athar-blue" />
                                                 </div>
                                                 <div>
-                                                    <div className="font-medium">Total Employees</div>
-                                                    <div className="text-xs text-muted-foreground">Full-time Employees</div>
+                                                    <div className="font-medium">Direct Employees</div>
                                                 </div>
                                             </div>
-                                            <div className="text-2xl font-bold">{(startup.employees || 0) + (startup.freelancersCount || 0)}</div>
+                                            <div className="text-2xl font-bold">{startup.employees || 0}</div>
+                                        </div>
+
+                                        <Separator />
+
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-3">
+                                                <div className="h-10 w-10 rounded-full bg-amber-50 flex items-center justify-center">
+                                                    <Users className="h-5 w-5 text-athar-yellow" />
+                                                </div>
+                                                <div>
+                                                    <div className="font-medium">Freelancers</div>
+                                                </div>
+                                            </div>
+                                            <div className="text-2xl font-bold">{startup.freelancersCount || 0}</div>
                                         </div>
 
                                         <Separator />
@@ -338,7 +351,7 @@ function StartupCard({ startup, onClick }: { startup: Startup, onClick: () => vo
                             <Users size={16} />
                         </div>
                         <div className="flex flex-col">
-                            <span className="font-medium text-xs sm:text-sm">{(startup.employees || 0) + (startup.freelancersCount || 0)} Employees</span>
+                            <span className="font-medium text-xs sm:text-sm">{(startup.employees || 0)} Employees / {(startup.freelancersCount || 0)} Freelancers</span>
                         </div>
                     </div>
                     {startup.teamSize && startup.teamSize > 0 && (
@@ -443,7 +456,8 @@ export default function EcosystemPage() {
             const name = startup.name || '';
             const ceoName = startup.ceoName || '';
 
-            const matchesSearch = name.includes(searchQuery) || ceoName.includes(searchQuery);
+            const matchesSearch = name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                ceoName.toLowerCase().includes(searchQuery.toLowerCase());
             const matchesIndustry = selectedIndustries.length === 0 || selectedIndustries.includes(startup.industry);
             const matchesGovernorate = selectedGovernorates.length === 0 || selectedGovernorates.includes(startup.governorate);
 
