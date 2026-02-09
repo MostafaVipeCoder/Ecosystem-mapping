@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as XLSX from 'xlsx';
-import { Download, Upload, Plus, Check, AlertCircle, FileSpreadsheet, Loader2 } from 'lucide-react';
+import { Download, Upload, Plus, Check, AlertCircle, FileSpreadsheet, Loader2, X } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { Button } from '../components/ui/button';
@@ -13,6 +13,7 @@ import { Label } from '../components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { Textarea } from '../components/ui/textarea';
 import { Badge } from '../components/ui/badge';
+import { Checkbox } from '../components/ui/checkbox';
 
 import {
     Table,
@@ -38,12 +39,13 @@ import {
 
 import { useStartups } from '../context/StartupsContext';
 import { startupSchema, StartupFormData, FALLBACK_GOVERNORATES, FALLBACK_INDUSTRIES } from '../types';
-import { createStartup, bulkCreateStartups, getServiceProviders } from '../utils/api';
+import { createStartup, bulkCreateStartups, getServiceProviders, getFundingEntities } from '../utils/api';
 import { cn } from '../lib/utils';
 
 export default function AddDataPage() {
     const { startups, refetch } = useStartups();
     const [existingProviders, setExistingProviders] = useState<string[]>([]);
+    const [existingFundingEntities, setExistingFundingEntities] = useState<string[]>([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [lang, setLang] = useState<'en' | 'ar'>('en');
 
@@ -53,6 +55,7 @@ export default function AddDataPage() {
     useEffect(() => {
         if (startups.length > 0) {
             setExistingProviders(getServiceProviders(startups));
+            setExistingFundingEntities(getFundingEntities(startups));
         }
     }, [startups]);
 
@@ -99,7 +102,24 @@ export default function AddDataPage() {
     }, [teamSize, femaleFounders, form]);
 
     const [openProviderCombobox, setOpenProviderCombobox] = useState(false);
+    const [openFundingCombobox, setOpenFundingCombobox] = useState(false);
+    const [isFundingDateUnknown, setIsFundingDateUnknown] = useState(false);
     const [customProvider, setCustomProvider] = useState("");
+    const [customFunding, setCustomFunding] = useState("");
+    const [logoPreview, setLogoPreview] = useState<string | null>(null);
+
+    const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                const base64String = reader.result as string;
+                form.setValue('logo', base64String);
+                setLogoPreview(base64String);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
 
     const onSubmitSingle = async (data: StartupFormData) => {
         setIsSubmitting(true);
@@ -123,7 +143,7 @@ export default function AddDataPage() {
 
     // --- Bulk Upload Logic ---
     const [bulkData, setBulkData] = useState<any[]>([]);
-    const [uploadStats, setUploadStats] = useState({ total: 0, valid: 0, invalid: 0 });
+    const [uploadStats, setUploadStats] = useState({ total: 0, valid: 0, invalid: 0, currentProcessing: 0 });
     const [isAnalyzing, setIsAnalyzing] = useState(false);
 
     const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -170,32 +190,34 @@ export default function AddDataPage() {
             };
 
             const mappedRow = {
-                name: getVal(['Startup Name', 'اسم الشركة', 'أسم الشركة', 'Name', 'Company Name', 'Business Name', 'الشركة', 'startupName']),
-                ceoName: getVal(['CEO Name', 'اسم المؤسس', 'Founder', 'ceoName']),
-                phone: String(getVal(['Phone', 'الهاتف', 'Mobile', 'phone']) || ''),
-                email: getVal(['Email', 'البريد الالكتروني', 'email']),
-                industry: getVal(['Industry', 'قطاع المشروع الصناعة', 'Sector', 'industry']),
-                governorate: getVal(['Governerate', 'Governorate', 'المحافظة', 'governorate']),
-                revenue: Number(getVal(['Revenue (Total) (Yearly)', 'الايرادات سنوي', 'Revenue', 'Total Revenue', 'revenue']) || 0),
-                profitability: getVal(['profitability', 'مرحلة المشروع', 'Stage', 'Current Stage', 'الربحية']),
-                ceoGender: getVal(['CEO Gender', 'النوع', 'Gender', 'ceoGender']),
-                description: getVal(['Description', 'الوصف', 'وصف مختصر للشركة', 'Brief', 'description']),
-                startupType: getVal(['Startup type', 'نوع الشركة', 'Startup Type', 'startupType', 'نوع المشروع']),
-                website: getVal(['Website/ app links/ social media', 'التطبيق /رابط الموقع', 'Website', 'website', 'روابط']),
-                openClosed: getVal(['Open/Closed', 'Operational status', 'Status', 'حالة العمل', 'openClosed']),
-                foundingDate: String(getVal(['Date of company stabilished', 'تاريخ التأسيس', 'Date of establishment', 'Founding Date', 'foundingDate']) || ''),
-                legalStatus: getVal(['Legal Status', 'هل المشروع مسجل', 'الوضع القانوني', 'legalStatus']),
-                teamSize: Number(getVal(['Founding team size', 'عدد المؤسسين', 'Team Size', 'عدد فريق التأسيس', 'teamSize']) || 0),
-                femaleFounders: Number(getVal(['Female founders', 'عدد المؤسسات الإناث', 'Female Founders', 'عدد الإناث المؤسسات', 'femaleFounders']) || 0),
-                maleFounders: Number(getVal(['male founders', 'عدد المؤسسين الذكور', 'Male Founders', 'عدد الذكور المؤسسين', 'maleFounders']) || 0),
-                freelancersCount: Number(getVal(['Number of freelancers', 'عدد المتدرّبين/الفريلانسرز', 'Freelancers', 'عدد الفريلانسرز', 'freelancersCount']) || 0),
-                employees: Number(getVal(['Nu. of employees', 'عدد الموظفين كلهم بدون المؤسسين', 'Employees', 'Staff', 'عدد الموظفين', 'employees']) || 0),
-                hasDedicatedPlace: getVal(['Do you have a dedicated place', 'مكان مخصص', 'Has Dedicated Place', 'hasDedicatedPlace']),
-                workplaceType: getVal(['own or rent a workplace', 'نوع مكان العمل', 'Workplace Type', 'workplaceType']),
-                fundingEntity: getVal(['What is the Funding entity?', 'جهة التمويل', 'fundingEntity']),
-                fundingRaised: getVal(['Funding raised', 'قيمة تمويل', 'Total Funding', 'Funding Raised', 'fundingRaised', 'تمويل']),
-                monthlyIncome: getVal(['How much is your monthly income from the project?', 'الدخل الشهري', 'Monthly Income', 'monthlyIncome']),
-                serviceProvider: getVal(['Service Provider', 'Incubator', 'مقدم الخدمة', 'serviceProvider']),
+                name: getVal(['Startup Name']),
+                ceoName: getVal(['CEO Name']),
+                phone: String(getVal(['Phone']) || ''),
+                email: getVal(['Email']),
+                industry: getVal(['Industry']),
+                governorate: getVal(['Governerate']),
+                revenue: Number(getVal(['Revenue (Total) (Yearly)']) || 0),
+                profitability: getVal(['profitability']),
+                ceoGender: getVal(['CEO Gender']),
+                description: getVal(['Description']),
+                startupType: getVal(['Startup type']),
+                website: getVal(['Website/ app links/ social media']),
+                openClosed: getVal(['Open/Closed']),
+                foundingDate: String(getVal(['Date of company stabilished']) || ''),
+                legalStatus: getVal(['Legal Status']),
+                teamSize: Number(getVal(['Founding team size']) || 0),
+                femaleFounders: Number(getVal(['Female founders']) || 0),
+                maleFounders: Number(getVal(['male founders']) || 0),
+                freelancersCount: Number(getVal(['Freelancers']) || 0),
+                employees: Number(getVal(['Employees']) || 0),
+                hasDedicatedPlace: getVal(['Do you have a dedicated place']),
+                workplaceType: getVal(['own or rent a workplace']),
+                lastFundingDate: String(getVal(['Last Fundind Date']) || getVal(['Last Funding Date']) || ''),
+                fundingEntity: getVal(['What is the Funding entity name?']),
+                fundingRaised: String(getVal(['Funding raised']) || ''),
+                monthlyIncome: String(getVal(['How much is your monthly income from the project?']) || ''),
+                serviceProvider: getVal(['Service Provider']),
+                logo: getVal(['Company logo']),
             };
 
             const result = startupSchema.safeParse(mappedRow);
@@ -218,45 +240,76 @@ export default function AddDataPage() {
         setIsSubmitting(true);
         try {
             const validRows = bulkData.filter(r => r._isValid).map(({ _isValid, _errors, ...rest }) => rest);
-            const result = await bulkCreateStartups(validRows);
-            if (result.success) {
-                toast.success(t('Uploaded successfully!', 'تم الرفع بنجاح!'));
+
+            let successCount = 0;
+            for (let i = 0; i < validRows.length; i++) {
+                setUploadStats(prev => ({ ...prev, currentProcessing: i + 1 }));
+
+                try {
+                    const result = await createStartup(validRows[i] as any);
+                    if (result.success) {
+                        successCount++;
+                    }
+                } catch (err) {
+                    console.error(`Row ${i + 1} failed:`, err);
+                }
+
+                // 1 second delay between rows for safety
+                if (i < validRows.length - 1) {
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                }
+            }
+
+            if (successCount > 0) {
+                toast.success(t(`Successfully uploaded ${successCount} startups!`, `تم رفع ${successCount} شركة بنجاح!`));
                 setBulkData([]);
                 setUploadStats({ total: 0, valid: 0, invalid: 0 });
                 refetch();
+            } else {
+                toast.error(t('Upload failed for all rows', 'فشل الرفع لجميع الصفوف'));
             }
         } finally {
             setIsSubmitting(false);
         }
     };
 
+    const clearBulkUpload = () => {
+        setBulkData([]);
+        setUploadStats({ total: 0, valid: 0, invalid: 0, currentProcessing: 0 });
+        const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+        if (fileInput) fileInput.value = '';
+    };
+
     const downloadTemplate = () => {
         const templateRow = {
-            "Startup Name": "Example Startup Name",
+            "Startup Name": "Example Startup",
             "CEO Name": "Founder Name",
             "Phone": "01000000000",
             "Email": "info@example.com",
-            "Industry": "Services",
-            "Governerate": "Minya",
-            "Revenue (Total) (Yearly)": 300000,
-            "profitability": "Breaking Even",
-            "CEO Gender": "Female",
-            "Description": "Startup description goes here...",
+            "Industry": "IT",
+            "Governerate": "Cairo",
+            "Revenue (Total) (Yearly)": 500000,
+            "profitability": "Profitable",
+            "CEO Gender": "Male",
+            "Description": "High-tech software solutions for businesses.",
             "Startup type": "Startup",
             "Website/ app links/ social media": "https://example.com",
             "Open/Closed": "Open",
-            "Date of company stabilished": "2022",
-            "Legal Status": "Not Registered",
-            "Founding team size": 1,
+            "Date of company stabilished": "2021-05-15",
+            "Legal Status": "Registered",
+            "Founding team size": 3,
             "Female founders": 1,
-            "Number of freelancers": 3,
-            "Nu. of employees": 4,
+            "male founders": 2,
+            "Freelancers": 2,
+            "Employees": 5,
             "Do you have a dedicated place": "Yes",
-            "own or rent a workplace": "Rent",
-            "What is the Funding entity?": "Tiech",
-            "Funding raised": "180000",
-            "How much is your monthly income from the project?": "25000",
-            "Service Provider": "Athar Accelerator"
+            "own or rent a workplace": "Office",
+            "Last Fundind Date": "2023-10-10",
+            "What is the Funding entity name?": "VC Name",
+            "Funding raised": "250000",
+            "How much is your monthly income from the project?": "45000",
+            "Service Provider": "Athar Accelerator",
+            "Company logo": "https://example.com/logo.png"
         };
         const ws = XLSX.utils.json_to_sheet([templateRow]);
         const wb = XLSX.utils.book_new();
@@ -536,14 +589,111 @@ export default function AddDataPage() {
                                                 {form.formState.errors.monthlyIncome && <p className="text-sm text-red-500">{form.formState.errors.monthlyIncome.message}</p>}
                                             </div>
                                             <div className="space-y-2">
-                                                <Label>{t('What is the Funding entity?', 'ما هي جهة التمويل؟')} {form.watch('fundingRaised') && form.watch('fundingRaised').toLowerCase() !== 'none' && '*'}</Label>
-                                                <Input {...form.register('fundingEntity')} placeholder={t('e.g. Angel Investor', 'مثال: مستثمر ملاك')} />
+                                                <Label>{t('What is the Funding entity name?', 'ما هي جهة التمويل؟')} {form.watch('fundingRaised') && form.watch('fundingRaised').toLowerCase() !== 'none' && '*'}</Label>
+                                                <Popover open={openFundingCombobox} onOpenChange={setOpenFundingCombobox}>
+                                                    <PopoverTrigger asChild>
+                                                        <Button variant="outline" role="combobox" className="w-full justify-between">
+                                                            {form.watch('fundingEntity') || t('Select or enter...', 'اختر أو أدخل...')}
+                                                            <Plus className="ml-2 h-4 w-4 opacity-50" />
+                                                        </Button>
+                                                    </PopoverTrigger>
+                                                    <PopoverContent className="w-[400px] p-0" align="start">
+                                                        <Command>
+                                                            <CommandInput
+                                                                placeholder={t("Search entities...", "بحث...")}
+                                                                onValueChange={setCustomFunding}
+                                                            />
+                                                            <CommandList>
+                                                                <CommandEmpty>
+                                                                    <Button
+                                                                        variant="ghost"
+                                                                        className="w-full justify-start text-primary"
+                                                                        onClick={() => {
+                                                                            if (customFunding) {
+                                                                                form.setValue('fundingEntity', customFunding);
+                                                                                setOpenFundingCombobox(false);
+                                                                            }
+                                                                        }}
+                                                                    >
+                                                                        <Plus className="mr-2 h-4 w-4" />
+                                                                        {t(`Create "${customFunding}"`, `إنشاء "${customFunding}"`)}
+                                                                    </Button>
+                                                                </CommandEmpty>
+                                                                <CommandGroup>
+                                                                    {existingFundingEntities.map((entity) => (
+                                                                        <CommandItem
+                                                                            key={entity}
+                                                                            value={entity}
+                                                                            onSelect={(currentValue) => {
+                                                                                form.setValue('fundingEntity', currentValue);
+                                                                                setOpenFundingCombobox(false);
+                                                                            }}
+                                                                        >
+                                                                            <Check
+                                                                                className={cn(
+                                                                                    "mr-2 h-4 w-4",
+                                                                                    form.watch('fundingEntity') === entity ? "opacity-100" : "opacity-0"
+                                                                                )}
+                                                                            />
+                                                                            {entity}
+                                                                        </CommandItem>
+                                                                    ))}
+                                                                </CommandGroup>
+                                                            </CommandList>
+                                                        </Command>
+                                                    </PopoverContent>
+                                                </Popover>
                                                 {form.formState.errors.fundingEntity && <p className="text-sm text-red-500">{form.formState.errors.fundingEntity.message}</p>}
                                             </div>
                                             <div className="space-y-2">
-                                                <Label>{t('Funding raised *', 'التمويل الذي تم رفعه *')}</Label>
+                                                <Label>{t('Funding raised *', 'التمويل الذي تم الحصول عليه *')}</Label>
                                                 <Input {...form.register('fundingRaised')} placeholder="e.g. 1M EGP Seed (Write 'None' if none)" />
                                                 {form.formState.errors.fundingRaised && <p className="text-sm text-red-500">{form.formState.errors.fundingRaised.message}</p>}
+                                            </div>
+                                            <div className="space-y-2">
+                                                <div className="flex items-center justify-between">
+                                                    <Label>{t('Last Funding Date *', 'تاريخ آخر تمويل *')}</Label>
+                                                    <div className="flex items-center space-x-2 space-x-reverse">
+                                                        <Checkbox
+                                                            id="unknown-date"
+                                                            checked={isFundingDateUnknown}
+                                                            onCheckedChange={(checked: boolean) => {
+                                                                const isChecked = !!checked;
+                                                                setIsFundingDateUnknown(isChecked);
+                                                                if (isChecked) {
+                                                                    form.setValue('lastFundingDate', t('Unknown / Not Disclosed', 'لم يتم الافصاح عن تاريخ التمويل'));
+                                                                } else {
+                                                                    form.setValue('lastFundingDate', '');
+                                                                }
+                                                            }}
+                                                        />
+                                                        <label htmlFor="unknown-date" className="text-xs text-muted-foreground cursor-pointer">
+                                                            {t('Unknown / Not Disclosed', 'غير معروف / لم يتم الإفصاح')}
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                {!isFundingDateUnknown ? (
+                                                    <Input {...form.register('lastFundingDate')} type="date" />
+                                                ) : (
+                                                    <div className="p-2 bg-slate-50 border rounded-md text-sm text-slate-500 italic">
+                                                        {t('Date marked as Unknown', 'تم وضع التاريخ كغير معروف')}
+                                                    </div>
+                                                )}
+                                                {form.formState.errors.lastFundingDate && <p className="text-sm text-red-500">{form.formState.errors.lastFundingDate.message}</p>}
+                                            </div>
+                                            <div className="space-y-2 md:col-span-2">
+                                                <Label>{t('Company logo', 'شعار الشركة')}</Label>
+                                                <div className="flex items-center gap-4">
+                                                    <Input type="file" accept="image/*" onChange={handleLogoChange} className="cursor-pointer" />
+                                                    {logoPreview && (
+                                                        <div className="h-12 w-12 rounded border overflow-hidden bg-slate-100 flex items-center justify-center">
+                                                            <img src={logoPreview} alt="Logo preview" className="max-h-full max-w-full object-contain" />
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <p className="text-xs text-muted-foreground mt-1">
+                                                    {t('Will be stored in Google Drive.', 'سيتم تخزين الشعار في جوجل درايف.')}
+                                                </p>
                                             </div>
                                         </div>
                                     </div>
@@ -561,7 +711,7 @@ export default function AddDataPage() {
                                                 </PopoverTrigger>
                                                 <PopoverContent className="w-[400px] p-0" align="start">
                                                     <Command>
-                                                        <CommandInput placeholder={t('Search...', 'بحث...')} onValueChange={setCustomProvider} />
+                                                        <CommandInput placeholder={t('Select or enter...', 'اختر أو أدخل...')} onValueChange={setCustomProvider} />
                                                         <CommandList>
                                                             <CommandEmpty>
                                                                 <Button variant="ghost" className="w-full justify-start text-blue-600" onClick={() => {
@@ -634,10 +784,20 @@ export default function AddDataPage() {
                                     <div className="space-y-4">
                                         <div className="flex items-center justify-between">
                                             <h3 className="font-semibold">{t('Preview Data', 'معاينة البيانات')}</h3>
-                                            <div className="flex gap-2">
+                                            <div className="flex gap-2 items-center">
                                                 <Badge variant="outline">{uploadStats.total} {t('Total', 'إجمالي')}</Badge>
                                                 <Badge variant="outline" className="bg-green-100 text-green-700">{uploadStats.valid} {t('Valid', 'صحيح')}</Badge>
                                                 <Badge variant="outline" className="bg-red-100 text-red-700">{uploadStats.invalid} {t('Invalid', 'غير صحيح')}</Badge>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="h-7 px-2 text-red-600 hover:text-red-700 hover:bg-red-50 ml-2"
+                                                    onClick={clearBulkUpload}
+                                                    disabled={isSubmitting}
+                                                >
+                                                    <X className="h-4 w-4 mr-1" />
+                                                    {t('Clear All', 'مسح الكل')}
+                                                </Button>
                                             </div>
                                         </div>
 
@@ -657,9 +817,26 @@ export default function AddDataPage() {
                                             </Table>
                                         </div>
 
-                                        <Button className="w-full" onClick={onSubmitBulk} disabled={isSubmitting || uploadStats.valid === 0}>
-                                            {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Upload className="mr-2 h-4 w-4" />}
-                                            {t(`Upload ${uploadStats.valid} Startups`, `رفع ${uploadStats.valid} شركة`)}
+                                        <Button className="w-full h-14" onClick={onSubmitBulk} disabled={isSubmitting || uploadStats.valid === 0}>
+                                            {isSubmitting ? (
+                                                <div className="flex flex-col items-center w-full">
+                                                    <div className="flex items-center">
+                                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                                        {t(`Uploading ${uploadStats.currentProcessing} of ${uploadStats.valid}...`, `جاري رفع ${uploadStats.currentProcessing} من ${uploadStats.valid}...`)}
+                                                    </div>
+                                                    <div className="w-full bg-slate-200 h-1.5 mt-2 rounded-full overflow-hidden">
+                                                        <div
+                                                            className="bg-white h-full transition-all duration-300"
+                                                            style={{ width: `${(uploadStats.currentProcessing / uploadStats.valid) * 100}%` }}
+                                                        />
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <>
+                                                    <Upload className="mr-2 h-4 w-4" />
+                                                    {t(`Upload ${uploadStats.valid} Startups`, `رفع ${uploadStats.valid} شركة`)}
+                                                </>
+                                            )}
                                         </Button>
                                     </div>
                                 )}

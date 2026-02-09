@@ -193,19 +193,21 @@ export async function fetchStartups(): Promise<{
                 startupType: translate(getValue(['Startup Type', 'نوع الشركة'])) || 'Not specified',
                 website: getValue(['Website', 'التطبيق /رابط الموقع', 'Website/ app links/ social media']) || '#',
                 openClosed: translate(getValue(['Open/Closed', 'Operational status', 'Status'])) || 'Not specified',
-                foundingDate: getValue(['Founding Date', 'تاريخ التأسيس', 'Date of establishment']) || '',
-                legalStatus: translate(getValue(['Legal Status', 'هل المشروع مسجل'])) || 'Not specified',
-                teamSize: parseNumber(getValue(['Team Size', 'عدد المؤسسين', 'Founding team size'])),
-                femaleFounders: parseNumber(getValue(['Female Founders', 'عدد المؤسسات الإناث', 'Female founders count'])),
-                maleFounders: parseNumber(getValue(['Male Founders', 'عدد المؤسسين الذكور', 'Male founders count'])),
+                foundingDate: getValue(['Founding Date', 'تاريخ التأسيس', 'Date of establishment', 'Date of company stabilished', 'تاريخ تأسيس الشركة']) || '',
+                legalStatus: translate(getValue(['Legal Status', 'هل المشروع مسجل', 'الوضع القانوني'])) || 'Not specified',
+                teamSize: parseNumber(getValue(['Team Size', 'عدد المؤسسين', 'Founding team size', 'حجم فريق التأسيس'])),
+                femaleFounders: parseNumber(getValue(['Female Founders', 'عدد المؤسسات الإناث', 'Female founders count', 'عدد المؤسسات الاناث'])),
+                maleFounders: parseNumber(getValue(['Male Founders', 'عدد المؤسسين الذكور', 'Male founders count', 'عدد المؤسسين ذكور'])),
                 freelancersCount: parseNumber(getValue(['Freelancers/Trainees', 'عدد المتدرّبين/الفريلانسرز', 'Freelancers'])),
-                hasDedicatedPlace: translate(getValue(['Has Dedicated Place', 'مكان مخصص'])) || 'Not specified',
+                hasDedicatedPlace: translate(getValue(['Has Dedicated Place', 'مكان مخصص', 'هل يوجد مكان مخصص؟'])) || 'Not specified',
                 workplaceType: translate(getValue(['Workplace Type', 'نوع مكان العمل'])) || 'Not specified',
-                fundingEntity: getValue(['Funding Entity', 'What is the Funding entity?', 'جهة التمويل']) ? String(getValue(['Funding Entity', 'What is the Funding entity?', 'جهة التمويل'])) : '',
-                fundingRaised: getValue(['Funding Raised', 'قيمة تمويل', 'Total Funding']) ? String(getValue(['Funding Raised', 'قيمة تمويل', 'Total Funding'])) : 'Self-funded',
-                monthlyIncome: getValue(['Monthly Income', 'الدخل الشهري']) ? String(getValue(['Monthly Income', 'الدخل الشهري'])) : '0',
+                fundingEntity: getValue(['Funding Entity', 'What is the Funding entity?', 'جهة التمويل', 'What is the Funding entity name?', 'ما هي جهة التمويل؟']) ? String(getValue(['Funding Entity', 'What is the Funding entity?', 'جهة التمويل', 'What is the Funding entity name?', 'ما هي جهة التمويل؟'])) : '',
+                fundingRaised: getValue(['Funding Raised', 'قيمة تمويل', 'Total Funding', 'التمويل الذي تم الحصول عليه']) ? String(getValue(['Funding Raised', 'قيمة تمويل', 'Total Funding', 'التمويل الذي تم الحصول عليه'])) : 'Self-funded',
+                monthlyIncome: getValue(['Monthly Income', 'الدخل الشهري', 'How much is your monthly income from the project?', 'ما هو دخلك الشهري من المشروع؟']) ? String(getValue(['Monthly Income', 'الدخل الشهري', 'How much is your monthly income from the project?', 'ما هو دخلك الشهري من المشروع؟'])) : '0',
                 serviceProvider: translate(getValue(['Service Provider', 'Incubator', 'مقدم الخدمة'])) || undefined,
-                lastUpdate: getValue(['Timestamp', 'Last Update']) ? String(getValue(['Timestamp', 'Last Update'])) : undefined,
+                lastFundingDate: getValue(['Last Funding Date', 'تاريخ آخر تمويل', 'lastFundingDate']) ? String(getValue(['Last Funding Date', 'تاريخ آخر تمويل', 'lastFundingDate'])) : undefined,
+                logo: getValue(['Company Logo', 'شعار الشركة', 'logo', 'Logo']) ? String(getValue(['Company Logo', 'شعار الشركة', 'logo', 'Logo'])) : undefined,
+                lastUpdate: getValue(['Timestamp', 'Last Update', 'Last updating Date for Data']) ? String(getValue(['Timestamp', 'Last Update', 'Last updating Date for Data'])) : undefined,
                 score: Math.floor(Math.random() * 30) + 70,
             };
         };
@@ -352,6 +354,19 @@ export function getServiceProviders(startups: Startup[]): string[] {
         }
     });
     return Array.from(providers).sort();
+}
+
+/**
+ * Extract unique Funding Entities from the startups list
+ */
+export function getFundingEntities(startups: Startup[]): string[] {
+    const entities = new Set<string>();
+    startups.forEach(s => {
+        if (s.fundingEntity && s.fundingEntity.trim() !== '' && s.fundingEntity !== 'Not specified') {
+            entities.add(s.fundingEntity);
+        }
+    });
+    return Array.from(entities).sort();
 }
 
 /**

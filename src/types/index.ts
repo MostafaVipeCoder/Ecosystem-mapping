@@ -29,6 +29,8 @@ export interface Startup {
 
     // Metadata & Internal
     serviceProvider?: string;
+    lastFundingDate?: string;
+    logo?: string;
     lastUpdate?: string;
     score?: number;
 }
@@ -76,6 +78,8 @@ export const startupSchema = z.object({
 
     // Operations
     serviceProvider: z.string().min(2, "Service Provider is required"),
+    lastFundingDate: z.string().min(1, "Last funding date is required"),
+    logo: z.string().optional().or(z.literal('')),
     id: z.string().optional(),
     lastUpdate: z.string().optional(),
 }).superRefine((data, ctx) => {

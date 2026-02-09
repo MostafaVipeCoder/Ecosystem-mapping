@@ -67,7 +67,26 @@ const StartupDetails = ({ startup, open, onOpenChange }: { startup: Startup | nu
                                 }
                             />
                         </div>
-                        <SheetTitle className="text-3xl font-bold mb-2 text-white">{startup.name}</SheetTitle>
+                        <div className="flex items-center gap-4 mb-2">
+                            {startup.logo && startup.logo.includes('drive.google.com') ? (
+                                <div className="h-16 w-16 rounded-2xl bg-white p-2 shadow-lg ring-4 ring-white/20 shrink-0 flex items-center justify-center overflow-hidden">
+                                    <img
+                                        src={startup.logo.replace('/view?usp=drivesdk', '').replace('/file/d/', '/thumbnail?id=').concat('&sz=w200')}
+                                        alt={`${startup.name} logo`}
+                                        className="max-h-full max-w-full object-contain"
+                                    />
+                                </div>
+                            ) : startup.logo ? (
+                                <div className="h-16 w-16 rounded-2xl bg-white p-2 shadow-lg ring-4 ring-white/20 shrink-0 flex items-center justify-center overflow-hidden">
+                                    <img src={startup.logo} alt={`${startup.name} logo`} className="max-h-full max-w-full object-contain" />
+                                </div>
+                            ) : (
+                                <div className="h-16 w-16 rounded-2xl bg-athar-yellow text-athar-black flex items-center justify-center text-2xl font-black shadow-lg ring-4 ring-white/20 shrink-0">
+                                    {startup.name.charAt(0)}
+                                </div>
+                            )}
+                            <SheetTitle className="text-3xl font-bold text-white">{startup.name}</SheetTitle>
+                        </div>
                         <SheetDescription className="sr-only">
                             Full details and information about {startup.name}
                         </SheetDescription>
@@ -88,12 +107,6 @@ const StartupDetails = ({ startup, open, onOpenChange }: { startup: Startup | nu
                             )}
                         </div>
 
-                        {startup.serviceProvider && (
-                            <div className="absolute top-6 right-6 hidden sm:flex items-center gap-2 bg-white/10 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/20">
-                                <span className="text-[10px] font-bold text-white/70 uppercase tracking-widest">Supported by</span>
-                                <span className="text-sm font-bold text-white">{startup.serviceProvider}</span>
-                            </div>
-                        )}
                     </div>
                 </div>
 
@@ -180,12 +193,20 @@ const StartupDetails = ({ startup, open, onOpenChange }: { startup: Startup | nu
                                         </CardTitle>
                                     </CardHeader>
                                     <CardContent className="space-y-4">
-                                        <div className="flex justify-between items-center py-2 border-b last:border-0">
-                                            <span className="text-sm text-muted-foreground">Funding Amount</span>
-                                            <span className="font-semibold">{startup.fundingRaised}</span>
+                                        <div className="flex justify-between items-center py-2 border-b last:border-0 text-sm">
+                                            <span className="text-muted-foreground">Funding Amount</span>
+                                            <span className="font-semibold text-athar-black">{startup.fundingRaised}</span>
                                         </div>
-                                        <div className="flex justify-between items-center py-2 border-b last:border-0">
-                                            <span className="text-sm text-muted-foreground">Operational Status</span>
+                                        <div className="flex justify-between items-center py-2 border-b last:border-0 text-sm">
+                                            <span className="text-muted-foreground">Funding Entity</span>
+                                            <span className="font-semibold text-athar-black">{startup.fundingEntity || 'Unknown'}</span>
+                                        </div>
+                                        <div className="flex justify-between items-center py-2 border-b last:border-0 text-sm">
+                                            <span className="text-muted-foreground">Last Funding Date</span>
+                                            <span className="font-semibold text-athar-black">{startup.lastFundingDate || 'Unknown'}</span>
+                                        </div>
+                                        <div className="flex justify-between items-center py-2 border-b last:border-0 text-sm">
+                                            <span className="text-muted-foreground">Operational Status</span>
                                             <Badge variant={startup.openClosed === 'Open' ? 'outline' : 'secondary'} className={startup.openClosed === 'Open' ? 'text-green-600 border-green-200' : ''}>
                                                 {startup.openClosed || 'N/A'}
                                             </Badge>
@@ -347,9 +368,23 @@ function StartupCard({ startup, onClick }: { startup: Startup, onClick: () => vo
 
             <CardFooter className="p-4 bg-slate-50/50 flex flex-wrap gap-4 justify-between items-center mt-auto">
                 <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-full bg-[#1a27c9] flex items-center justify-center text-xs font-bold text-white ring-4 ring-white shadow-md">
-                        {(startup.ceoName || '?').charAt(0)}
-                    </div>
+                    {startup.logo && startup.logo.includes('drive.google.com') ? (
+                        <div className="h-10 w-10 rounded-full bg-white flex items-center justify-center ring-4 ring-white shadow-md overflow-hidden p-1 border border-slate-100">
+                            <img
+                                src={startup.logo.replace('/view?usp=drivesdk', '').replace('/file/d/', '/thumbnail?id=').concat('&sz=w100')}
+                                alt={`${startup.name} logo`}
+                                className="max-h-full max-w-full object-contain"
+                            />
+                        </div>
+                    ) : startup.logo ? (
+                        <div className="h-10 w-10 rounded-full bg-white flex items-center justify-center ring-4 ring-white shadow-md overflow-hidden p-1 border border-slate-100">
+                            <img src={startup.logo} alt={`${startup.name} logo`} className="max-h-full max-w-full object-contain" />
+                        </div>
+                    ) : (
+                        <div className="h-10 w-10 rounded-full bg-[#1a27c9] flex items-center justify-center text-xs font-bold text-white ring-4 ring-white shadow-md">
+                            {(startup.ceoName || '?').charAt(0)}
+                        </div>
+                    )}
                     <div className="flex flex-col gap-1">
                         <span className="text-[10px] text-athar-black/50 font-bold uppercase">Founder</span>
                         <span className="text-xs font-bold text-athar-black break-words max-w-[150px]">{startup.ceoName || 'N/A'}</span>

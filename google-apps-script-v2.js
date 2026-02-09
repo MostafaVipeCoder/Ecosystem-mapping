@@ -60,9 +60,31 @@ function doPost(e) {
     }
 }
 
+function processLogo(data, driveFolderId) {
+    if (data.logo && data.logo.startsWith('data:image')) {
+        try {
+            const folder = DriveApp.getFolderById(driveFolderId);
+            const contentType = data.logo.substring(5, data.logo.indexOf(';'));
+            const bytes = Utilities.base64Decode(data.logo.split(',')[1]);
+            const blob = Utilities.newBlob(bytes, contentType, (data.name || 'startup') + '_logo');
+            const file = folder.createFile(blob);
+            file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+            return file.getUrl();
+        } catch (e) {
+            console.error("Logo upload failed: " + e.toString());
+            return data.logo; // Keep the original logo (base64) as fallback
+        }
+    }
+    return data.logo;
+}
+
 function handleCreateStartup(sheet, data) {
     const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
     const mapping = getFieldMapping();
+    const driveFolderId = '1w0ngm8mJrC8X_41n8e3yjnfn-t07C0KI';
+
+    // Handle Logo Upload
+    data.logo = processLogo(data, driveFolderId);
 
     // Pre-normalize mapping for efficiency
     const normMap = {};
@@ -75,13 +97,14 @@ function handleCreateStartup(sheet, data) {
 
         // Core fields
         if (cleanHeader === 'id') return data.id || Utilities.getUuid();
-        if (cleanHeader === 'timestamp') return new Date();
+        if (cleanHeader === 'timestamp' || cleanHeader === normalizeValue('Last updating Date for Data')) {
+            return new Date();
+        }
 
         // Check pre-normalized mapping
         const feKey = normMap[cleanHeader];
         if (feKey && data[feKey] !== undefined) {
             let val = data[feKey];
-            // Special handling for phone/email to prevent Google Sheets from stripping leading zero or converting to number
             if (feKey === 'phone') return "'" + val;
             return val;
         }
@@ -95,13 +118,14 @@ function handleCreateStartup(sheet, data) {
     });
 
     sheet.appendRow(newRow);
-    return ContentService.createTextOutput(JSON.stringify({ status: 'success' }))
+    return ContentService.createTextOutput(JSON.stringify({ status: 'success', logoUrl: data.logo }))
         .setMimeType(ContentService.MimeType.JSON);
 }
 
 function handleBulkCreate(sheet, startups) {
     const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
     const mapping = getFieldMapping();
+    const driveFolderId = '1w0ngm8mJrC8X_41n8e3yjnfn-t07C0KI';
 
     const normMap = {};
     for (const [key, aliases] of Object.entries(mapping)) {
@@ -109,10 +133,15 @@ function handleBulkCreate(sheet, startups) {
     }
 
     const rowsToAdd = startups.map(data => {
+        // Handle Logo Upload for each startup in bulk
+        data.logo = processLogo(data, driveFolderId);
+
         return headers.map(header => {
             const cleanHeader = normalizeValue(header);
             if (cleanHeader === 'id') return data.id || Utilities.getUuid();
-            if (cleanHeader === 'timestamp') return new Date();
+            if (cleanHeader === 'timestamp' || cleanHeader === normalizeValue('Last updating Date for Data')) {
+                return new Date();
+            }
 
             const feKey = normMap[cleanHeader];
             if (feKey && data[feKey] !== undefined) {
@@ -161,9 +190,11 @@ function getFieldMapping() {
         'freelancersCount': ['Number of freelancers', 'عدد المتدرّبين/الفريلانسرز', 'Freelancers', 'عدد الفريلانسرز'],
         'hasDedicatedPlace': ['Do you have a dedicated place', 'مكان مخصص', 'Has Dedicated Place'],
         'workplaceType': ['own or rent a workplace', 'نوع مكان العمل', 'Workplace Type'],
-        'fundingEntity': ['What is the Funding entity?', 'جهة التمويل'],
-        'fundingRaised': ['Funding raised', 'قيمة تمويل', 'Total Funding', 'Funding Raised', 'تمويل'],
+        'fundingEntity': ['What is the Funding entity?', 'جهة التمويل', 'What is the Funding entity name?'],
+        'fundingRaised': ['Funding raised', 'قيمة تمويل', 'Total Funding', 'Funding Raised', 'تمويل', 'التمويل الذي تم الحصول عليه'],
         'monthlyIncome': ['How much is your monthly income from the project?', 'الدخل الشهري', 'Monthly Income'],
+        'lastFundingDate': ['Last Funding Date', 'تاريخ آخر تمويل', 'lastFundingDate'],
+        'logo': ['Company Logo', 'شعار الشركة', 'logo'],
         'serviceProvider': ['Service Provider', 'Incubator', 'مقدم الخدمة']
     };
 }
