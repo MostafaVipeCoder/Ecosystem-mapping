@@ -42,6 +42,7 @@ import { startupSchema, StartupFormData, FALLBACK_GOVERNORATES, FALLBACK_INDUSTR
 import { createStartup, bulkCreateStartups, getServiceProviders, getFundingEntities } from '../utils/api';
 import { logger } from '../utils/logger';
 import { cn } from '../lib/utils';
+import { downloadExcelTemplate } from '../utils/excelTemplateGenerator';
 
 export default function AddDataPage() {
     const { startups, availableIndustries, refetch } = useStartups();
@@ -366,40 +367,21 @@ export default function AddDataPage() {
     };
 
     const downloadTemplate = () => {
-        const templateRow = {
-            "Startup Name": "Example Startup",
-            "CEO Name": "Founder Name",
-            "Phone": "01000000000",
-            "Email": "info@example.com",
-            "Industry": "IT",
-            "Governerate": "Cairo",
-            "Revenue (Total) (Yearly)": 500000,
-            "profitability": "Profitable",
-            "CEO Gender": "Male",
-            "Description": "High-tech software solutions for businesses.",
-            "Startup type": "Startup",
-            "Website/ app links/ social media": "https://example.com",
-            "Open/Closed": "Open",
-            "Date of company stabilished": "2021-05-15",
-            "Legal Status": "Registered",
-            "Founding team size": 3,
-            "Female founders": 1,
-            "male founders": 2,
-            "Freelancers": 2,
-            "Employees": 5,
-            "Do you have a dedicated place": "Yes",
-            "own or rent a workplace": "Office",
-            "Last Fundind Date": "2023-10-10",
-            "What is the Funding entity name?": "VC Name",
-            "Funding raised": "250000",
-            "How much is your monthly income from the project?": "45000",
-            "Service Provider": "Athar Accelerator",
-            "Company logo": "https://example.com/logo.png"
-        };
-        const ws = XLSX.utils.json_to_sheet([templateRow]);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Template");
-        XLSX.writeFile(wb, "Startup_Template.xlsx");
+        // Use the enhanced template generator with dropdown lists
+        downloadExcelTemplate(
+            availableIndustries.length > 0 ? availableIndustries : FALLBACK_INDUSTRIES,
+            existingProviders,
+            existingFundingEntities
+        );
+
+        // Show success message
+        toast.success(
+            t(
+                'Template downloaded! Check the "Options" sheet for dropdown values.',
+                'تم تحميل النموذج! تحقق من ورقة "Options" لقيم القوائم المنسدلة.'
+            ),
+            { duration: 5000 }
+        );
     };
 
     return (

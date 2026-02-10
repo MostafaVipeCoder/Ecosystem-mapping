@@ -45,7 +45,27 @@ export const FALLBACK_GOVERNORATES = [
     'Monufia', 'Minya', 'Qalyubia', 'New Valley', 'Sharqia', 'Suez', 'Aswan', 'Assiut', 'Beni Suef',
     'Port Said', 'Damietta', 'South Sinai', 'Kafr el-Sheikh', 'Matrouh', 'Qena', 'North Sinai', 'Sohag', 'Luxor'
 ];
-export const FALLBACK_INDUSTRIES = ['IT', 'E-commerce', 'Agriculture', 'Education', 'Health', 'Renewable Energy', 'Fintech', 'Logistics', 'Tourism', 'Manufacturing', 'Industry', 'Services', 'Handicrafts'];
+export const FALLBACK_INDUSTRIES = [
+    'Fashion and Lifestyle',
+    'Real Estate',
+    'Retail',
+    'Media and Entertainment',
+    'Manufacturing',
+    'Education',
+    'CleanTech',
+    'Sports and Fitness',
+    'Food and Beverages',
+    'Healthcare',
+    'Transportation and Mobility',
+    'Energy and Sustainability',
+    'Agriculture',
+    'Construction and Building Services',
+    'Artificial Intelligence (AI)',
+    'FinTech',
+    'Smart Technologies',
+    'Software and IT Services',
+    'Social Impact'
+];
 
 // --- Validation Schemas ---
 import { z } from 'zod';
