@@ -40,6 +40,7 @@ import {
 import { useStartups } from '../context/StartupsContext';
 import { startupSchema, StartupFormData, FALLBACK_GOVERNORATES, FALLBACK_INDUSTRIES } from '../types';
 import { createStartup, bulkCreateStartups, getServiceProviders, getFundingEntities } from '../utils/api';
+import { logger } from '../utils/logger';
 import { cn } from '../lib/utils';
 
 export default function AddDataPage() {
@@ -123,6 +124,37 @@ export default function AddDataPage() {
         }
     };
 
+    // Helper function to get user-friendly field labels
+    const getFieldLabel = (fieldName: string): string => {
+        const labels: Record<string, { en: string; ar: string }> = {
+            name: { en: 'Startup Name', ar: 'اسم الشركة' },
+            ceoName: { en: 'CEO Name', ar: 'اسم المؤسس' },
+            phone: { en: 'Phone', ar: 'الهاتف' },
+            email: { en: 'Email', ar: 'البريد الإلكتروني' },
+            industry: { en: 'Industry', ar: 'القطاع' },
+            governorate: { en: 'Governorate', ar: 'المحافظة' },
+            revenue: { en: 'Revenue', ar: 'الإيرادات' },
+            profitability: { en: 'Profitability', ar: 'الربحية' },
+            ceoGender: { en: 'CEO Gender', ar: 'نوع المؤسس' },
+            description: { en: 'Description', ar: 'الوصف' },
+            startupType: { en: 'Startup Type', ar: 'نوع الشركة' },
+            website: { en: 'Website', ar: 'الموقع الإلكتروني' },
+            foundingDate: { en: 'Founding Date', ar: 'تاريخ التأسيس' },
+            legalStatus: { en: 'Legal Status', ar: 'الوضع القانوني' },
+            teamSize: { en: 'Team Size', ar: 'حجم الفريق' },
+            femaleFounders: { en: 'Female Founders', ar: 'المؤسسات الإناث' },
+            employees: { en: 'Employees', ar: 'الموظفين' },
+            freelancersCount: { en: 'Freelancers', ar: 'العمالة الحرة' },
+            hasDedicatedPlace: { en: 'Dedicated Place', ar: 'مكان مخصص' },
+            workplaceType: { en: 'Workplace Type', ar: 'نوع المكان' },
+            fundingRaised: { en: 'Funding Raised', ar: 'التمويل' },
+            monthlyIncome: { en: 'Monthly Income', ar: 'الدخل الشهري' },
+            serviceProvider: { en: 'Service Provider', ar: 'مقدم الخدمة' },
+            lastFundingDate: { en: 'Last Funding Date', ar: 'تاريخ آخر تمويل' },
+        };
+        return labels[fieldName]?.[lang] || fieldName;
+    };
+
     const onSubmitSingle = async (data: StartupFormData) => {
         setIsSubmitting(true);
         try {
@@ -133,6 +165,7 @@ export default function AddDataPage() {
                 setCustomProvider("");
                 setCustomFunding("");
                 setCustomIndustry("");
+                setLogoPreview(null);
                 refetch();
             } else {
                 toast.error(t('Failed to add startup.', 'فشل في إضافة الشركة.'));
@@ -145,9 +178,35 @@ export default function AddDataPage() {
         }
     };
 
+    // Error handler for form validation - scrolls to first error
+    const onFormError = (errors: any) => {
+        const firstErrorField = Object.keys(errors)[0];
+
+        // Try to find the input element by name
+        const element = document.querySelector(`[name="${firstErrorField}"]`) as HTMLElement;
+
+        if (element) {
+            // Scroll to element with smooth behavior
+            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            // Focus the element after a short delay to ensure scroll completes
+            setTimeout(() => {
+                element.focus();
+            }, 300);
+        }
+
+        // Show toast notification
+        toast.error(
+            t(
+                `Please fill in all required fields (${Object.keys(errors).length} errors)`,
+                `يرجى ملء جميع الحقول المطلوبة (${Object.keys(errors).length} أخطاء)`
+            )
+        );
+    };
+
     // --- Bulk Upload Logic ---
     const [bulkData, setBulkData] = useState<any[]>([]);
-    const [uploadStats, setUploadStats] = useState({ total: 0, valid: 0, invalid: 0, currentProcessing: 0 });
+    const [uploadStats, setUploadStats] = useState({ total: 0, valid: 0, invalid: 0, currentProcessing: 0, filtered: 0 });
     const [isAnalyzing, setIsAnalyzing] = useState(false);
 
     const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -164,7 +223,29 @@ export default function AddDataPage() {
                 const ws = wb.Sheets[wsname];
                 const data = XLSX.utils.sheet_to_json(ws);
 
-                validateBulkData(data);
+                // Filter out example rows (where company name starts with "Example")
+                const filteredData = data.filter((row: any) => {
+                    const startupName = row['Startup Name'] || row['startup name'] || row['STARTUP NAME'] || '';
+                    const nameStr = String(startupName).trim().toLowerCase();
+                    // Skip rows that start with "example"
+                    return !nameStr.startsWith('example');
+                });
+
+                const filteredCount = data.length - filteredData.length;
+                logger.log(`📊 Total rows in Excel: ${data.length}, After filtering examples: ${filteredData.length}`);
+
+                // Show notification if any rows were filtered
+                if (filteredCount > 0) {
+                    toast.info(
+                        t(
+                            `${filteredCount} example row(s) automatically skipped`,
+                            `تم تجاهل ${filteredCount} صف مثال تلقائياً`
+                        ),
+                        { duration: 3000 }
+                    );
+                }
+
+                validateBulkData(filteredData);
             } catch (error) {
                 console.error("Error parsing Excel:", error);
                 toast.error("Failed to parse the file.");
@@ -236,7 +317,7 @@ export default function AddDataPage() {
         });
 
         setBulkData(processedData);
-        setUploadStats({ total: data.length, valid: validCount, invalid: invalidCount });
+        setUploadStats({ total: data.length, valid: validCount, invalid: invalidCount, currentProcessing: 0, filtered: 0 });
     };
 
     const onSubmitBulk = async () => {
@@ -267,7 +348,7 @@ export default function AddDataPage() {
             if (successCount > 0) {
                 toast.success(t(`Successfully uploaded ${successCount} startups!`, `تم رفع ${successCount} شركة بنجاح!`));
                 setBulkData([]);
-                setUploadStats({ total: 0, valid: 0, invalid: 0 });
+                setUploadStats({ total: 0, valid: 0, invalid: 0, currentProcessing: 0, filtered: 0 });
                 refetch();
             } else {
                 toast.error(t('Upload failed for all rows', 'فشل الرفع لجميع الصفوف'));
@@ -279,7 +360,7 @@ export default function AddDataPage() {
 
     const clearBulkUpload = () => {
         setBulkData([]);
-        setUploadStats({ total: 0, valid: 0, invalid: 0, currentProcessing: 0 });
+        setUploadStats({ total: 0, valid: 0, invalid: 0, currentProcessing: 0, filtered: 0 });
         const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
         if (fileInput) fileInput.value = '';
     };
@@ -363,7 +444,7 @@ export default function AddDataPage() {
                                 <CardDescription>{t('Enter the details of a single startup manually.', 'أدخل تفاصيل شركة ناشئة واحدة يدوياً.')}</CardDescription>
                             </CardHeader>
                             <CardContent>
-                                <form onSubmit={form.handleSubmit(onSubmitSingle)} className="space-y-12">
+                                <form onSubmit={form.handleSubmit(onSubmitSingle, onFormError)} className="space-y-12">
                                     {/* Section 1: Personal Information of Founder */}
                                     <div className="space-y-6 p-6 rounded-2xl bg-white border shadow-sm">
                                         <div className="flex items-center gap-3 border-b pb-4">
@@ -814,6 +895,27 @@ export default function AddDataPage() {
                                         </Popover>
                                     </div>
 
+                                    {/* Error Summary - Shows all validation errors */}
+                                    {Object.keys(form.formState.errors).length > 0 && (
+                                        <div className="bg-red-50 border-2 border-red-200 rounded-xl p-5 space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
+                                            <div className="flex items-center gap-2 text-red-800 font-semibold text-lg">
+                                                <AlertCircle className="h-6 w-6 flex-shrink-0" />
+                                                <span>{t('Please fix the following errors:', 'يرجى تصحيح الأخطاء التالية:')}</span>
+                                            </div>
+                                            <ul className="list-none space-y-2 text-sm">
+                                                {Object.entries(form.formState.errors).map(([field, error]) => (
+                                                    <li key={field} className="flex items-start gap-2 text-red-700">
+                                                        <span className="text-red-500 mt-0.5">•</span>
+                                                        <span>
+                                                            <strong className="font-semibold">{getFieldLabel(field)}:</strong>{' '}
+                                                            {error?.message as string}
+                                                        </span>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    )}
+
                                     <Button type="submit" className="w-full h-12 text-lg" disabled={isSubmitting}>
                                         {isSubmitting ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : t('Finalize and Add Startup', 'تأكيد وإضافة الشركة')}
                                     </Button>
@@ -826,7 +928,13 @@ export default function AddDataPage() {
                         <Card>
                             <CardHeader>
                                 <CardTitle>{t('Bulk Upload', 'رفع جماعي')}</CardTitle>
-                                <CardDescription>{t('Upload an Excel file to add multiple startups at once.', 'قم برفع ملف إكسيل لإضافة عدة شركات مرة واحدة.')}</CardDescription>
+                                <CardDescription>
+                                    {t('Upload an Excel file to add multiple startups at once.', 'قم برفع ملف إكسيل لإضافة عدة شركات مرة واحدة.')}
+                                    <br />
+                                    <span className="text-xs text-muted-foreground mt-1 inline-block">
+                                        💡 {t('Rows starting with "Example" will be automatically skipped.', 'الصفوف التي تبدأ بـ "Example" سيتم تجاهلها تلقائياً.')}
+                                    </span>
+                                </CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-6">
                                 <div className="flex items-center justify-between bg-slate-100 p-4 rounded-lg">

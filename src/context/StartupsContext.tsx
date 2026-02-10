@@ -26,7 +26,11 @@ export function StartupsProvider({ children }: { children: ReactNode }) {
 
         try {
             const data = await fetchStartups();
-            setStartups(data.startups.sort((a, b) => {
+
+            // Filter to only show reviewed/approved companies
+            const reviewedStartups = data.startups.filter(startup => startup.review === true);
+
+            setStartups(reviewedStartups.sort((a, b) => {
                 const revenueA = a.revenue || 0;
                 const revenueB = b.revenue || 0;
 

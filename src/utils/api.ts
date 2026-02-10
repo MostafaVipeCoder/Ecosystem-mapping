@@ -1,4 +1,5 @@
 import { Startup, API_URL } from '../types';
+import { logger } from './logger';
 
 /**
  * Fetch startups data from Google Apps Script API
@@ -8,8 +9,8 @@ export async function fetchStartups(): Promise<{
     industries: string[];
     governorates: string[];
 }> {
-    console.log('🚀 Starting data fetch from API...');
-    console.log('📍 API URL:', API_URL);
+    logger.log('🚀 Starting data fetch from API...');
+    logger.sensitive('API URL configured', import.meta.env.DEV ? API_URL : undefined);
 
     try {
         // Basic validation
@@ -17,20 +18,20 @@ export async function fetchStartups(): Promise<{
             console.warn('⚠️ API_URL might not be configured correctly:', API_URL);
         }
 
-        console.log('⏳ Connecting to API...');
+        logger.log('⏳ Connecting to API...');
         const response = await fetch(API_URL);
-        console.log('📥 Response received from API');
-        console.log('📊 Response Status:', response.status);
-        console.log('✅ Response OK:', response.ok);
+        logger.log('📥 Response received from API');
+        logger.log('📊 Response Status:', response.status);
+        logger.log('✅ Response OK:', response.ok);
 
         if (!response.ok) {
             throw new Error(`Failed to fetch data - Status: ${response.status}`);
         }
 
         const data = await response.json();
-        console.log('📦 Data received from API:', data);
-        console.log('🔍 Data type:', typeof data);
-        console.log('📋 Data keys:', Object.keys(data));
+        logger.log('📦 Data received from API:', data);
+        logger.log('🔍 Data type:', typeof data);
+        logger.log('📋 Data keys:', Object.keys(data));
 
         const mapStartupData = (item: any): Startup => {
             // Normalize keys to handle leading/trailing spaces
@@ -209,46 +210,52 @@ export async function fetchStartups(): Promise<{
                 logo: getValue(['Company Logo', 'شعار الشركة', 'logo', 'Logo']) ? String(getValue(['Company Logo', 'شعار الشركة', 'logo', 'Logo'])) : undefined,
                 lastUpdate: getValue(['Timestamp', 'Last Update', 'Last updating Date for Data']) ? String(getValue(['Timestamp', 'Last Update', 'Last updating Date for Data'])) : undefined,
                 score: Math.floor(Math.random() * 30) + 70,
+                review: (() => {
+                    const reviewValue = getValue(['review', 'Review', 'REVIEW', 'مراجعة']);
+                    // Convert checkbox value to boolean: TRUE/true/"TRUE" -> true, everything else -> false
+                    if (reviewValue === true || reviewValue === 'TRUE' || reviewValue === 'true') return true;
+                    return false;
+                })(),
             };
         };
 
         let fetchedStartups: Startup[] = [];
 
         if (data.startups) {
-            console.log('✅ Found data.startups');
-            console.log('📊 Companies count:', data.startups.length);
+            logger.log('✅ Found data.startups');
+            logger.log('📊 Companies count:', data.startups.length);
             if (data.startups.length > 0) {
-                console.log('🔍 First company (sample):', data.startups[0]);
+                logger.log('🔍 First company (sample):', data.startups[0]);
             }
             fetchedStartups = data.startups.map(mapStartupData);
         } else if (data.data && Array.isArray(data.data)) {
-            console.log('✅ Found data.data');
-            console.log('📊 Companies count:', data.data.length);
+            logger.log('✅ Found data.data');
+            logger.log('📊 Companies count:', data.data.length);
             if (data.data.length > 0) {
-                console.log('🔍 First company (sample):', data.data[0]);
+                logger.log('🔍 First company (sample):', data.data[0]);
             }
             fetchedStartups = data.data.map(mapStartupData);
         } else if (Array.isArray(data)) {
-            console.log('✅ Data is a direct Array');
-            console.log('📊 Items count:', data.length);
+            logger.log('✅ Data is a direct Array');
+            logger.log('📊 Items count:', data.length);
             if (data.length > 0) {
-                console.log('🔍 First item (sample):', data[0]);
+                logger.log('🔍 First item (sample):', data[0]);
             }
             fetchedStartups = data.map(mapStartupData);
         } else {
-            console.warn('⚠️ Unexpected data structure!');
-            console.log('📦 Complete data:', JSON.stringify(data, null, 2));
+            logger.warn('⚠️ Unexpected data structure!');
+            logger.log('📦 Complete data:', JSON.stringify(data, null, 2));
         }
 
-        console.log('✅ Data processed successfully');
-        console.log('📊 Final companies count:', fetchedStartups.length);
+        logger.log('✅ Data processed successfully');
+        logger.log('📊 Final companies count:', fetchedStartups.length);
 
         const industries = Array.from(new Set(fetchedStartups.map(s => s.industry).filter(Boolean))).sort();
         const governorates = Array.from(new Set(fetchedStartups.map(s => s.governorate).filter(Boolean))).sort();
 
-        console.log('🏭 Extracted industries:', industries);
-        console.log('🗺️ Extracted governorates:', governorates);
-        console.log('🎉 Data fetched successfully!');
+        logger.log('🏭 Extracted industries:', industries);
+        logger.log('🗺️ Extracted governorates:', governorates);
+        logger.log('🎉 Data fetched successfully!');
 
         return {
             startups: fetchedStartups,
@@ -261,7 +268,7 @@ export async function fetchStartups(): Promise<{
         console.error("📋 Error details:", err instanceof Error ? err.message : String(err));
         throw err;
     } finally {
-        console.log('🏁 Data fetch finished');
+        logger.log('🏁 Data fetch finished');
     }
 }
 
@@ -318,7 +325,7 @@ export async function createStartup(startupData: any): Promise<SubmissionResult>
             action: 'create_startup',
             ...startupData
         };
-        console.log('📤 Sending single startup payload to Google Sheet:', payload);
+        logger.sensitive('Sending single startup payload to Google Sheet', payload);
 
         const response = await fetch(API_URL, {
             method: 'POST',
@@ -347,7 +354,7 @@ export async function bulkCreateStartups(startupsData: any[]): Promise<Submissio
             action: 'bulk_create_startups',
             startups: startupsData
         };
-        console.log('📤 Sending bulk startups payload to Google Sheet:', payload);
+        logger.sensitive('Sending bulk startups payload to Google Sheet', payload);
 
         const response = await fetch(API_URL, {
             method: 'POST',
@@ -402,7 +409,7 @@ export async function submitMeetingRequest(data: {
     phone: string;
     note: string;
 }): Promise<any> {
-    console.log('🚀 Sending meeting request...', data);
+    logger.sensitive('Sending meeting request', data);
 
     try {
         await fetch(API_URL, {
@@ -419,7 +426,7 @@ export async function submitMeetingRequest(data: {
         // For 'cors' mode to work, the GAS script needs specific headers which are hard to guarantee.
         // 'no-cors' is safer for simple submissions.
 
-        console.log('✅ Request submitted (no-cors mode)');
+        logger.log('✅ Request submitted (no-cors mode)');
         return { success: true };
 
     } catch (err) {

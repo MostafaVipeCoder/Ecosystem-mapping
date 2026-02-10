@@ -33,6 +33,7 @@ export interface Startup {
     logo?: string;
     lastUpdate?: string;
     score?: number;
+    review?: boolean; // Checkbox from Google Sheets to approve/review companies
 }
 
 // --- API Configuration ---
