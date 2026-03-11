@@ -28,7 +28,7 @@ export async function generateExcelTemplate(
         legalStatus: ['Sole Proprietorship', 'Partnership', 'LLC', 'Not Registered'],
         profitability: ['Profitable', 'Breaking Even', 'Loss-making', 'Pre-revenue'],
         dedicatedPlace: ['Yes', 'No'],
-        workplaceType: ['Own', 'Rent', 'online', 'Co-working'],
+        workplaceType: ['Own', 'Rent', 'online'],
         openClosed: ['Open', 'Closed'],
         serviceProvider: serviceProviders.length > 0 ? [...serviceProviders, 'Other'] : ['Athar Accelerator', 'Other'],
     };

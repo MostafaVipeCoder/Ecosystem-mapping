@@ -34,6 +34,9 @@ export interface Startup {
     lastUpdate?: string;
     score?: number;
     review?: boolean; // Checkbox from Google Sheets to approve/review companies
+    stage?: string;
+    workplaceOwnership?: string;
+    legalStatusDetails?: string;
 }
 
 // --- API Configuration ---

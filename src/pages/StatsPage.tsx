@@ -30,7 +30,8 @@ export default function StatsPage() {
 
         // By Project Stage
         const byStage = startups.reduce((acc, s) => {
-            acc[s.stage] = (acc[s.stage] || 0) + 1;
+            const stage = s.stage || 'Unknown';
+            acc[stage] = (acc[stage] || 0) + 1;
             return acc;
         }, {} as Record<string, number>);
 

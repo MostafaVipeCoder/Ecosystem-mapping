@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Startup, FALLBACK_GOVERNORATES, FALLBACK_INDUSTRIES } from '../types';
 import { fetchStartups } from '../utils/api';
 

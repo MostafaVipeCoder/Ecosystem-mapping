@@ -39,7 +39,7 @@ import {
 
 import { useStartups } from '../context/StartupsContext';
 import { startupSchema, StartupFormData, FALLBACK_GOVERNORATES, FALLBACK_INDUSTRIES } from '../types';
-import { createStartup, bulkCreateStartups, getServiceProviders, getFundingEntities } from '../utils/api';
+import { createStartup, getServiceProviders, getFundingEntities } from '../utils/api';
 import { logger } from '../utils/logger';
 import { cn } from '../lib/utils';
 import { downloadExcelTemplate } from '../utils/excelTemplateGenerator';

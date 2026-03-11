@@ -422,10 +422,21 @@ export default function EcosystemPage() {
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedIndustries, setSelectedIndustries] = useState<string[]>([]);
     const [selectedGovernorates, setSelectedGovernorates] = useState<string[]>([]);
+    const [selectedServiceProviders, setSelectedServiceProviders] = useState<string[]>([]);
     const [employeeRange, setEmployeeRange] = useState<number[]>([0, 200]);
     const [revenueRange, setRevenueRange] = useState<number[]>([0, 10000000]);
     const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
+    const availableServiceProviders = useMemo(() => {
+        const providers = new Set<string>();
+        startups.forEach(s => {
+            if (s.serviceProvider && s.serviceProvider.trim() !== '') {
+                providers.add(s.serviceProvider.trim());
+            }
+        });
+        return Array.from(providers).sort();
+    }, [startups]);
 
     // Dynamic Max Values
     const maxEmployees = useMemo(() => {
@@ -460,6 +471,7 @@ export default function EcosystemPage() {
                 ceoName.toLowerCase().includes(searchQuery.toLowerCase());
             const matchesIndustry = selectedIndustries.length === 0 || selectedIndustries.includes(startup.industry);
             const matchesGovernorate = selectedGovernorates.length === 0 || selectedGovernorates.includes(startup.governorate);
+            const matchesServiceProvider = selectedServiceProviders.length === 0 || (startup.serviceProvider && selectedServiceProviders.includes(startup.serviceProvider));
 
             // Allow range max to be inclusive of everything if it's at the max limit
             const isEmployeeMax = employeeRange[1] >= maxEmployees;
@@ -468,14 +480,15 @@ export default function EcosystemPage() {
             const isRevenueMax = revenueRange[1] >= maxRevenue;
             const matchesRevenue = (startup.revenue || 0) >= revenueRange[0] && (isRevenueMax || (startup.revenue || 0) <= revenueRange[1]);
 
-            return matchesSearch && matchesIndustry && matchesGovernorate && matchesEmployees && matchesRevenue;
+            return matchesSearch && matchesIndustry && matchesGovernorate && matchesServiceProvider && matchesEmployees && matchesRevenue;
         });
-    }, [startups, searchQuery, selectedIndustries, selectedGovernorates, employeeRange, revenueRange, maxEmployees, maxRevenue]);
+    }, [startups, searchQuery, selectedIndustries, selectedGovernorates, selectedServiceProviders, employeeRange, revenueRange, maxEmployees, maxRevenue]);
 
     const activeFiltersCount =
         (searchQuery ? 1 : 0) +
         selectedIndustries.length +
         selectedGovernorates.length +
+        selectedServiceProviders.length +
         (employeeRange[0] > 0 || employeeRange[1] < maxEmployees ? 1 : 0) +
         (revenueRange[0] > 0 || revenueRange[1] < maxRevenue ? 1 : 0);
 
@@ -483,6 +496,7 @@ export default function EcosystemPage() {
         setSearchQuery('');
         setSelectedIndustries([]);
         setSelectedGovernorates([]);
+        setSelectedServiceProviders([]);
         setEmployeeRange([0, maxEmployees]);
         setRevenueRange([0, maxRevenue]);
     };
@@ -531,6 +545,9 @@ export default function EcosystemPage() {
         availableGovernorates,
         selectedGovernorates,
         setSelectedGovernorates,
+        availableServiceProviders,
+        selectedServiceProviders,
+        setSelectedServiceProviders,
         employeeRange,
         setEmployeeRange,
         revenueRange,

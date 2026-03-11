@@ -20,6 +20,9 @@ interface FilterSidebarProps {
     availableGovernorates: string[];
     selectedGovernorates: string[];
     setSelectedGovernorates: (governorates: string[]) => void;
+    availableServiceProviders: string[];
+    selectedServiceProviders: string[];
+    setSelectedServiceProviders: (providers: string[]) => void;
     employeeRange: number[];
     setEmployeeRange: (range: number[]) => void;
     revenueRange: number[];
@@ -71,6 +74,9 @@ export function FilterSidebar({
     availableGovernorates,
     selectedGovernorates,
     setSelectedGovernorates,
+    availableServiceProviders,
+    selectedServiceProviders,
+    setSelectedServiceProviders,
     employeeRange,
     setEmployeeRange,
     revenueRange,
@@ -82,6 +88,7 @@ export function FilterSidebar({
 
     const [industrySearch, setIndustrySearch] = useState('');
     const [governorateSearch, setGovernorateSearch] = useState('');
+    const [serviceProviderSearch, setServiceProviderSearch] = useState('');
 
     const toggleIndustry = (industry: string) => {
         if (selectedIndustries.includes(industry)) {
@@ -99,12 +106,24 @@ export function FilterSidebar({
         }
     };
 
+    const toggleServiceProvider = (provider: string) => {
+        if (selectedServiceProviders.includes(provider)) {
+            setSelectedServiceProviders(selectedServiceProviders.filter(p => p !== provider));
+        } else {
+            setSelectedServiceProviders([...selectedServiceProviders, provider]);
+        }
+    };
+
     const filteredIndustries = availableIndustries.filter(ind =>
         ind.toLowerCase().includes(industrySearch.toLowerCase())
     );
 
     const filteredGovernorates = availableGovernorates.filter(gov =>
         gov.toLowerCase().includes(governorateSearch.toLowerCase())
+    );
+
+    const filteredServiceProviders = availableServiceProviders.filter(provider =>
+        provider.toLowerCase().includes(serviceProviderSearch.toLowerCase())
     );
 
     const activeFiltersCount =
@@ -222,6 +241,44 @@ export function FilterSidebar({
                                 ))
                             ) : (
                                 <p className="text-xs text-muted-foreground text-center py-2">No matching governorates</p>
+                            )}
+                        </div>
+                    </FilterSection>
+
+                    <Separator className="bg-slate-100" />
+
+                    {/* Service Providers Section */}
+                    <FilterSection title="Service Provider" count={selectedServiceProviders.length}>
+                        {availableServiceProviders.length > 5 && (
+                            <Input
+                                placeholder="Search providers..."
+                                className="h-8 text-xs bg-slate-50 mb-3"
+                                value={serviceProviderSearch}
+                                onChange={(e) => setServiceProviderSearch(e.target.value)}
+                            />
+                        )}
+                        <div className="space-y-2 max-h-[250px] overflow-y-auto custom-scrollbar pr-1">
+                            {filteredServiceProviders.length > 0 ? (
+                                filteredServiceProviders.map((provider) => (
+                                    <div key={provider} className="flex items-center justify-between group">
+                                        <div className="flex items-center space-x-2 space-x-reverse">
+                                            <Checkbox
+                                                id={`provider-${provider}`}
+                                                checked={selectedServiceProviders.includes(provider)}
+                                                onCheckedChange={() => toggleServiceProvider(provider)}
+                                                className="h-4 w-4 data-[state=checked]:bg-athar-blue data-[state=checked]:border-athar-blue"
+                                            />
+                                            <label
+                                                htmlFor={`provider-${provider}`}
+                                                className="text-sm text-athar-black/70 font-bold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer pt-0.5 select-none group-hover:text-athar-black"
+                                            >
+                                                {provider}
+                                            </label>
+                                        </div>
+                                    </div>
+                                ))
+                            ) : (
+                                <p className="text-xs text-muted-foreground text-center py-2">No matching providers</p>
                             )}
                         </div>
                     </FilterSection>
