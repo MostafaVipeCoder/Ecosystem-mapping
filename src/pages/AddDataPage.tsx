@@ -68,6 +68,7 @@ export default function AddDataPage() {
             name: '',
             ceoName: '',
             phone: '',
+            telegram: '',
             email: '',
             industry: '',
             governorate: '',
@@ -78,6 +79,10 @@ export default function AddDataPage() {
             description: '',
             startupType: '',
             website: '',
+            appLink: '',
+            facebook: '',
+            instagram: '',
+            tiktok: '',
             openClosed: 'Open',
             foundingDate: '',
             legalStatus: '',
@@ -130,7 +135,8 @@ export default function AddDataPage() {
         const labels: Record<string, { en: string; ar: string }> = {
             name: { en: 'Startup Name', ar: 'اسم الشركة' },
             ceoName: { en: 'CEO Name', ar: 'اسم المؤسس' },
-            phone: { en: 'Phone', ar: 'الهاتف' },
+            phone: { en: 'Phone / Whatsapp', ar: 'الهاتف / واتساب' },
+            telegram: { en: 'Telegram', ar: 'تليجرام' },
             email: { en: 'Email', ar: 'البريد الإلكتروني' },
             industry: { en: 'Industry', ar: 'القطاع' },
             governorate: { en: 'Governorate', ar: 'المحافظة' },
@@ -140,6 +146,10 @@ export default function AddDataPage() {
             description: { en: 'Description', ar: 'الوصف' },
             startupType: { en: 'Startup Type', ar: 'نوع الشركة' },
             website: { en: 'Website', ar: 'الموقع الإلكتروني' },
+            appLink: { en: 'App Link', ar: 'رابط التطبيق' },
+            facebook: { en: 'Facebook', ar: 'فيسبوك' },
+            instagram: { en: 'Instagram', ar: 'إنستجرام' },
+            tiktok: { en: 'TikTok', ar: 'تيك توك' },
             foundingDate: { en: 'Founding Date', ar: 'تاريخ التأسيس' },
             legalStatus: { en: 'Legal Status', ar: 'الوضع القانوني' },
             teamSize: { en: 'Team Size', ar: 'حجم الفريق' },
@@ -278,7 +288,8 @@ export default function AddDataPage() {
             const mappedRow = {
                 name: getVal(['Startup Name']),
                 ceoName: getVal(['CEO Name']),
-                phone: String(getVal(['Phone']) || ''),
+                phone: String(getVal(['Phone / Whatsapp', 'Phone', 'الهاتف']) || ''),
+                telegram: String(getVal(['Telegram', 'تليجرام']) || ''),
                 email: getVal(['Email']),
                 industry: getVal(['Industry']),
                 governorate: getVal(['Governerate']),
@@ -287,7 +298,11 @@ export default function AddDataPage() {
                 ceoGender: getVal(['CEO Gender']),
                 description: getVal(['Description']),
                 startupType: getVal(['Startup type']),
-                website: getVal(['Website/ app links/ social media']),
+                website: getVal(['Website']),
+                appLink: getVal(['App Link']),
+                facebook: getVal(['Facebook']),
+                instagram: getVal(['Instagram']),
+                tiktok: getVal(['TikTok']),
                 openClosed: getVal(['Open/Closed']),
                 foundingDate: String(getVal(['Date of company stabilished']) || ''),
                 legalStatus: getVal(['Legal Status']),
@@ -458,9 +473,15 @@ export default function AddDataPage() {
                                             </div>
 
                                             <div className="space-y-2">
-                                                <Label>{t('Phone *', 'الهاتف *')}</Label>
+                                                <Label>{t('Phone / Whatsapp', 'الهاتف / واتساب')} {(!form.watch('phone') && !form.watch('telegram')) && '*'}</Label>
                                                 <Input {...form.register('phone')} placeholder="01..." />
                                                 {form.formState.errors.phone && <p className="text-sm text-red-500">{form.formState.errors.phone.message}</p>}
+                                            </div>
+
+                                            <div className="space-y-2">
+                                                <Label>{t('Telegram', 'تليجرام')} {(!form.watch('phone') && !form.watch('telegram')) && '*'}</Label>
+                                                <Input {...form.register('telegram')} placeholder="01..." />
+                                                {form.formState.errors.telegram && <p className="text-sm text-red-500">{form.formState.errors.telegram.message}</p>}
                                             </div>
 
                                             <div className="space-y-2">
@@ -598,10 +619,35 @@ export default function AddDataPage() {
                                                     </Select>
                                                     {form.formState.errors.legalStatus && <p className="text-sm text-red-500">{form.formState.errors.legalStatus.message}</p>}
                                                 </div>
-                                                <div className="space-y-2 md:col-span-2">
-                                                    <Label>{t('Website/ app links/ social media *', 'الموقع الإلكتروني / الروابط *')}</Label>
-                                                    <Input {...form.register('website')} />
-                                                    {form.formState.errors.website && <p className="text-sm text-red-500">{form.formState.errors.website.message}</p>}
+                                                <div className="space-y-4 md:col-span-2 p-4 rounded-xl bg-slate-50 border border-slate-100">
+                                                    <Label className="text-lg font-semibold text-athar-black">{t('Links & Social Media', 'الروابط ووسائل التواصل الاجتماعي')}</Label>
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                        <div className="space-y-2">
+                                                            <Label>{t('Website', 'الموقع الإلكتروني')}</Label>
+                                                            <Input {...form.register('website')} placeholder="https://" />
+                                                            {form.formState.errors.website && <p className="text-sm text-red-500">{form.formState.errors.website.message}</p>}
+                                                        </div>
+                                                        <div className="space-y-2">
+                                                            <Label>{t('App Link', 'رابط التطبيق')}</Label>
+                                                            <Input {...form.register('appLink')} placeholder="https://" />
+                                                            {form.formState.errors.appLink && <p className="text-sm text-red-500">{form.formState.errors.appLink.message}</p>}
+                                                        </div>
+                                                        <div className="space-y-2">
+                                                            <Label>{t('Facebook', 'فيسبوك')}</Label>
+                                                            <Input {...form.register('facebook')} placeholder="https://" />
+                                                            {form.formState.errors.facebook && <p className="text-sm text-red-500">{form.formState.errors.facebook.message}</p>}
+                                                        </div>
+                                                        <div className="space-y-2">
+                                                            <Label>{t('Instagram', 'إنستجرام')}</Label>
+                                                            <Input {...form.register('instagram')} placeholder="https://" />
+                                                            {form.formState.errors.instagram && <p className="text-sm text-red-500">{form.formState.errors.instagram.message}</p>}
+                                                        </div>
+                                                        <div className="space-y-2 md:col-span-2">
+                                                            <Label>{t('TikTok', 'تيك توك')}</Label>
+                                                            <Input {...form.register('tiktok')} placeholder="https://" />
+                                                            {form.formState.errors.tiktok && <p className="text-sm text-red-500">{form.formState.errors.tiktok.message}</p>}
+                                                        </div>
+                                                    </div>
                                                 </div>
                                                 <div className="space-y-2 md:col-span-2">
                                                     <Label>{t('Description *', 'الوصف *')}</Label>

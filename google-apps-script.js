@@ -262,3 +262,106 @@ function getFieldMapping() {
         'serviceProvider': ['Service Provider', 'Incubator', 'مقدم الخدمة']
     };
 }
+
+/**
+ * نظام الإشعارات اليومي - يُرسل ملخصاً لمقدمي الخدمة الذين لديهم بيانات غير مراجعة
+ * يمكن ربطه بـ Time-driven Trigger ليعمل يومياً الساعة 6 صباحاً
+ */
+function sendDailyReviewNotifications() {
+    const NOTIFICATION_EMAILS = [
+        'Abdullah.Shaban@Athareg.com',
+        'Abdullah.Shaban1@Athareg.com',
+        'Abdullah.Shaban2@Athareg.com'
+    ];
+
+    try {
+        const ss = SpreadsheetApp.getActiveSpreadsheet();
+        const sheet = ss.getSheetByName(STARTUPS_SHEET_NAME) || ss.getSheets()[0];
+        
+        // جلب جميع البيانات
+        const data = sheet.getDataRange().getValues();
+        if (data.length <= 1) return; // لا يوجد بيانات غير العناوين
+
+        const headers = data[0];
+        
+        // البحث عن أرقام الأعمدة ("Review" و "Service Provider") متجاهلًا حالة الأحرف
+        const reviewColIdx = headers.findIndex(h => normalizeValue(h) === normalizeValue('Review'));
+        const providerColIdx = headers.findIndex(h => normalizeValue(h) === normalizeValue('Service Provider'));
+
+        // في حال لم يتم العثور على الأعمدة، نتوقف لتجنب الأخطاء
+        if (reviewColIdx === -1) {
+            console.error('لم يتم العثور على عمود "Review"');
+            return;
+        }
+        if (providerColIdx === -1) {
+            console.error('لم يتم العثور على عمود "Service Provider"');
+            return;
+        }
+
+        const rows = data.slice(1);
+        const providersSummary = {};
+        
+        // تجميع البيانات المضافة حديثا والتي تحتاج مراجعة
+        let hasNewData = false;
+        
+        rows.forEach(row => {
+            if (isRowEmpty(row)) return;
+            
+            const reviewValue = row[reviewColIdx];
+            // تحقق إذا كانت قيمة المراجعة false أو نص 'false' أو فارغة (في حال المربع غير معلم بعد)
+            const isNeedsReview = (reviewValue === false || String(reviewValue).trim().toUpperCase() === 'FALSE' || reviewValue === '');
+            
+            if (isNeedsReview) {
+                // استخدام قيمة عمود مقدم الخدمة أو نص بديل في حال كان الحقل فارغاً
+                const providerName = row[providerColIdx] || 'مقدم خدمة (غير محدد)';
+                
+                if (!providersSummary[providerName]) {
+                    providersSummary[providerName] = 0;
+                }
+                providersSummary[providerName]++;
+                hasNewData = true; // تم العثور على بيانات جديدة
+            }
+        });
+
+        // إذا لم يكن هناك بيانات جديدة تحتاج مراجعة، نتوقف ولا نرسل إيميل نهائياً
+        if (!hasNewData) {
+            console.log('لا يوجد بيانات جديدة تحتاج إلى مراجعة اليوم. لن يتم إرسال إشعار.');
+            return;
+        }
+
+        // بناء محتوى الإيميل (HTML)
+        let htmlBody = `
+            <div dir="rtl" style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
+                <h2 style="color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px;">تقرير المراجعة اليومي</h2>
+                <p>مرحباً،</p>
+                <p>يوجد بيانات جديدة في النظام تم إدخالها وتحتاج إلى مراجعتكم. وفيما يلي ملخص بعدد الصفوف لكل مقدم خدمة:</p>
+                <ul style="background-color: #f9f9f9; padding: 15px 35px; border-radius: 5px; border: 1px solid #eee;">
+        `;
+
+        for (const [provider, count] of Object.entries(providersSummary)) {
+            htmlBody += `<li style="margin-bottom: 10px; font-size: 16px;">
+                مقدم الخدمة <strong>${provider}</strong>: لديه عدد <strong>${count}</strong> صفوف بيانات تم إدخالها وتحتاج إلى مراجعة.
+            </li>`;
+        }
+
+        htmlBody += `
+                </ul>
+                <p style="margin-top: 20px;">يرجى الدخول إلى ملف البيانات (Sheet) لمراجعتها، والرجاء تذكر تغيير حالة المراجعة إلى TRUE في عمود Review بعد المراجعة حتى لا يظهر التنبيه مجدداً غداً.</p>
+                <br>
+                <p style="color: #7f8c8d; font-size: 12px; margin-top: 30px; border-top: 1px solid #eee; padding-top: 10px;">هذا إشعار تلقائي من النظام. لا تقم بالرد على هذه الرسالة.</p>
+            </div>
+        `;
+
+        // إرسال الإيميل
+        MailApp.sendEmail({
+            to: NOTIFICATION_EMAILS.join(','),
+            subject: 'تنبيه تنفيذي: بيانات جديدة بانتظار المراجعة 🔰',
+            htmlBody: htmlBody
+        });
+        
+        console.log('تم إرسال الإشعار بنجاح للموردين الجدد.');
+
+    } catch (error) {
+        console.error('حدث خطأ أثناء إرسال الإشعارات: ' + error.toString());
+    }
+}

@@ -44,7 +44,8 @@ export async function generateExcelTemplate(
     const columns = [
         { header: 'Startup Name', key: 'startupName', width: 25 },
         { header: 'CEO Name', key: 'ceoName', width: 20 },
-        { header: 'Phone', key: 'phone', width: 15 },
+        { header: 'Phone / Whatsapp', key: 'phone', width: 20 },
+        { header: 'Telegram', key: 'telegram', width: 20 },
         { header: 'Email', key: 'email', width: 25 },
         { header: 'Industry', key: 'industry', width: 20 },
         { header: 'Governerate', key: 'governorate', width: 18 },
@@ -53,7 +54,11 @@ export async function generateExcelTemplate(
         { header: 'CEO Gender', key: 'ceoGender', width: 15 },
         { header: 'Description', key: 'description', width: 40 },
         { header: 'Startup type', key: 'startupType', width: 18 },
-        { header: 'Website/ app links/ social media', key: 'website', width: 35 },
+        { header: 'Website', key: 'website', width: 30 },
+        { header: 'App Link', key: 'appLink', width: 30 },
+        { header: 'Facebook', key: 'facebook', width: 30 },
+        { header: 'Instagram', key: 'instagram', width: 30 },
+        { header: 'TikTok', key: 'tiktok', width: 30 },
         { header: 'Open/Closed', key: 'openClosed', width: 15 },
         { header: 'Date of company stabilished', key: 'foundingDate', width: 20 },
         { header: 'Legal Status', key: 'legalStatus', width: 20 },
@@ -90,6 +95,7 @@ export async function generateExcelTemplate(
         startupName: 'Example Startup',
         ceoName: 'Founder Name',
         phone: '01000000000',
+        telegram: '01000000000',
         email: 'info@example.com',
         industry: 'IT',
         governorate: 'Cairo',
@@ -99,6 +105,10 @@ export async function generateExcelTemplate(
         description: 'High-tech software solutions for businesses.',
         startupType: 'Startup',
         website: 'https://example.com',
+        appLink: 'https://app.example.com',
+        facebook: 'https://facebook.com/example',
+        instagram: 'https://instagram.com/example',
+        tiktok: 'https://tiktok.com/@example',
         openClosed: 'Open',
         foundingDate: '2021-05-15',
         legalStatus: 'Registered',
@@ -124,90 +134,90 @@ export async function generateExcelTemplate(
     // Apply dropdowns for rows 2-1000 (allowing plenty of room for data)
     const maxRows = 1000;
 
-    // CEO Gender (Column I - index 9)
+    // CEO Gender (Column J - index 10)
     for (let row = 2; row <= maxRows; row++) {
-        mainSheet.getCell(`I${row}`).dataValidation = {
+        mainSheet.getCell(`J${row}`).dataValidation = {
             type: 'list',
             allowBlank: true,
             formulae: [`"${dropdownOptions.ceoGender.join(',')}"`]
         };
     }
 
-    // Startup Type (Column K - index 11)
+    // Startup Type (Column L - index 12)
     for (let row = 2; row <= maxRows; row++) {
-        mainSheet.getCell(`K${row}`).dataValidation = {
+        mainSheet.getCell(`L${row}`).dataValidation = {
             type: 'list',
             allowBlank: true,
             formulae: [`"${dropdownOptions.startupType.join(',')}"`]
         };
     }
 
-    // Industry (Column E - index 5) - Using Options sheet reference for long lists
+    // Industry (Column F - index 6) - Using Options sheet reference for long lists
     for (let row = 2; row <= maxRows; row++) {
-        mainSheet.getCell(`E${row}`).dataValidation = {
+        mainSheet.getCell(`F${row}`).dataValidation = {
             type: 'list',
             allowBlank: true,
             formulae: [`Options!$A$2:$A$${dropdownOptions.industry.length + 1}`]
         };
     }
 
-    // Governorate (Column F - index 6) - Using Options sheet reference
+    // Governorate (Column G - index 7) - Using Options sheet reference
     for (let row = 2; row <= maxRows; row++) {
-        mainSheet.getCell(`F${row}`).dataValidation = {
+        mainSheet.getCell(`G${row}`).dataValidation = {
             type: 'list',
             allowBlank: true,
             formulae: [`Options!$B$2:$B$${dropdownOptions.governorate.length + 1}`]
         };
     }
 
-    // Profitability (Column H - index 8)
+    // Profitability (Column I - index 9)
     for (let row = 2; row <= maxRows; row++) {
-        mainSheet.getCell(`H${row}`).dataValidation = {
+        mainSheet.getCell(`I${row}`).dataValidation = {
             type: 'list',
             allowBlank: true,
             formulae: [`"${dropdownOptions.profitability.join(',')}"`]
         };
     }
 
-    // Legal Status (Column O - index 15)
+    // Legal Status (Column T - index 20)
     for (let row = 2; row <= maxRows; row++) {
-        mainSheet.getCell(`O${row}`).dataValidation = {
+        mainSheet.getCell(`T${row}`).dataValidation = {
             type: 'list',
             allowBlank: true,
             formulae: [`"${dropdownOptions.legalStatus.join(',')}"`]
         };
     }
 
-    // Dedicated Place (Column U - index 21)
+    // Dedicated Place (Column Z - index 26)
     for (let row = 2; row <= maxRows; row++) {
-        mainSheet.getCell(`U${row}`).dataValidation = {
+        mainSheet.getCell(`Z${row}`).dataValidation = {
             type: 'list',
             allowBlank: true,
             formulae: [`"${dropdownOptions.dedicatedPlace.join(',')}"`]
         };
     }
 
-    // Workplace Type (Column V - index 22)
+    // Workplace Type (Column AA - index 27)
     for (let row = 2; row <= maxRows; row++) {
-        mainSheet.getCell(`V${row}`).dataValidation = {
+        mainSheet.getCell(`AA${row}`).dataValidation = {
             type: 'list',
             allowBlank: true,
             formulae: [`"${dropdownOptions.workplaceType.join(',')}"`]
         };
     }
 
-    // Open/Closed (Column M - index 13)
+    // Open/Closed (Column R - index 18)
     for (let row = 2; row <= maxRows; row++) {
-        mainSheet.getCell(`M${row}`).dataValidation = {
+        mainSheet.getCell(`R${row}`).dataValidation = {
             type: 'list',
             allowBlank: true,
             formulae: [`"${dropdownOptions.openClosed.join(',')}"`]
         };
     }
 
-    // Service Provider (Column AA - index 27) - Using Options sheet reference
+    // Service Provider (Column AF - index 32) - Using Options sheet reference
     for (let row = 2; row <= maxRows; row++) {
-        mainSheet.getCell(`AA${row}`).dataValidation = {
+        mainSheet.getCell(`AF${row}`).dataValidation = {
             type: 'list',
             allowBlank: true,
             formulae: [`Options!$C$2:$C$${dropdownOptions.serviceProvider.length + 1}`]

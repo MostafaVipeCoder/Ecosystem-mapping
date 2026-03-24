@@ -3,7 +3,8 @@ export interface Startup {
     id: string;
     name: string;
     ceoName: string;
-    phone: string;
+    phone?: string;
+    telegram?: string;
     email: string;
     industry: string;
     governorate: string;
@@ -13,7 +14,11 @@ export interface Startup {
     ceoGender: string;
     description: string;
     startupType: string;
-    website: string;
+    website?: string;
+    appLink?: string;
+    facebook?: string;
+    instagram?: string;
+    tiktok?: string;
     openClosed: string;
     foundingDate: string;
     legalStatus: string;
@@ -76,7 +81,8 @@ import { z } from 'zod';
 export const startupSchema = z.object({
     name: z.string().min(2, "Startup Name is required"),
     ceoName: z.string().min(2, "CEO Name is required"),
-    phone: z.string().min(8, "Phone number is required"),
+    phone: z.string().optional().or(z.literal('')),
+    telegram: z.string().optional().or(z.literal('')),
     email: z.string().email("Invalid email").min(1, "Email is required"),
     industry: z.string().min(1, "Industry is required"),
     governorate: z.string().min(1, "Governorate is required"),
@@ -86,7 +92,11 @@ export const startupSchema = z.object({
     ceoGender: z.string().min(1, "CEO Gender is required"),
     description: z.string().min(10, "Description must be at least 10 characters"),
     startupType: z.string().min(1, "Startup Type is required"),
-    website: z.string().url("Invalid URL").or(z.string().min(1, "Website/Social link is required")),
+    website: z.string().optional().or(z.literal('')),
+    appLink: z.string().optional().or(z.literal('')),
+    facebook: z.string().optional().or(z.literal('')),
+    instagram: z.string().optional().or(z.literal('')),
+    tiktok: z.string().optional().or(z.literal('')),
     openClosed: z.string().min(1, "Operational status is required"),
     foundingDate: z.string().min(1, "Founding date is required"),
     legalStatus: z.string().min(1, "Legal status is required"),
@@ -107,6 +117,20 @@ export const startupSchema = z.object({
     id: z.string().optional(),
     lastUpdate: z.string().optional(),
 }).superRefine((data, ctx) => {
+    // Exactly one of Phone or Telegram is required
+    if ((!data.phone || data.phone.trim() === '') && (!data.telegram || data.telegram.trim() === '')) {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Either Phone/Whatsapp or Telegram is required",
+            path: ["phone"],
+        });
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Either Phone/Whatsapp or Telegram is required",
+            path: ["telegram"],
+        });
+    }
+
     const hasFunding = data.fundingRaised &&
         data.fundingRaised.toLowerCase() !== 'none' &&
         data.fundingRaised.toLowerCase() !== '0' &&
