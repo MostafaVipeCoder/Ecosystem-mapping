@@ -64,6 +64,8 @@ export default function AddDataPage() {
     // --- Single Entry Logic ---
     const form = useForm<StartupFormData>({
         resolver: zodResolver(startupSchema) as any,
+        mode: "onBlur",
+        reValidateMode: "onChange",
         defaultValues: {
             name: '',
             ceoName: '',
@@ -162,6 +164,7 @@ export default function AddDataPage() {
             monthlyIncome: { en: 'Monthly Income', ar: 'الدخل الشهري' },
             serviceProvider: { en: 'Service Provider', ar: 'مقدم الخدمة' },
             lastFundingDate: { en: 'Last Funding Date', ar: 'تاريخ آخر تمويل' },
+            openClosed: { en: 'Operational Status', ar: 'حالة المشروع' },
         };
         return labels[fieldName]?.[lang] || fieldName;
     };
@@ -454,14 +457,14 @@ export default function AddDataPage() {
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             <div className="space-y-2">
                                                 <Label>{t('CEO Name *', 'اسم المؤسس *')}</Label>
-                                                <Input {...form.register('ceoName')} placeholder={t('e.g. John Doe', 'مثال: أحمد محمد')} />
+                                                <Input {...form.register('ceoName')} aria-invalid={!!form.formState.errors.ceoName} placeholder={t('e.g. John Doe', 'مثال: أحمد محمد')} />
                                                 {form.formState.errors.ceoName && <p className="text-sm text-red-500">{form.formState.errors.ceoName.message}</p>}
                                             </div>
 
                                             <div className="space-y-2">
                                                 <Label>{t('CEO Gender *', 'نوع المؤسس *')}</Label>
-                                                <Select onValueChange={(val: string) => form.setValue('ceoGender', val)}>
-                                                    <SelectTrigger>
+                                                <Select onValueChange={(val: string) => form.setValue('ceoGender', val, { shouldValidate: true })}>
+                                                    <SelectTrigger aria-invalid={!!form.formState.errors.ceoGender} className={cn(form.formState.errors.ceoGender && "border-red-500 ring-red-100")}>
                                                         <SelectValue placeholder={t('Select Gender', 'اختر النوع')} />
                                                     </SelectTrigger>
                                                     <SelectContent>
@@ -474,19 +477,19 @@ export default function AddDataPage() {
 
                                             <div className="space-y-2">
                                                 <Label>{t('Phone / Whatsapp', 'الهاتف / واتساب')} {(!form.watch('phone') && !form.watch('telegram')) && '*'}</Label>
-                                                <Input {...form.register('phone')} placeholder="01..." />
+                                                <Input {...form.register('phone')} aria-invalid={!!form.formState.errors.phone} placeholder="01..." />
                                                 {form.formState.errors.phone && <p className="text-sm text-red-500">{form.formState.errors.phone.message}</p>}
                                             </div>
 
                                             <div className="space-y-2">
                                                 <Label>{t('Telegram', 'تليجرام')} {(!form.watch('phone') && !form.watch('telegram')) && '*'}</Label>
-                                                <Input {...form.register('telegram')} placeholder="01..." />
+                                                <Input {...form.register('telegram')} aria-invalid={!!form.formState.errors.telegram} placeholder="01..." />
                                                 {form.formState.errors.telegram && <p className="text-sm text-red-500">{form.formState.errors.telegram.message}</p>}
                                             </div>
 
                                             <div className="space-y-2">
                                                 <Label>{t('Email *', 'البريد الإلكتروني *')}</Label>
-                                                <Input {...form.register('email')} />
+                                                <Input {...form.register('email')} aria-invalid={!!form.formState.errors.email} />
                                                 {form.formState.errors.email && <p className="text-sm text-red-500">{form.formState.errors.email.message}</p>}
                                             </div>
                                         </div>
@@ -506,14 +509,14 @@ export default function AddDataPage() {
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                                 <div className="space-y-2">
                                                     <Label>{t('Startup Name *', 'اسم الشركة *')}</Label>
-                                                    <Input {...form.register('name')} placeholder={t('e.g. Acme Corp', 'مثال: شركة النصر')} />
+                                                    <Input {...form.register('name')} aria-invalid={!!form.formState.errors.name} placeholder={t('e.g. Acme Corp', 'مثال: شركة النصر')} />
                                                     {form.formState.errors.name && <p className="text-sm text-red-500">{form.formState.errors.name.message}</p>}
                                                 </div>
 
                                                 <div className="space-y-2">
                                                     <Label>{t('Startup Type *', 'نوع الشركة *')}</Label>
-                                                    <Select onValueChange={(val: string) => form.setValue('startupType', val)}>
-                                                        <SelectTrigger>
+                                                    <Select onValueChange={(val: string) => form.setValue('startupType', val, { shouldValidate: true })}>
+                                                        <SelectTrigger aria-invalid={!!form.formState.errors.startupType} className={cn(form.formState.errors.startupType && "border-red-500 ring-red-100")}>
                                                             <SelectValue placeholder={t('Select Type', 'اختر النوع')} />
                                                         </SelectTrigger>
                                                         <SelectContent>
@@ -529,8 +532,13 @@ export default function AddDataPage() {
                                                     <Label>{t('Industry *', 'القطاع / الصناعة *')}</Label>
                                                     <Popover open={openIndustryCombobox} onOpenChange={setOpenIndustryCombobox}>
                                                         <PopoverTrigger asChild>
-                                                            <Button variant="outline" role="combobox" className="w-full justify-between">
-                                                                {form.watch('industry') || t('Select or enter...', 'اختر أو أدخل...')}
+                                                            <Button 
+                                                                variant="outline" 
+                                                                role="combobox" 
+                                                                className={cn("w-full justify-between", form.formState.errors.industry && "border-red-500 ring-red-100")}
+                                                                aria-invalid={!!form.formState.errors.industry}
+                                                            >
+                                                                {form.watch('industry') || t('Search or enter your name...', 'ابحث أو أدخل اسمك...')}
                                                                 <Plus className="ml-2 h-4 w-4 opacity-50" />
                                                             </Button>
                                                         </PopoverTrigger>
@@ -547,7 +555,7 @@ export default function AddDataPage() {
                                                                             className="w-full justify-start text-primary"
                                                                             onClick={() => {
                                                                                 if (customIndustry) {
-                                                                                    form.setValue('industry', customIndustry);
+                                                                                    form.setValue('industry', customIndustry, { shouldValidate: true });
                                                                                     setOpenIndustryCombobox(false);
                                                                                 }
                                                                             }}
@@ -562,7 +570,7 @@ export default function AddDataPage() {
                                                                                 key={industry}
                                                                                 value={industry}
                                                                                 onSelect={(currentValue) => {
-                                                                                    form.setValue('industry', currentValue);
+                                                                                    form.setValue('industry', currentValue, { shouldValidate: true });
                                                                                     setOpenIndustryCombobox(false);
                                                                                 }}
                                                                             >
@@ -585,8 +593,8 @@ export default function AddDataPage() {
 
                                                 <div className="space-y-2">
                                                     <Label>{t('Governorate *', 'المحافظة *')}</Label>
-                                                    <Select onValueChange={(val: string) => form.setValue('governorate', val)}>
-                                                        <SelectTrigger>
+                                                    <Select onValueChange={(val: string) => form.setValue('governorate', val, { shouldValidate: true })}>
+                                                        <SelectTrigger aria-invalid={!!form.formState.errors.governorate} className={cn(form.formState.errors.governorate && "border-red-500 ring-red-100")}>
                                                             <SelectValue placeholder={t('Select Governorate', 'اختر المحافظة')} />
                                                         </SelectTrigger>
                                                         <SelectContent>
@@ -600,14 +608,14 @@ export default function AddDataPage() {
 
                                                 <div className="space-y-2">
                                                     <Label>{t('Date of company stabilished *', 'تاريخ التأسيس *')}</Label>
-                                                    <Input {...form.register('foundingDate')} placeholder={t('e.g. 2022', 'مثال: 2022')} />
+                                                    <Input {...form.register('foundingDate')} aria-invalid={!!form.formState.errors.foundingDate} placeholder={t('e.g. 2022', 'مثال: 2022')} />
                                                     {form.formState.errors.foundingDate && <p className="text-sm text-red-500">{form.formState.errors.foundingDate.message}</p>}
                                                 </div>
 
                                                 <div className="space-y-2">
                                                     <Label>{t('Legal Status *', 'الوضع القانوني *')}</Label>
-                                                    <Select onValueChange={(val: string) => form.setValue('legalStatus', val)}>
-                                                        <SelectTrigger>
+                                                    <Select onValueChange={(val: string) => form.setValue('legalStatus', val, { shouldValidate: true })}>
+                                                        <SelectTrigger aria-invalid={!!form.formState.errors.legalStatus} className={cn(form.formState.errors.legalStatus && "border-red-500 ring-red-100")}>
                                                             <SelectValue placeholder={t('Select Legal Status', 'اختر الوضع')} />
                                                         </SelectTrigger>
                                                         <SelectContent>
@@ -619,39 +627,57 @@ export default function AddDataPage() {
                                                     </Select>
                                                     {form.formState.errors.legalStatus && <p className="text-sm text-red-500">{form.formState.errors.legalStatus.message}</p>}
                                                 </div>
+
+                                                <div className="space-y-2">
+                                                    <Label>{t('Operational Status *', 'حالة المشروع *')}</Label>
+                                                    <Select onValueChange={(val: string) => form.setValue('openClosed', val, { shouldValidate: true })} defaultValue={form.getValues('openClosed')}>
+                                                        <SelectTrigger aria-invalid={!!form.formState.errors.openClosed} className={cn(form.formState.errors.openClosed && "border-red-500 ring-red-100")}>
+                                                            <SelectValue placeholder={t('Select Status', 'اختر الحالة')} />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectItem value="Open">{t('Open', 'قائم')}</SelectItem>
+                                                            <SelectItem value="Closed">{t('Closed', 'متوقف')}</SelectItem>
+                                                        </SelectContent>
+                                                    </Select>
+                                                    {form.formState.errors.openClosed && <p className="text-sm text-red-500">{form.formState.errors.openClosed.message}</p>}
+                                                </div>
                                                 <div className="space-y-4 md:col-span-2 p-4 rounded-xl bg-slate-50 border border-slate-100">
                                                     <Label className="text-lg font-semibold text-athar-black">{t('Links & Social Media', 'الروابط ووسائل التواصل الاجتماعي')}</Label>
                                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                         <div className="space-y-2">
                                                             <Label>{t('Website', 'الموقع الإلكتروني')}</Label>
-                                                            <Input {...form.register('website')} placeholder="https://" />
+                                                            <Input {...form.register('website')} aria-invalid={!!form.formState.errors.website} placeholder="https://" />
                                                             {form.formState.errors.website && <p className="text-sm text-red-500">{form.formState.errors.website.message}</p>}
                                                         </div>
                                                         <div className="space-y-2">
                                                             <Label>{t('App Link', 'رابط التطبيق')}</Label>
-                                                            <Input {...form.register('appLink')} placeholder="https://" />
+                                                            <Input {...form.register('appLink')} aria-invalid={!!form.formState.errors.appLink} placeholder="https://" />
                                                             {form.formState.errors.appLink && <p className="text-sm text-red-500">{form.formState.errors.appLink.message}</p>}
                                                         </div>
                                                         <div className="space-y-2">
                                                             <Label>{t('Facebook', 'فيسبوك')}</Label>
-                                                            <Input {...form.register('facebook')} placeholder="https://" />
+                                                            <Input {...form.register('facebook')} aria-invalid={!!form.formState.errors.facebook} placeholder="https://" />
                                                             {form.formState.errors.facebook && <p className="text-sm text-red-500">{form.formState.errors.facebook.message}</p>}
                                                         </div>
                                                         <div className="space-y-2">
                                                             <Label>{t('Instagram', 'إنستجرام')}</Label>
-                                                            <Input {...form.register('instagram')} placeholder="https://" />
+                                                            <Input {...form.register('instagram')} aria-invalid={!!form.formState.errors.instagram} placeholder="https://" />
                                                             {form.formState.errors.instagram && <p className="text-sm text-red-500">{form.formState.errors.instagram.message}</p>}
                                                         </div>
                                                         <div className="space-y-2 md:col-span-2">
                                                             <Label>{t('TikTok', 'تيك توك')}</Label>
-                                                            <Input {...form.register('tiktok')} placeholder="https://" />
+                                                            <Input {...form.register('tiktok')} aria-invalid={!!form.formState.errors.tiktok} placeholder="https://" />
                                                             {form.formState.errors.tiktok && <p className="text-sm text-red-500">{form.formState.errors.tiktok.message}</p>}
                                                         </div>
                                                     </div>
                                                 </div>
                                                 <div className="space-y-2 md:col-span-2">
                                                     <Label>{t('Description *', 'الوصف *')}</Label>
-                                                    <Textarea {...form.register('description')} />
+                                                    <Textarea 
+                                                        {...form.register('description')} 
+                                                        aria-invalid={!!form.formState.errors.description}
+                                                        className={cn(form.formState.errors.description && "border-red-500 focus-visible:ring-red-500")}
+                                                    />
                                                     {form.formState.errors.description && <p className="text-sm text-red-500">{form.formState.errors.description.message}</p>}
                                                 </div>
                                                 <div className="space-y-2 md:col-span-2">
@@ -682,13 +708,13 @@ export default function AddDataPage() {
 
                                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                                 <div className="space-y-2">
-                                                    <Label>{t('Founding team size *', 'عدد فريق التأسيس *')}</Label>
-                                                    <Input type="number" {...form.register('teamSize', { valueAsNumber: true })} />
+                                                    <Label>{t('Founding team size *', 'حجم فريق التأسيس *')}</Label>
+                                                    <Input type="number" {...form.register('teamSize', { valueAsNumber: true })} aria-invalid={!!form.formState.errors.teamSize} />
                                                     {form.formState.errors.teamSize && <p className="text-sm text-red-500">{form.formState.errors.teamSize.message}</p>}
                                                 </div>
                                                 <div className="space-y-2">
                                                     <Label>{t('Female founders *', 'عدد الإناث المؤسسات *')}</Label>
-                                                    <Input type="number" {...form.register('femaleFounders', { valueAsNumber: true })} />
+                                                    <Input type="number" {...form.register('femaleFounders', { valueAsNumber: true })} aria-invalid={!!form.formState.errors.femaleFounders} />
                                                     {form.formState.errors.femaleFounders && <p className="text-sm text-red-500">{form.formState.errors.femaleFounders.message}</p>}
                                                 </div>
                                                 <div className="space-y-2">
@@ -697,18 +723,18 @@ export default function AddDataPage() {
                                                 </div>
                                                 <div className="space-y-2">
                                                     <Label>{t('Nu. of employees *', 'عدد الموظفين *')}</Label>
-                                                    <Input type="number" {...form.register('employees', { valueAsNumber: true })} />
+                                                    <Input type="number" {...form.register('employees', { valueAsNumber: true })} aria-invalid={!!form.formState.errors.employees} />
                                                     {form.formState.errors.employees && <p className="text-sm text-red-500">{form.formState.errors.employees.message}</p>}
                                                 </div>
                                                 <div className="space-y-2">
                                                     <Label>{t('Number of freelancers *', 'العمالة الحرة *')}</Label>
-                                                    <Input type="number" {...form.register('freelancersCount', { valueAsNumber: true })} />
+                                                    <Input type="number" {...form.register('freelancersCount', { valueAsNumber: true })} aria-invalid={!!form.formState.errors.freelancersCount} />
                                                     {form.formState.errors.freelancersCount && <p className="text-sm text-red-500">{form.formState.errors.freelancersCount.message}</p>}
                                                 </div>
                                                 <div className="space-y-2">
                                                     <Label>{t('Do you have a dedicated place *', 'هل يوجد مكان مخصص؟ *')}</Label>
-                                                    <Select onValueChange={(val: string) => form.setValue('hasDedicatedPlace', val)}>
-                                                        <SelectTrigger>
+                                                    <Select onValueChange={(val: string) => form.setValue('hasDedicatedPlace', val, { shouldValidate: true })}>
+                                                        <SelectTrigger aria-invalid={!!form.formState.errors.hasDedicatedPlace} className={cn(form.formState.errors.hasDedicatedPlace && "border-red-500 ring-red-100")}>
                                                             <SelectValue placeholder={t('Select Option', 'اختر الخيار')} />
                                                         </SelectTrigger>
                                                         <SelectContent>
@@ -718,17 +744,18 @@ export default function AddDataPage() {
                                                     </Select>
                                                     {form.formState.errors.hasDedicatedPlace && <p className="text-sm text-red-500">{form.formState.errors.hasDedicatedPlace.message}</p>}
                                                 </div>
-                                                <div className="space-y-2">
-                                                    <Label>{t('own or rent a workplace *', 'ملك أم إيجار؟ *')}</Label>
-                                                    <Select onValueChange={(val: string) => form.setValue('workplaceType', val)}>
-                                                        <SelectTrigger>
+                                                <div className="space-y-2 md:col-span-3">
+                                                    <Label>{t('workplace type *', 'نوع مكان العمل *')}</Label>
+                                                    <Select onValueChange={(val: string) => form.setValue('workplaceType', val, { shouldValidate: true })}>
+                                                        <SelectTrigger aria-invalid={!!form.formState.errors.workplaceType} className={cn(form.formState.errors.workplaceType && "border-red-500 ring-red-100")}>
                                                             <SelectValue placeholder={t('Select Option', 'اختر الخيار')} />
                                                         </SelectTrigger>
                                                         <SelectContent>
-                                                            <SelectItem value="Own">{t('Own', 'ملك')}</SelectItem>
-                                                            <SelectItem value="Rent">{t('Rent', 'إيجار')}</SelectItem>
+                                                            <SelectItem value="Own Office">{t('Own Office', 'مكتب خاص')}</SelectItem>
+                                                            <SelectItem value="Rent Office">{t('Rent Office', 'مكتب إيجار')}</SelectItem>
                                                             <SelectItem value="online">{t('online', 'أونلاين')}</SelectItem>
                                                             <SelectItem value="Co-working">{t('Co-working', 'مساحة عمل مشتركة')}</SelectItem>
+                                                            <SelectItem value="Home">{t('Home', 'منزل')}</SelectItem>
                                                         </SelectContent>
                                                     </Select>
                                                     {form.formState.errors.workplaceType && <p className="text-sm text-red-500">{form.formState.errors.workplaceType.message}</p>}
@@ -748,8 +775,8 @@ export default function AddDataPage() {
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                                 <div className="space-y-2">
                                                     <Label>{t('profitability', 'مرحلة المشروع (الربحية)')}</Label>
-                                                    <Select onValueChange={(val: string) => form.setValue('profitability', val)}>
-                                                        <SelectTrigger>
+                                                    <Select onValueChange={(val: string) => form.setValue('profitability', val, { shouldValidate: true })}>
+                                                        <SelectTrigger aria-invalid={!!form.formState.errors.profitability} className={cn(form.formState.errors.profitability && "border-red-500 ring-red-100")}>
                                                             <SelectValue placeholder={t('Select Status', 'اختر الحالة')} />
                                                         </SelectTrigger>
                                                         <SelectContent>
@@ -763,17 +790,17 @@ export default function AddDataPage() {
                                                 </div>
                                                 <div className="space-y-2">
                                                     <Label>{t('Revenue (Total) (Yearly) *', 'إجمالي الإيرادات السنوية *')}</Label>
-                                                    <Input type="number" {...form.register('revenue', { valueAsNumber: true })} />
+                                                    <Input type="number" {...form.register('revenue', { valueAsNumber: true })} aria-invalid={!!form.formState.errors.revenue} />
                                                     {form.formState.errors.revenue && <p className="text-sm text-red-500">{form.formState.errors.revenue.message}</p>}
                                                 </div>
                                                 <div className="space-y-2">
                                                     <Label>{t('How much is your monthly income from the project? *', 'ما هو دخلك الشهري من المشروع؟ *')}</Label>
-                                                    <Input {...form.register('monthlyIncome')} placeholder="e.g. 50k - 100k EGP" />
+                                                    <Input {...form.register('monthlyIncome')} aria-invalid={!!form.formState.errors.monthlyIncome} placeholder="e.g. 50k - 100k EGP" />
                                                     {form.formState.errors.monthlyIncome && <p className="text-sm text-red-500">{form.formState.errors.monthlyIncome.message}</p>}
                                                 </div>
                                                 <div className="space-y-2">
                                                     <Label>{t('Funding raised *', 'التمويل الذي تم الحصول عليه *')}</Label>
-                                                    <Input {...form.register('fundingRaised')} placeholder="e.g. 1M EGP Seed (Write 'None' if none)" />
+                                                    <Input {...form.register('fundingRaised')} aria-invalid={!!form.formState.errors.fundingRaised} placeholder="e.g. 1M EGP Seed (Write 'None' if none)" />
                                                     {form.formState.errors.fundingRaised && <p className="text-sm text-red-500">{form.formState.errors.fundingRaised.message}</p>}
                                                 </div>
                                                 <div className="space-y-2">
@@ -781,8 +808,13 @@ export default function AddDataPage() {
                                                     <div className="flex flex-col gap-2">
                                                         <Popover open={openFundingCombobox} onOpenChange={setOpenFundingCombobox}>
                                                             <PopoverTrigger asChild>
-                                                                <Button variant="outline" role="combobox" className="w-full justify-between">
-                                                                    {t('Select or enter...', 'اختر أو أدخل...')}
+                                                                <Button 
+                                                                    variant="outline" 
+                                                                    role="combobox" 
+                                                                    className={cn("w-full justify-between", form.formState.errors.fundingEntity && "border-red-500 ring-red-100")}
+                                                                    aria-invalid={!!form.formState.errors.fundingEntity}
+                                                                >
+                                                                    {t('Search or enter your name...', 'ابحث أو أدخل اسمك...')}
                                                                     <Plus className="ml-2 h-4 w-4 opacity-50" />
                                                                 </Button>
                                                             </PopoverTrigger>
@@ -801,7 +833,7 @@ export default function AddDataPage() {
                                                                                     if (customFunding) {
                                                                                         const current = form.getValues('fundingEntity') || '';
                                                                                         const newVal = current ? `${current}, ${customFunding}` : customFunding;
-                                                                                        form.setValue('fundingEntity', newVal);
+                                                                                        form.setValue('fundingEntity', newVal, { shouldValidate: true });
                                                                                         setOpenFundingCombobox(false);
                                                                                     }
                                                                                 }}
@@ -818,7 +850,7 @@ export default function AddDataPage() {
                                                                                     onSelect={(currentValue) => {
                                                                                         const current = form.getValues('fundingEntity') || '';
                                                                                         const newVal = current ? `${current}, ${currentValue}` : currentValue;
-                                                                                        form.setValue('fundingEntity', newVal);
+                                                                                        form.setValue('fundingEntity', newVal, { shouldValidate: true });
                                                                                         setOpenFundingCombobox(false);
                                                                                     }}
                                                                                 >
@@ -838,6 +870,7 @@ export default function AddDataPage() {
                                                         </Popover>
                                                         <Input
                                                             {...form.register('fundingEntity')}
+                                                            aria-invalid={!!form.formState.errors.fundingEntity}
                                                             placeholder={t('Selected entities (can edit manually)', 'الجهات المختارة (يمكنك التعديل يدوياً)')}
                                                         />
                                                     </div>
@@ -866,7 +899,12 @@ export default function AddDataPage() {
                                                         </div>
                                                     </div>
                                                     {!isFundingDateUnknown ? (
-                                                        <Input {...form.register('lastFundingDate')} type="date" />
+                                                        <Input 
+                                                            {...form.register('lastFundingDate')} 
+                                                            type="date" 
+                                                            aria-invalid={!!form.formState.errors.lastFundingDate}
+                                                            className={cn(form.formState.errors.lastFundingDate && "border-red-500 focus-visible:ring-red-500")}
+                                                        />
                                                     ) : (
                                                         <div className="p-2 bg-slate-50 border rounded-md text-sm text-slate-500 italic">
                                                             {t('Date marked as Unknown', 'تم وضع التاريخ كغير معروف')}
@@ -885,17 +923,28 @@ export default function AddDataPage() {
                                             </div>
                                             <h3 className="text-xl font-bold text-athar-black">{t('Service Provider', 'مقدم الخدمة')}</h3>
                                         </div>
+                                        <p className="text-sm text-slate-500 mb-2">
+                                            {t(
+                                                "You can type your name as a service provider if it is not listed in the dropdown.",
+                                                "يمكنك كتابة اسمك كمقدم خدمة إذا لم يكن مدرج في القائمة المنسدلة"
+                                            )}
+                                        </p>
                                         <Label>{t('Service Provider *', 'مقدم الخدمة *')}</Label>
                                         <Popover open={openProviderCombobox} onOpenChange={setOpenProviderCombobox}>
                                             <PopoverTrigger asChild>
-                                                <Button variant="outline" role="combobox" className="w-full justify-between">
-                                                    {form.watch('serviceProvider') || t('Select or enter...', 'اختر أو أدخل...')}
+                                                <Button 
+                                                    variant="outline" 
+                                                    role="combobox" 
+                                                    className={cn("w-full justify-between", form.formState.errors.serviceProvider && "border-red-500 ring-red-100")}
+                                                    aria-invalid={!!form.formState.errors.serviceProvider}
+                                                >
+                                                    {form.watch('serviceProvider') || t('Search or enter your name...', 'ابحث أو أدخل اسمك...')}
                                                     <Plus className="ml-2 h-4 w-4 opacity-50" />
                                                 </Button>
                                             </PopoverTrigger>
                                             <PopoverContent className="w-[400px] p-0" align="start">
                                                 <Command>
-                                                    <CommandInput placeholder={t('Select or enter...', 'اختر أو أدخل...')} onValueChange={setCustomProvider} />
+                                                    <CommandInput placeholder={t('Search or enter your name...', 'ابحث أو أدخل اسمك...')} onValueChange={setCustomProvider} />
                                                     <CommandList>
                                                         <CommandEmpty>
                                                             <Button variant="ghost" className="w-full justify-start text-blue-600" onClick={() => {
@@ -921,6 +970,7 @@ export default function AddDataPage() {
                                                 </Command>
                                             </PopoverContent>
                                         </Popover>
+                                        {form.formState.errors.serviceProvider && <p className="text-sm text-red-500 mt-2">{form.formState.errors.serviceProvider.message}</p>}
                                     </div>
 
                                     {/* Error Summary - Shows all validation errors */}
