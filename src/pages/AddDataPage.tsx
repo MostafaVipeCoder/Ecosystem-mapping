@@ -44,9 +44,17 @@ import { logger } from '../utils/logger';
 import { cn } from '../lib/utils';
 import { downloadExcelTemplate } from '../utils/excelTemplateGenerator';
 
+const FIXED_SERVICE_PROVIDERS = [
+    "Athar Accelerator",
+    "Plan International Egypt",
+    "ice alex",
+    "GWLA",
+    "AAST"
+];
+
 export default function AddDataPage() {
     const { startups, availableIndustries, refetch } = useStartups();
-    const [existingProviders, setExistingProviders] = useState<string[]>([]);
+    const [existingProviders, setExistingProviders] = useState<string[]>(FIXED_SERVICE_PROVIDERS);
     const [existingFundingEntities, setExistingFundingEntities] = useState<string[]>([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [lang, setLang] = useState<'en' | 'ar'>('en');
@@ -56,7 +64,6 @@ export default function AddDataPage() {
     // Fetch existing providers on mount or when startups change
     useEffect(() => {
         if (startups.length > 0) {
-            setExistingProviders(getServiceProviders(startups));
             setExistingFundingEntities(getFundingEntities(startups));
         }
     }, [startups]);
@@ -923,12 +930,7 @@ export default function AddDataPage() {
                                             </div>
                                             <h3 className="text-xl font-bold text-athar-black">{t('Service Provider', 'مقدم الخدمة')}</h3>
                                         </div>
-                                        <p className="text-sm text-slate-500 mb-2">
-                                            {t(
-                                                "You can type your name as a service provider if it is not listed in the dropdown.",
-                                                "يمكنك كتابة اسمك كمقدم خدمة إذا لم يكن مدرج في القائمة المنسدلة"
-                                            )}
-                                        </p>
+
                                         <Label>{t('Service Provider *', 'مقدم الخدمة *')}</Label>
                                         <Popover open={openProviderCombobox} onOpenChange={setOpenProviderCombobox}>
                                             <PopoverTrigger asChild>
@@ -938,23 +940,15 @@ export default function AddDataPage() {
                                                     className={cn("w-full justify-between", form.formState.errors.serviceProvider && "border-red-500 ring-red-100")}
                                                     aria-invalid={!!form.formState.errors.serviceProvider}
                                                 >
-                                                    {form.watch('serviceProvider') || t('Search or enter your name...', 'ابحث أو أدخل اسمك...')}
+                                                    {form.watch('serviceProvider') || t('Select provider...', 'اختر مقدم الخدمة...')}
                                                     <Plus className="ml-2 h-4 w-4 opacity-50" />
                                                 </Button>
                                             </PopoverTrigger>
                                             <PopoverContent className="w-[400px] p-0" align="start">
                                                 <Command>
-                                                    <CommandInput placeholder={t('Search or enter your name...', 'ابحث أو أدخل اسمك...')} onValueChange={setCustomProvider} />
+                                                    <CommandInput placeholder={t('Search provider...', 'ابحث عن مقدم الخدمة...')} onValueChange={setCustomProvider} />
                                                     <CommandList>
-                                                        <CommandEmpty>
-                                                            <Button variant="ghost" className="w-full justify-start text-blue-600" onClick={() => {
-                                                                form.setValue('serviceProvider', customProvider);
-                                                                setOpenProviderCombobox(false);
-                                                            }}>
-                                                                <Plus className="mr-2 h-4 w-4" />
-                                                                {t(`Create "${customProvider}"`, `إنشاء "${customProvider}"`)}
-                                                            </Button>
-                                                        </CommandEmpty>
+                                                        <CommandEmpty>{t('No provider found.', 'لم يتم العثور على مقدم خدمة.')}</CommandEmpty>
                                                         <CommandGroup>
                                                             {existingProviders.map((p) => (
                                                                 <CommandItem key={p} value={p} onSelect={(v) => {
