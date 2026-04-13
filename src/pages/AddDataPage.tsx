@@ -928,10 +928,9 @@ export default function AddDataPage() {
                                             <div className="h-10 w-10 rounded-xl bg-athar-blue/10 flex items-center justify-center">
                                                 <Globe2 className="h-6 w-6 text-athar-blue" />
                                             </div>
-                                            <h3 className="text-xl font-bold text-athar-black">{t('Service Provider', 'مقدم الخدمة')}</h3>
+                                            <h3 className="text-xl font-bold text-athar-black">{t('Who trained you ?', 'حضرت الدريب مع مين ؟')}</h3>
                                         </div>
 
-                                        <Label>{t('Service Provider *', 'مقدم الخدمة *')}</Label>
                                         <Popover open={openProviderCombobox} onOpenChange={setOpenProviderCombobox}>
                                             <PopoverTrigger asChild>
                                                 <Button 
