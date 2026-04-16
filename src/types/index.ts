@@ -98,7 +98,19 @@ export const startupSchema = z.object({
     instagram: z.string().regex(/^(https?:\/\/|www\.).+/i, "Instagram must start with http://, https:// or www.").optional().or(z.literal('')),
     tiktok: z.string().regex(/^(https?:\/\/|www\.).+/i, "TikTok must start with http://, https:// or www.").optional().or(z.literal('')),
     openClosed: z.string().min(1, "Operational status is required"),
-    foundingDate: z.string().min(1, "Founding date is required").refine(val => !isNaN(Date.parse(val)) || /^\d{4}$/.test(val), "Invalid date or year"),
+    foundingDate: z.string().min(1, "Founding date is required").refine(val => {
+        const currentYear = new Date().getFullYear();
+        if (/^\d{4}$/.test(val)) {
+            const year = parseInt(val, 10);
+            return year >= 1800 && year <= currentYear;
+        }
+        const parsed = Date.parse(val);
+        if (!isNaN(parsed)) {
+            const year = new Date(parsed).getFullYear();
+            return year >= 1800 && year <= currentYear;
+        }
+        return false;
+    }, "Please enter a valid year (e.g. 2022) / يرجى إدخال سنة صحيحة (مثال: 2022)"),
     legalStatus: z.string().min(1, "Legal status is required"),
     teamSize: z.number().min(0, "Team size is required"),
     femaleFounders: z.number().min(0, "Female founders count is required"),

@@ -615,7 +615,16 @@ export default function AddDataPage() {
 
                                                 <div className="space-y-2">
                                                     <Label>{t('Date of company stabilished *', 'تاريخ التأسيس *')}</Label>
-                                                    <Input {...form.register('foundingDate')} aria-invalid={!!form.formState.errors.foundingDate} placeholder={t('e.g. 2022', 'مثال: 2022')} />
+                                                    <Select onValueChange={(val: string) => form.setValue('foundingDate', val, { shouldValidate: true })} value={form.watch('foundingDate') || undefined}>
+                                                        <SelectTrigger aria-invalid={!!form.formState.errors.foundingDate} className={cn(form.formState.errors.foundingDate && "border-red-500 ring-red-100")}>
+                                                            <SelectValue placeholder={t('Select Year', 'اختر السنة')} />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            {Array.from({ length: new Date().getFullYear() - 1950 + 1 }, (_, i) => new Date().getFullYear() - i).map(year => (
+                                                                <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
+                                                            ))}
+                                                        </SelectContent>
+                                                    </Select>
                                                     {form.formState.errors.foundingDate && <p className="text-sm text-red-500">{form.formState.errors.foundingDate.message}</p>}
                                                 </div>
 
